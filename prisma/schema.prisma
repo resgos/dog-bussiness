@@ -46,6 +46,8 @@ model Pet {
   createdAt   DateTime @default(now())
   owner       Owner?   @relation(fields: [ownerId], references: [id])
   ownerId     String?
+  user        User?    @relation(fields: [userId], references: [id])
+  userId      String?
 }
 
 model FoundEvent {
@@ -81,4 +83,103 @@ model Sighting {
   comment   String?
   photo     String?
   createdAt DateTime    @default(now())
+}
+
+// ——— Авторизация ———
+model User {
+  id           String     @id @default(cuid())
+  name         String
+  phone        String?    @unique
+  email        String?    @unique
+  passwordHash String?
+  district     String?
+  telegram     String?
+  role         String     @default("user") // user | volunteer | ambassador | partner
+  helpedCount  Int        @default(0)
+  createdAt    DateTime   @default(now())
+  sessions     Session[]
+  pets         Pet[]
+  posts        Post[]
+  comments     Comment[]
+  postLikes    PostLike[]
+  orders       Order[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+// ——— Комьюнити ———
+model Post {
+  id        String     @id @default(cuid())
+  authorId  String?
+  author    User?      @relation(fields: [authorId], references: [id])
+  district  String?
+  type      String     @default("discussion") // пропажа|находка|наблюдение|совет|событие|обсуждение
+  text      String
+  photo     String?
+  createdAt DateTime   @default(now())
+  comments  Comment[]
+  likes     PostLike[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  authorId  String?
+  author    User?    @relation(fields: [authorId], references: [id])
+  text      String
+  createdAt DateTime @default(now())
+}
+
+model PostLike {
+  id     String @id @default(cuid())
+  postId String
+  post   Post   @relation(fields: [postId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([postId, userId])
+}
+
+// ——— Магазин ———
+model Product {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  name        String
+  category    String // addressniki | bracelets | merch | combo
+  priceRub    Int
+  description String?
+  image       String?
+  createdAt   DateTime    @default(now())
+  orderItems  OrderItem[]
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  userId    String?
+  user      User?       @relation(fields: [userId], references: [id])
+  name      String?
+  phone     String?
+  address   String?
+  status    String      @default("new") // new | processing | done
+  totalRub  Int         @default(0)
+  createdAt DateTime    @default(now())
+  items     OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  qty       Int     @default(1)
+  priceRub  Int
 }

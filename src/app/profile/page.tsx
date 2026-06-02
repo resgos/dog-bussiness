@@ -1,10 +1,166 @@
-import { PagePlaceholder } from "@/components/PagePlaceholder";
-import { placeholders } from "@/lib/placeholders";
+import {
+  Award,
+  LogIn,
+  LogOut,
+  Mail,
+  MapPin,
+  PawPrint,
+  Phone,
+  Plus,
+  Send,
+  Settings,
+  ShoppingBag,
+  Trophy,
+  Users,
+} from "lucide-react";
+import { Container } from "@/components/ui/Container";
+import { Badge } from "@/components/ui/Badge";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
+import { getCurrentUser } from "@/lib/auth";
+import { findDistrict } from "@/lib/districts";
+import { logoutAction } from "@/components/auth/actions";
 
-const meta = placeholders["/profile"];
+export const dynamic = "force-dynamic";
+export const metadata = { title: "Личный кабинет" };
 
-export const metadata = { title: meta.title };
+const roleLabel: Record<string, string> = {
+  user: "Участник стаи",
+  volunteer: "Волонтёр",
+  ambassador: "Амбассадор района",
+  partner: "Партнёр",
+};
 
-export default function Page() {
-  return <PagePlaceholder {...meta} />;
+const navItems: {
+  href: string;
+  label: string;
+  desc: string;
+  icon: typeof PawPrint;
+}[] = [
+  { href: "/profile/pets", label: "Мои питомцы", desc: "Карточки и QR-паспорта", icon: PawPrint },
+  { href: "/profile/pets/add", label: "Добавить питомца", desc: "Новая карточка в стаю", icon: Plus },
+  { href: "/profile/orders", label: "Мои заказы", desc: "Адресники и мерч", icon: ShoppingBag },
+  { href: "/profile/achievements", label: "Достижения", desc: "Бейджи и прогресс", icon: Trophy },
+  { href: "/profile/my-pack", label: "Моя стая", desc: "Соседи и питомцы рядом", icon: Users },
+  { href: "/profile/settings", label: "Настройки", desc: "Профиль и согласия", icon: Settings },
+];
+
+export default async function ProfilePage() {
+  const user = await getCurrentUser();
+
+  // —— Гость: дружелюбное приглашение войти ——
+  if (!user) {
+    return (
+      <Container className="py-14 sm:py-20">
+        <div className="mx-auto max-w-2xl">
+          <Badge tone="petal">🐾 Личный кабинет</Badge>
+          <h1 className="mt-3 text-3xl font-bold sm:text-4xl">Войди в стаю</h1>
+          <div className="mt-8 rounded-3xl border border-blush bg-card p-6 shadow-card sm:p-8">
+            <ShunyaBubble
+              src="/shunya/pose-wave.png"
+              message="Тут живёт твой профиль, питомцы и достижения. Зайди — и я покажу, что у нас в стае происходит!"
+            />
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <ButtonLink href="/auth" size="lg">
+                <LogIn className="size-5" aria-hidden />
+                Войти или зарегистрироваться
+              </ButtonLink>
+              <ButtonLink href="/" variant="secondary" size="lg">
+                На главную
+              </ButtonLink>
+            </div>
+          </div>
+        </div>
+      </Container>
+    );
+  }
+
+  // —— Участник: карточка профиля + навигация ——
+  const district = user.district ? findDistrict(user.district) : undefined;
+  const contact = user.phone || user.email || "—";
+
+  return (
+    <Container className="py-12 sm:py-16">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <Badge tone="petal">🐾 Личный кабинет</Badge>
+          <h1 className="mt-3 text-3xl font-bold sm:text-4xl">
+            Привет, {user.name}!
+          </h1>
+        </div>
+        <form action={logoutAction}>
+          <Button type="submit" variant="ghost">
+            <LogOut className="size-4" aria-hidden />
+            Выйти
+          </Button>
+        </form>
+      </div>
+
+      {/* Карточка профиля */}
+      <div className="rounded-3xl border border-blush bg-card p-6 shadow-card sm:p-8">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
+          <div className="flex size-20 shrink-0 items-center justify-center rounded-3xl bg-blush-soft text-petal-deep">
+            <PawPrint className="size-9" aria-hidden />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="text-2xl font-bold">{user.name}</h2>
+              <Badge tone="paw">
+                <Award className="size-3.5" aria-hidden />
+                {roleLabel[user.role] ?? "Участник стаи"}
+              </Badge>
+            </div>
+            <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="flex items-center gap-2.5 text-ink">
+                {user.email && !user.phone ? (
+                  <Mail className="size-4 shrink-0 text-petal" aria-hidden />
+                ) : (
+                  <Phone className="size-4 shrink-0 text-petal" aria-hidden />
+                )}
+                <span className="truncate">{contact}</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-ink">
+                <MapPin className="size-4 shrink-0 text-petal" aria-hidden />
+                <span className="truncate">
+                  {district ? `${district.name} · ${district.okrug}` : "Район не выбран"}
+                </span>
+              </div>
+              {user.telegram ? (
+                <div className="flex items-center gap-2.5 text-ink">
+                  <Send className="size-4 shrink-0 text-petal" aria-hidden />
+                  <span className="truncate">{user.telegram}</span>
+                </div>
+              ) : null}
+            </dl>
+          </div>
+          <div className="flex shrink-0 flex-col items-center rounded-2xl bg-paw/20 px-6 py-4 text-center">
+            <span className="text-3xl font-bold text-coral">{user.helpedCount}</span>
+            <span className="mt-1 text-xs font-semibold text-ink-soft">
+              помог найти
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Навигация ЛК */}
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {navItems.map(({ href, label, desc, icon: Icon }) => (
+          <ButtonLink
+            key={href}
+            href={href}
+            variant="secondary"
+            className="h-auto items-start justify-start gap-4 rounded-3xl !px-5 py-5 text-left"
+          >
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-blush-soft text-petal-deep">
+              <Icon className="size-5" aria-hidden />
+            </span>
+            <span className="flex flex-col gap-0.5">
+              <span className="font-bold text-ink">{label}</span>
+              <span className="text-sm font-normal text-ink-soft">{desc}</span>
+            </span>
+          </ButtonLink>
+        ))}
+      </div>
+    </Container>
+  );
 }
