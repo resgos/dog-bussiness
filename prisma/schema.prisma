@@ -54,3 +54,31 @@ model FoundEvent {
   district  String?
   createdAt DateTime @default(now())
 }
+
+model LostReport {
+  id        String     @id @default(cuid())
+  petId     String?
+  petName   String
+  breed     String?
+  photo     String?
+  district  String?
+  lat       Float?
+  lng       Float?
+  lostAt    DateTime?
+  comment   String?
+  radiusKm  Int        @default(3)
+  status    String     @default("active") // active | found | home
+  createdAt DateTime   @default(now())
+  sightings Sighting[]
+}
+
+model Sighting {
+  id        String      @id @default(cuid())
+  reportId  String?
+  report    LostReport? @relation(fields: [reportId], references: [id])
+  lat       Float?
+  lng       Float?
+  comment   String?
+  photo     String?
+  createdAt DateTime    @default(now())
+}

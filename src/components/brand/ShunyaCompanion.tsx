@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   motion,
@@ -10,14 +9,7 @@ import {
   useSpring,
 } from "framer-motion";
 import { X } from "lucide-react";
-
-const poses = [
-  "/shunya/pose-wave.png",
-  "/shunya/pose-happy.png",
-  "/shunya/pose-surprised.png",
-  "/shunya/pose-sneaky.png",
-  "/shunya/pose-grumpy.png",
-];
+import { ShunyaAnimated } from "./ShunyaAnimated";
 
 const playful = [
   "Гав-гав! 🐾",
@@ -53,18 +45,17 @@ function contextTip(path: string): string {
 export function ShunyaCompanion() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [poseIdx, setPoseIdx] = useState(1);
-  const [msgIdx, setMsgIdx] = useState(-1); // -1 → подсказка по контексту
+  const [msgIdx, setMsgIdx] = useState(-1);
   const [seen, setSeen] = useState(false);
+  const [waving, setWaving] = useState(false);
 
-  // Наклон к курсору — через motion value (без ре-рендеров).
   const tiltRaw = useMotionValue(0);
   const rotate = useSpring(tiltRaw, { stiffness: 150, damping: 15 });
 
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
-      const rel = e.clientX / window.innerWidth - 0.5; // -0.5..0.5
-      tiltRaw.set(Math.max(-12, Math.min(12, rel * 24)));
+      const rel = e.clientX / window.innerWidth - 0.5;
+      tiltRaw.set(Math.max(-10, Math.min(10, rel * 20)));
     };
     window.addEventListener("pointermove", onMove);
     return () => window.removeEventListener("pointermove", onMove);
@@ -74,7 +65,6 @@ export function ShunyaCompanion() {
 
   const handleClick = () => {
     setSeen(true);
-    setPoseIdx((i) => (i + 1) % poses.length);
     if (!open) {
       setOpen(true);
       setMsgIdx(-1);
@@ -110,19 +100,15 @@ export function ShunyaCompanion() {
       <motion.button
         type="button"
         onClick={handleClick}
+        onPointerEnter={() => setWaving(true)}
+        onPointerLeave={() => setWaving(false)}
         aria-label="Шуня — помощник"
         animate={{ y: [0, -6, 0] }}
         transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-        className="relative grid size-16 place-items-center rounded-full border-4 border-card bg-blush-soft shadow-lift ring-1 ring-blush transition-transform hover:scale-105 sm:size-20"
+        className="relative grid size-20 place-items-center rounded-full border-4 border-card bg-card shadow-lift ring-1 ring-blush sm:size-24"
       >
-        <motion.span style={{ rotate }} className="block size-full overflow-hidden rounded-full">
-          <Image
-            src={poses[poseIdx]}
-            alt="Шуня"
-            width={80}
-            height={80}
-            className="pointer-events-none size-full object-cover"
-          />
+        <motion.span style={{ rotate }} className="block">
+          <ShunyaAnimated size={70} waving={waving} />
         </motion.span>
         {!seen ? (
           <span className="absolute -right-0.5 -top-0.5 flex size-3.5">
