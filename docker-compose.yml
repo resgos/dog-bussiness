@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: lapka-pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: lapka
+      POSTGRES_PASSWORD: lapka
+      POSTGRES_DB: lapka
+    ports:
+      - "5433:5432"
+    volumes:
+      - lapka-pgdata:/var/lib/postgresql/data
+
+volumes:
+  lapka-pgdata:

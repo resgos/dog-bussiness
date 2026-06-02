@@ -1,13 +1,13 @@
-// Лапка помощи — схема БД.
-// Локально: SQLite (нулевая настройка). Для прода — переключить provider на
-// "postgresql" и DATABASE_URL на Postgres; JSON-поля при желании в Json/String[].
+// Лапка помощи — схема БД (PostgreSQL).
+// Postgres поднимается через docker-compose (см. docker-compose.yml).
+// JSON-массивы (marks/walkSpots/temperament) хранятся строками для совместимости.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
