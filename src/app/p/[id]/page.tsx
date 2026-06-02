@@ -1,0 +1,181 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { MapPin, Phone, Send, PawPrint, ShieldAlert } from "lucide-react";
+import { db } from "@/lib/db";
+import { Container } from "@/components/ui/Container";
+import { Badge } from "@/components/ui/Badge";
+import { findDistrict } from "@/lib/districts";
+import { ageOptions, sizeOptions } from "@/lib/petForm";
+
+export const dynamic = "force-dynamic";
+
+async function getPet(id: string) {
+  return db.pet.findUnique({ where: { id } });
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const pet = await getPet(id);
+  return { title: pet ? `Паспорт · ${pet.name}` : "Паспорт питомца" };
+}
+
+const statusMap: Record<string, { label: string; tone: "found" | "lost" | "neutral" }> = {
+  home: { label: "Дома", tone: "neutral" },
+  lost: { label: "Потерялась", tone: "lost" },
+  found: { label: "Найдена", tone: "found" },
+};
+
+export default async function PassportPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const pet = await getPet(id);
+  if (!pet) notFound();
+
+  const marks: string[] = JSON.parse(pet.marks || "[]");
+  const temperament: string[] = JSON.parse(pet.temperament || "[]");
+  const district = pet.district ? findDistrict(pet.district)?.name : null;
+  const sexLabel =
+    pet.sex === "male" ? "Мальчик" : pet.sex === "female" ? "Девочка" : null;
+  const ageLabel = ageOptions.find((o) => o.value === pet.age)?.label ?? null;
+  const sizeLabel = sizeOptions.find((o) => o.value === pet.size)?.label ?? null;
+  const status = statusMap[pet.status] ?? statusMap.home;
+
+  const facts = [
+    pet.breed,
+    sexLabel,
+    ageLabel,
+    sizeLabel,
+    pet.color,
+  ].filter(Boolean) as string[];
+
+  return (
+    <Container className="py-12 sm:py-16">
+      <div className="mx-auto max-w-2xl">
+        <p className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-ink-soft">
+          <PawPrint className="size-4 text-petal" aria-hidden />
+          Цифровой паспорт · Лапка помощи
+        </p>
+
+        {pet.status === "lost" ? (
+          <div className="mb-5 flex items-center gap-3 rounded-2xl bg-status-lost/12 px-5 py-4 text-status-lost">
+            <ShieldAlert className="size-6 shrink-0" aria-hidden />
+            <p className="font-bold">
+              Этот питомец в розыске! Если вы его видели — свяжитесь с хозяином.
+            </p>
+          </div>
+        ) : null}
+
+        <div className="overflow-hidden rounded-3xl border border-blush bg-card shadow-card">
+          <div className="grid gap-0 sm:grid-cols-[minmax(0,16rem)_1fr]">
+            <div className="relative aspect-square bg-blush-soft">
+              {pet.photo ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={pet.photo}
+                  alt={pet.name}
+                  className="size-full object-cover"
+                />
+              ) : (
+                <div className="flex size-full items-center justify-center text-petal">
+                  <PawPrint className="size-16" aria-hidden />
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-4 p-6 sm:p-8">
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-3xl font-bold">{pet.name}</h1>
+                <Badge tone={status.tone}>{status.label}</Badge>
+              </div>
+
+              {facts.length ? (
+                <p className="text-ink-soft">{facts.join(" · ")}</p>
+              ) : null}
+
+              {district ? (
+                <p className="inline-flex items-center gap-1.5 text-sm text-ink-soft">
+                  <MapPin className="size-4 text-petal" aria-hidden />
+                  Район: {district}
+                </p>
+              ) : null}
+
+              {marks.length || pet.marksText ? (
+                <div>
+                  <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
+                    Особые приметы
+                  </h2>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {marks.map((m) => (
+                      <Badge key={m} tone="petal">
+                        {m}
+                      </Badge>
+                    ))}
+                  </div>
+                  {pet.marksText ? (
+                    <p className="mt-2 text-sm text-ink">{pet.marksText}</p>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {temperament.length ? (
+                <div>
+                  <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
+                    Характер
+                  </h2>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {temperament.map((t) => (
+                      <Badge key={t} tone="neutral">
+                        {t}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Контакты — только с согласия владельца (ТЗ) */}
+              {pet.showPhone && (pet.ownerPhone || pet.telegram) ? (
+                <div className="mt-2 rounded-2xl bg-blush-soft p-4">
+                  <h2 className="text-sm font-bold text-ink">Нашли? Свяжитесь:</h2>
+                  <div className="mt-2 flex flex-col gap-2">
+                    {pet.ownerPhone ? (
+                      <a
+                        href={`tel:${pet.ownerPhone.replace(/[^\d+]/g, "")}`}
+                        className="inline-flex items-center gap-2 font-semibold text-petal-deep hover:underline"
+                      >
+                        <Phone className="size-4" aria-hidden />
+                        {pet.ownerPhone}
+                      </a>
+                    ) : null}
+                    {pet.telegram ? (
+                      <a
+                        href={`https://t.me/${pet.telegram.replace(/^@/, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 font-semibold text-petal-deep hover:underline"
+                      >
+                        <Send className="size-4" aria-hidden />
+                        {pet.telegram}
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              ) : (
+                <p className="mt-2 text-sm text-ink-soft">
+                  Контакты скрыты владельцем. Сообщите о находке через приложение
+                  «Лапка помощи».
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </Container>
+  );
+}

@@ -42,29 +42,46 @@ const poses = [
   "/shunya/pose-happy.png",
 ];
 
-function makeId(): string {
-  if (typeof crypto !== "undefined" && crypto.randomUUID) {
-    return crypto.randomUUID().slice(0, 8);
-  }
-  return Math.random().toString(36).slice(2, 10);
-}
-
 export function PetWizard() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [data, setData] = useState<PetData>(emptyPet);
   const [spotDraft, setSpotDraft] = useState("");
   const [passportId, setPassportId] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const set = (patch: Partial<PetData>) => setData((d) => ({ ...d, ...patch }));
   const total = STEPS.length;
   const proceedable = canProceed(step, data);
 
+  // Загрузка фото с уменьшением (чтобы не хранить мегабайты в БД).
   const onPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => set({ photo: reader.result as string });
+    reader.onload = () => {
+      const src = reader.result as string;
+      const img = document.createElement("img");
+      img.onload = () => {
+        const max = 720;
+        const scale = Math.min(1, max / Math.max(img.width, img.height));
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, w, h);
+          set({ photo: canvas.toDataURL("image/jpeg", 0.82) });
+        } else {
+          set({ photo: src });
+        }
+      };
+      img.onerror = () => set({ photo: src });
+      img.src = src;
+    };
     reader.readAsDataURL(file);
   };
 
@@ -76,18 +93,38 @@ export function PetWizard() {
     }
   };
 
-  const next = () => {
-    if (!proceedable) return;
+  const next = async () => {
+    if (!proceedable || submitting) return;
     if (step < total - 1) {
       setStep(step + 1);
-    } else {
-      setPassportId(makeId());
+      return;
+    }
+    // Финал — сохраняем питомца в БД.
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/pets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("save failed");
+      const json = await res.json();
+      setPassportId(json.id);
       setDone(true);
+    } catch {
+      setError("Не удалось сохранить. Попробуй ещё раз.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   if (done) {
-    const url = `https://lapka-pomoshchi.ru/p/${passportId}`;
+    const origin =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : "https://lapka-pomoshchi.ru";
+    const url = `${origin}/p/${passportId}`;
     const percent = completion(data);
     return (
       <div className="mx-auto max-w-xl text-center">
@@ -106,9 +143,12 @@ export function PetWizard() {
           <p className="mt-4 text-sm font-semibold text-ink">
             QR-код цифрового паспорта
           </p>
-          <p className="mt-1 text-xs text-ink-soft">
-            Сохрани, распечатай или отправь. Сканируешь — открываются контакты.
-          </p>
+          <a
+            href={`/p/${passportId}`}
+            className="mt-1 inline-block text-xs text-petal-deep hover:underline"
+          >
+            Открыть публичную страницу паспорта →
+          </a>
         </div>
 
         <div className="mx-auto mt-6 flex max-w-sm flex-col gap-3">
@@ -452,7 +492,7 @@ export function PetWizard() {
       {/* навигация */}
       <div className="mt-8 flex items-center justify-between">
         {step > 0 ? (
-          <Button variant="ghost" onClick={() => setStep(step - 1)}>
+          <Button variant="ghost" onClick={() => setStep(step - 1)} disabled={submitting}>
             <ArrowLeft className="size-4" aria-hidden />
             Назад
           </Button>
@@ -460,15 +500,23 @@ export function PetWizard() {
           <span />
         )}
         <div className="flex flex-col items-end gap-1">
-          <Button size="lg" onClick={next} disabled={!proceedable}>
-            {step < total - 1 ? "Далее" : "Готово! Добавить в стаю"}
-            {step < total - 1 ? (
-              <ArrowRight className="size-5" aria-hidden />
-            ) : (
-              <PawPrint className="size-5" aria-hidden />
-            )}
+          <Button size="lg" onClick={next} disabled={!proceedable || submitting}>
+            {submitting
+              ? "Сохраняю…"
+              : step < total - 1
+                ? "Далее"
+                : "Готово! Добавить в стаю"}
+            {!submitting ? (
+              step < total - 1 ? (
+                <ArrowRight className="size-5" aria-hidden />
+              ) : (
+                <PawPrint className="size-5" aria-hidden />
+              )
+            ) : null}
           </Button>
-          {!proceedable ? (
+          {error ? (
+            <span className="text-xs text-status-lost">{error}</span>
+          ) : !proceedable ? (
             <span className="text-xs text-ink-soft">
               {step === 0
                 ? "Добавь главное фото"

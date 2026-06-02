@@ -1,0 +1,56 @@
+// Лапка помощи — схема БД.
+// Локально: SQLite (нулевая настройка). Для прода — переключить provider на
+// "postgresql" и DATABASE_URL на Postgres; JSON-поля при желании в Json/String[].
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Owner {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String?
+  email     String?
+  district  String?
+  telegram  String?
+  createdAt DateTime @default(now())
+  pets      Pet[]
+}
+
+model Pet {
+  id          String   @id @default(cuid())
+  name        String
+  breed       String?
+  sex         String?
+  age         String?
+  size        String?
+  color       String?
+  marks       String?  // JSON-массив (SQLite не поддерживает scalar lists)
+  chip        String?
+  marksText   String?
+  district    String?
+  address     String?
+  walkSpots   String?  // JSON-массив
+  temperament String?  // JSON-массив
+  ownerPhone  String?
+  extraPhone  String?
+  telegram    String?
+  showPhone   Boolean  @default(false)
+  photo       String?  // data URL (уменьшенный)
+  status      String   @default("home") // home | lost | found
+  createdAt   DateTime @default(now())
+  owner       Owner?   @relation(fields: [ownerId], references: [id])
+  ownerId     String?
+}
+
+model FoundEvent {
+  id        String   @id @default(cuid())
+  petName   String?
+  district  String?
+  createdAt DateTime @default(now())
+}
