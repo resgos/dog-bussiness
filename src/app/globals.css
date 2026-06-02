@@ -1,26 +1,117 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+  «Лапка помощи» — дизайн-система.
+  Палитра из ТЗ: эффект «объятий» — мягко, тепло, спокойно.
+*/
+@theme {
+  /* Поверхности */
+  --color-cream: #fff9f5; /* фон сайта — сливки */
+  --color-card: #ffffff; /* карточки, блоки */
+
+  /* Текст */
+  --color-ink: #4a4a4a; /* основной текст — мягкий серый */
+  --color-ink-soft: #8c8480; /* второстепенный текст */
+
+  /* Акценты бренда */
+  --color-paw: #facea2; /* кнопки — пастельно-оранжевый (из лого) */
+  --color-paw-deep: #f3b275; /* кнопки: hover */
+  --color-petal: #e6a4b4; /* ссылки, иконки — пастельно-розовый (из лого) */
+  --color-petal-deep: #d9849a; /* розовый: hover/active */
+  --color-blush: #fcd9e2; /* тени, разделители — бледно-розовый */
+  --color-blush-soft: #fef0f4; /* очень светлый розовый для заливок */
+  --color-coral: #f0997a; /* коралловый акцент из лого */
+
+  /* Статусы поиска (метки на карте/ленте) */
+  --color-status-lost: #ef6461; /* потерялась — красный */
+  --color-status-found: #79c98b; /* найдена — зелёный */
+  --color-status-seen: #6aa9e9; /* видели — синий */
+
+  /* Шрифты (переменные задаёт next/font в layout) */
+  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-comfortaa), var(--font-nunito), cursive;
+
+  /* Скругления — всё округлое и дружелюбное */
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.75rem;
+  --radius-4xl: 2.5rem;
+
+  /* Мягкие тени на основе blush */
+  --shadow-soft: 0 12px 30px -12px rgba(230, 164, 180, 0.35);
+  --shadow-card: 0 10px 25px -15px rgba(74, 74, 74, 0.18);
+  --shadow-lift: 0 18px 40px -18px rgba(240, 153, 122, 0.4);
+
+  /* Анимации */
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-wag: wag 1.6s ease-in-out infinite;
+  --animate-fade-up: fade-up 0.6s ease-out both;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes wag {
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-cream);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--color-ink);
+    letter-spacing: -0.01em;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  ::selection {
+    background-color: var(--color-blush);
+    color: var(--color-ink);
+  }
+
+  /* Деликатный розоватый скроллбар */
+  * {
+    scrollbar-color: var(--color-blush) transparent;
+  }
 }

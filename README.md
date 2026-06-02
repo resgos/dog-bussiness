@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🐾 Лапка помощи
 
-## Getting Started
+> Городское сообщество собачников Москвы для оперативного поиска потерявшихся собак.
+> **Каждый хвост на учёт.**
 
-First, run the development server:
+«Лапка помощи» объединяет владельцев собак в единую городскую стаю взаимопомощи:
+SOS-оповещение соседей за 60 секунд, карта поиска, районное комьюнити, цифровой
+паспорт питомца с QR-кодом и магазин адресников ручной работы. Маскот — корги
+Шуня — сопровождает пользователя во всех ключевых сценариях.
+
+Проект разрабатывается по ТЗ «Лапка помощи» (адаптивный веб-сайт + мобильное
+приложение iOS/Android).
+
+---
+
+## 🧰 Технологический стек
+
+| Слой | Технология | Зачем |
+|------|------------|-------|
+| Фреймворк | **Next.js 15 (App Router) + TypeScript** | SSR публичных страниц-паспортов по QR и SEO (блог, о проекте), файловый роутинг 1:1 с картой сайта, API-роуты как бэкенд |
+| Стили | **Tailwind CSS v4** | дизайн-токены палитры прямо в CSS (`@theme`) |
+| Анимации | **Framer Motion** | живая Шуня, появления секций, count-up |
+| Иконки | **lucide-react** | лёгкие SVG-иконки |
+| Шрифты | **Comfortaa** (заголовки) + **Nunito** (текст) | округлые, тёплые, с поддержкой кириллицы |
+
+> **Почему Next.js 15, а не 16?** Next 16 требует Node ≥ 20.9.0, а на машине
+> разработки стоит Node 20.8.1. Версия 15.5.19 (пропатченная) полностью совместима
+> и работает без обновления окружения. Обновишь Node до 20.9+/22 LTS — перейдём на 16.
+
+### Данные и интеграции (по дорожной карте)
+- **PostgreSQL + Prisma** — основное хранилище (сейчас UI работает на mock-данных).
+- **Яндекс.Карты API** — карта поиска с метками.
+- **Telegram-бот** — дублирование SOS в районные чаты.
+- **PWA → Expo/React Native** — мобильное приложение.
+
+---
+
+## 🎨 Бренд
+
+Палитра создаёт эффект «объятий» — мягко успокаивает и вселяет надежду.
+
+| Назначение | HEX | Токен |
+|------------|-----|-------|
+| Фон сайта (сливки) | `#FFF9F5` | `cream` |
+| Карточки | `#FFFFFF` | `card` |
+| Основной текст | `#4A4A4A` | `ink` |
+| Кнопки (важно!) | `#FACEA2` | `paw` |
+| Ссылки, иконки | `#E6A4B4` | `petal` |
+| Тени, разделители | `#FCD9E2` | `blush` |
+
+Ассеты бренда (логотип, иллюстрации Шуни) — в `public/brand` и `public/shunya`.
+
+---
+
+## 🚀 Запуск
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Сборка и проверка:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build    # production-сборка
+npm run start    # запуск собранного приложения
+npm run lint     # ESLint
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🗂️ Структура
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+├── app/                  # маршруты (App Router) — карта сайта из ТЗ
+│   ├── page.tsx          # Лендинг
+│   ├── layout.tsx        # Шапка + футер + шрифты + метаданные
+│   ├── not-found.tsx     # 404 с Шуней
+│   ├── auth/ profile/ sos/ map/ feed/ community/ shop/ about/ partners/ blog/
+│   └── globals.css       # дизайн-токены (Tailwind v4 @theme)
+├── components/
+│   ├── ui/               # Button, Card, Badge, Container, SectionHeading, Reveal
+│   ├── brand/            # Logo, ShunyaBubble
+│   ├── layout/           # Header, Footer, SosButton
+│   ├── landing/          # секции лендинга
+│   └── PagePlaceholder.tsx
+└── lib/                  # nav (карта сайта), placeholders, cn
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🗺️ Дорожная карта
 
-## Deploy on Vercel
+- [x] **Этап 1. Фундамент и витрина** — каркас, дизайн-система, лендинг, навигация, заглушки всех разделов.
+- [ ] **Этап 2. Онбординг** — регистрация (телефон/SMS, email, Telegram) и приветствие Шуни.
+- [ ] **Этап 3. Питомцы** — карточки, мастер добавления (6 шагов), QR-паспорт.
+- [ ] **Этап 4. SOS + Карта** — создание объявления, радиус оповещения, Яндекс.Карты.
+- [ ] **Этап 5. Лента и комьюнити** — районные ленты, рейтинг волонтёров.
+- [ ] **Этап 6. Магазин** — каталог, корзина, заказы.
+- [ ] **Этап 7. Бэкенд** — PostgreSQL + Prisma, API, push, Telegram-бот.
+- [ ] **Этап 8. Мобильное приложение** — PWA → Expo/React Native.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## ⚠️ Заметки
+
+- `npm audit` показывает 2 умеренных предупреждения от транзитивного `postcss`
+  (XSS при обработке недоверенного CSS) — это инструмент сборки, в рантайме
+  поверхности атаки нет. Уйдёт при переходе на Next 16 (после обновления Node).
