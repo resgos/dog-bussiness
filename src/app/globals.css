@@ -217,3 +217,42 @@
     animation: none;
   }
 }
+
+/* ——— Живая Шуня на основе реального арта (2D-кукла) ——— */
+.shunya-live {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: shunya-live 3.6s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes shunya-live {
+  0%,
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-2px) scale(1.012) rotate(-1.2deg);
+  }
+  50% {
+    transform: translateY(-3px) scaleY(1.025) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-2px) scale(1.012) rotate(1.2deg);
+  }
+}
+.shunya-fadein {
+  animation: shunya-fade 0.32s ease-out both;
+}
+@keyframes shunya-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shunya-live {
+    animation: none;
+  }
+}

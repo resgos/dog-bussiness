@@ -9,7 +9,7 @@ import {
   useSpring,
 } from "framer-motion";
 import { X } from "lucide-react";
-import { ShunyaAnimated } from "./ShunyaAnimated";
+import { ShunyaLive, type ShunyaPose } from "./ShunyaLive";
 
 const playful = [
   "Гав-гав! 🐾",
@@ -47,11 +47,13 @@ export function ShunyaCompanion() {
   const [open, setOpen] = useState(false);
   const [msgIdx, setMsgIdx] = useState(-1);
   const [seen, setSeen] = useState(false);
-  const [waving, setWaving] = useState(false);
+  const [hover, setHover] = useState(false);
+  const [idlePose, setIdlePose] = useState<ShunyaPose>("happy");
 
   const tiltRaw = useMotionValue(0);
   const rotate = useSpring(tiltRaw, { stiffness: 150, damping: 15 });
 
+  // Наклон к курсору.
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
       const rel = e.clientX / window.innerWidth - 0.5;
@@ -61,6 +63,20 @@ export function ShunyaCompanion() {
     return () => window.removeEventListener("pointermove", onMove);
   }, [tiltRaw]);
 
+  // Периодически «оживает» — на секунду перка ушами/мордочкой (смена кадра).
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout>;
+    const iv = setInterval(() => {
+      setIdlePose("surprised");
+      t = setTimeout(() => setIdlePose("happy"), 1200);
+    }, 8000);
+    return () => {
+      clearInterval(iv);
+      clearTimeout(t);
+    };
+  }, []);
+
+  const pose: ShunyaPose = hover ? "wave" : idlePose;
   const message = msgIdx < 0 ? contextTip(pathname) : playful[msgIdx % playful.length];
 
   const handleClick = () => {
@@ -100,15 +116,15 @@ export function ShunyaCompanion() {
       <motion.button
         type="button"
         onClick={handleClick}
-        onPointerEnter={() => setWaving(true)}
-        onPointerLeave={() => setWaving(false)}
+        onPointerEnter={() => setHover(true)}
+        onPointerLeave={() => setHover(false)}
         aria-label="Шуня — помощник"
         animate={{ y: [0, -6, 0] }}
         transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-        className="relative grid size-20 place-items-center rounded-full border-4 border-card bg-card shadow-lift ring-1 ring-blush sm:size-24"
+        className="relative grid size-20 place-items-center overflow-hidden rounded-full border-4 border-card bg-card shadow-lift ring-1 ring-blush sm:size-24"
       >
         <motion.span style={{ rotate }} className="block">
-          <ShunyaAnimated size={70} waving={waving} />
+          <ShunyaLive pose={pose} size={72} />
         </motion.span>
         {!seen ? (
           <span className="absolute -right-0.5 -top-0.5 flex size-3.5">
