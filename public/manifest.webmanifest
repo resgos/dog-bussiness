@@ -1,0 +1,26 @@
+{
+  "name": "Лапка помощи",
+  "short_name": "Лапка помощи",
+  "description": "Поиск потерявшихся собак в Москве: SOS-оповещение соседей, карта, паспорт питомца с QR.",
+  "lang": "ru",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFF9F5",
+  "theme_color": "#FFF9F5",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,10 +1,12 @@
-import { PagePlaceholder } from "@/components/PagePlaceholder";
-import { placeholders } from "@/lib/placeholders";
+import { Container } from "@/components/ui/Container";
+import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 
-const meta = placeholders["/auth"];
+export const metadata = { title: "Регистрация и вход" };
 
-export const metadata = { title: meta.title };
-
-export default function Page() {
-  return <PagePlaceholder {...meta} />;
+export default function AuthPage() {
+  return (
+    <Container className="py-14 sm:py-20">
+      <OnboardingFlow />
+    </Container>
+  );
 }

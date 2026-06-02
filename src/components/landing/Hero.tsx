@@ -51,7 +51,7 @@ export function Hero() {
             </span>
             <div>
               <p className="text-2xl font-bold leading-none text-ink">
-                <FoundCounter target={47} /> собак найдено сегодня
+                <FoundCounter fallback={47} /> собак найдено сегодня
               </p>
               <p className="mt-1 text-sm text-ink-soft">
                 вместе со «стаей» своего района

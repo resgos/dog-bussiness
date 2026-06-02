@@ -1,10 +1,12 @@
-import { PagePlaceholder } from "@/components/PagePlaceholder";
-import { placeholders } from "@/lib/placeholders";
+import { Container } from "@/components/ui/Container";
+import { PetWizard } from "@/components/pets/PetWizard";
 
-const meta = placeholders["/profile/pets/add"];
+export const metadata = { title: "Добавить питомца" };
 
-export const metadata = { title: meta.title };
-
-export default function Page() {
-  return <PagePlaceholder {...meta} />;
+export default function AddPetPage() {
+  return (
+    <Container className="py-12 sm:py-16">
+      <PetWizard />
+    </Container>
+  );
 }

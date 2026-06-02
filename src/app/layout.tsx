@@ -41,6 +41,16 @@ export const metadata: Metadata = {
     siteName: "Лапка помощи",
     images: ["/brand/logo.png"],
   },
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/icons/icon-192.png",
+    apple: "/icons/apple-touch-icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "Лапка помощи",
+    statusBarStyle: "default",
+  },
 };
 
 export const viewport: Viewport = {
