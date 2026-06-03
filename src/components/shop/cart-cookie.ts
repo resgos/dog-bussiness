@@ -59,6 +59,36 @@ export function cartCount(cart: Cart): number {
   return Object.values(cart).reduce((sum, q) => sum + q, 0);
 }
 
+/**
+ * Позиция корзины: товар + его количество.
+ * `P` — любой объект товара, у которого есть хотя бы `id` и `priceRub`
+ * (остальные поля, например `name`/`image`, остаются доступны через `product`).
+ */
+export type CartLineOf<P extends { id: string; priceRub: number }> = {
+  product: P;
+  qty: number;
+};
+
+/**
+ * Собрать позиции корзины из списка товаров и карты { productId: qty }.
+ * Сохраняет порядок переданных товаров и оставляет только позиции с qty > 0.
+ */
+export function buildCartLines<P extends { id: string; priceRub: number }>(
+  products: P[],
+  cart: Cart,
+): CartLineOf<P>[] {
+  return products
+    .map((product) => ({ product, qty: cart[product.id] ?? 0 }))
+    .filter((line) => line.qty > 0);
+}
+
+/** Сумма по позициям корзины: priceRub * qty (в рублях). */
+export function cartTotal<P extends { id: string; priceRub: number }>(
+  lines: CartLineOf<P>[],
+): number {
+  return lines.reduce((sum, line) => sum + line.product.priceRub * line.qty, 0);
+}
+
 /** Применить операцию add|remove|set к корзине и вернуть новую. */
 export function applyOp(
   cart: Cart,

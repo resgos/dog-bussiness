@@ -24,8 +24,11 @@ const MIN_PASSWORD = 6;
 /** Нормализуем телефон к виду +7XXXXXXXXXX (РФ), чтобы вход и регистрация совпадали. */
 function normalizePhone(raw: string): string {
   let d = digits(raw);
+  // 11 цифр с ведущей «8» (8XXXXXXXXXX) → 7XXXXXXXXXX
   if (d.length === 11 && d.startsWith("8")) d = "7" + d.slice(1);
-  if (d.length === 10) d = "7" + d; // без кода страны → добавим 7
+  // 11 цифр с ведущей «7» (7XXXXXXXXXX) — уже в нужном виде, оставляем как есть
+  // 10 цифр без кода страны → добавим 7
+  if (d.length === 10) d = "7" + d;
   return "+" + d;
 }
 
@@ -53,7 +56,7 @@ export async function registerAction(
   const telegram = normalizeTelegram(String(formData.get("telegram") ?? ""));
 
   if (!name) return { error: "Как же тебя зовут? Без имени в стаю не пустим 🐾" };
-  if (password.length < MIN_PASSWORD)
+  if (password.trim().length < MIN_PASSWORD)
     return { error: `Пароль коротковат — нужно минимум ${MIN_PASSWORD} символов.` };
   if (!districtId || !findDistrict(districtId))
     return { error: "Выбери свой район — так я пойму, кого звать на помощь." };
@@ -86,16 +89,25 @@ export async function registerAction(
     };
   }
 
-  const user = await db.user.create({
-    data: {
-      name: name.slice(0, 80),
-      phone,
-      email,
-      passwordHash: hashPassword(password),
-      district: districtId,
-      telegram,
-    },
-  });
+  let user;
+  try {
+    user = await db.user.create({
+      data: {
+        name: name.slice(0, 80),
+        phone,
+        email,
+        passwordHash: hashPassword(password),
+        district: districtId,
+        telegram,
+      },
+    });
+  } catch (e: unknown) {
+    // Гонка/дубликат по @unique (phone/email) — findFirst выше мог не успеть.
+    if ((e as { code?: string })?.code === "P2002") {
+      return { error: "Этот телефон или email уже в стае — попробуй войти." };
+    }
+    throw e;
+  }
 
   const token = await createSession(user.id);
   await setSessionCookie(token);
@@ -124,7 +136,7 @@ export async function loginAction(
     if (!isEmailValid(raw)) return { error: "Введи корректный email." };
     where = { email: normalizeEmail(raw) };
   }
-  if (!password) return { error: "Введи пароль." };
+  if (password.trim().length < MIN_PASSWORD) return { error: "Введи пароль." };
 
   const user = await db.user.findFirst({ where });
   // Сообщение одно и то же — не подсказываем, что именно неверно.

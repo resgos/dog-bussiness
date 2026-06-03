@@ -5,7 +5,7 @@ import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
-import { readCart } from "@/components/shop/cart-cookie";
+import { buildCartLines, cartTotal, readCart } from "@/components/shop/cart-cookie";
 import { CartLine } from "@/components/shop/CartLine";
 import { CheckoutForm } from "@/components/shop/CheckoutForm";
 
@@ -21,10 +21,8 @@ export default async function CartPage() {
     : [];
 
   // Сохраняем порядок и считаем сумму по актуальным ценам.
-  const lines = products
-    .map((p) => ({ product: p, qty: cart[p.id] ?? 0 }))
-    .filter((l) => l.qty > 0);
-  const total = lines.reduce((sum, l) => sum + l.product.priceRub * l.qty, 0);
+  const lines = buildCartLines(products, cart);
+  const total = cartTotal(lines);
   const itemCount = lines.reduce((sum, l) => sum + l.qty, 0);
 
   const user = await getCurrentUser();

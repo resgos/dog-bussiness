@@ -39,8 +39,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Неизвестная операция" }, { status: 400 });
   }
 
-  // Добавлять можно только существующий товар (remove/set по уже лежащему — ок).
-  if (op === "add") {
+  // Добавлять/задавать количество можно только для существующего товара.
+  // (remove лишь убирает позицию и несуществующий id в корзину не пишет.)
+  if (op === "add" || op === "set") {
     const exists = await db.product.findUnique({
       where: { id: productId },
       select: { id: true },

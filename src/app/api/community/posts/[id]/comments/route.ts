@@ -24,10 +24,12 @@ export async function POST(
   }
 
   const body = await req.json().catch(() => ({}));
-  const text = typeof body?.text === "string" ? body.text.trim() : "";
-  if (!text) {
+  const raw = typeof body?.text === "string" ? body.text.trim() : "";
+  if (!raw) {
     return NextResponse.json({ error: "Напишите комментарий" }, { status: 400 });
   }
+  // Серверный лимит длины (клиентский maxLength можно обойти).
+  const text = raw.slice(0, 1000);
 
   const comment = await db.comment.create({
     data: { postId: id, authorId: user.id, text },

@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
-import { readCart, writeCart } from "@/components/shop/cart-cookie";
+import {
+  buildCartLines,
+  cartTotal,
+  readCart,
+  writeCart,
+} from "@/components/shop/cart-cookie";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +23,17 @@ export async function POST(req: Request) {
   const str = (v: unknown, max = 200) =>
     typeof v === "string" && v.trim() ? v.trim().slice(0, max) : null;
 
+  // Контакты обязательны: без имени и телефона заказ не оформляем.
+  // (Клиентская форма их уже требует — сервер дублирует проверку.)
+  const name = str(body.name);
+  const phone = str(body.phone);
+  if (!name || !phone) {
+    return NextResponse.json(
+      { error: "Укажите имя и телефон" },
+      { status: 400 },
+    );
+  }
+
   const cart = await readCart();
   const ids = Object.keys(cart);
   if (ids.length === 0) {
@@ -26,9 +42,7 @@ export async function POST(req: Request) {
 
   // Берём актуальные цены из БД, qty — из корзины.
   const products = await db.product.findMany({ where: { id: { in: ids } } });
-  const lines = products
-    .map((p) => ({ product: p, qty: cart[p.id] ?? 0 }))
-    .filter((l) => l.qty > 0);
+  const lines = buildCartLines(products, cart);
 
   if (lines.length === 0) {
     // Все товары из корзины пропали — чистим, чтобы не залипало.
@@ -39,14 +53,14 @@ export async function POST(req: Request) {
     );
   }
 
-  const totalRub = lines.reduce((sum, l) => sum + l.product.priceRub * l.qty, 0);
+  const totalRub = cartTotal(lines);
   const user = await getCurrentUser();
 
   const order = await db.order.create({
     data: {
       userId: user?.id ?? null,
-      name: str(body.name),
-      phone: str(body.phone),
+      name,
+      phone,
       address: str(body.address, 400),
       totalRub,
       items: {

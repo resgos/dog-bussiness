@@ -33,6 +33,7 @@ export async function setSessionCookie(token: string): Promise<void> {
   const store = await cookies();
   store.set(SESSION_COOKIE, token, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
     maxAge: MAX_AGE,
@@ -58,6 +59,11 @@ export async function getCurrentUser() {
     where: { token },
     include: { user: true },
   });
-  if (!session || session.expiresAt < new Date()) return null;
+  if (!session) return null;
+  // Сессия протухла — удаляем запись, чтобы таблица Session не росла.
+  if (session.expiresAt < new Date()) {
+    await db.session.deleteMany({ where: { token } });
+    return null;
+  }
   return session.user;
 }

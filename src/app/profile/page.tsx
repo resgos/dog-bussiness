@@ -20,16 +20,10 @@ import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { getCurrentUser } from "@/lib/auth";
 import { findDistrict } from "@/lib/districts";
 import { logoutAction } from "@/components/auth/actions";
+import { roleInfo } from "@/components/community/postMeta";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Личный кабинет" };
-
-const roleLabel: Record<string, string> = {
-  user: "Участник стаи",
-  volunteer: "Волонтёр",
-  ambassador: "Амбассадор района",
-  partner: "Партнёр",
-};
 
 const navItems: {
   href: string;
@@ -107,7 +101,7 @@ export default async function ProfilePage() {
               <h2 className="text-2xl font-bold">{user.name}</h2>
               <Badge tone="paw">
                 <Award className="size-3.5" aria-hidden />
-                {roleLabel[user.role] ?? "Участник стаи"}
+                {roleInfo(user.role).label}
               </Badge>
             </div>
             <dl className="mt-4 grid gap-3 sm:grid-cols-2">

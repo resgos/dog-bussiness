@@ -30,7 +30,7 @@ model Pet {
   age         String?
   size        String?
   color       String?
-  marks       String?  // JSON-массив (SQLite не поддерживает scalar lists)
+  marks       String?  // JSON-массив
   chip        String?
   marksText   String?
   district    String?
@@ -48,6 +48,9 @@ model Pet {
   ownerId     String?
   user        User?    @relation(fields: [userId], references: [id])
   userId      String?
+
+  @@index([ownerId])
+  @@index([userId])
 }
 
 model FoundEvent {
@@ -83,6 +86,8 @@ model Sighting {
   comment   String?
   photo     String?
   createdAt DateTime    @default(now())
+
+  @@index([reportId])
 }
 
 // ——— Авторизация ———
@@ -112,6 +117,8 @@ model Session {
   user      User     @relation(fields: [userId], references: [id])
   expiresAt DateTime
   createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 // ——— Комьюнити ———
@@ -120,12 +127,14 @@ model Post {
   authorId  String?
   author    User?      @relation(fields: [authorId], references: [id])
   district  String?
-  type      String     @default("discussion") // пропажа|находка|наблюдение|совет|событие|обсуждение
+  type      String     @default("обсуждение") // пропажа|находка|наблюдение|совет|событие|обсуждение
   text      String
   photo     String?
   createdAt DateTime   @default(now())
   comments  Comment[]
   likes     PostLike[]
+
+  @@index([authorId])
 }
 
 model Comment {
@@ -136,6 +145,9 @@ model Comment {
   author    User?    @relation(fields: [authorId], references: [id])
   text      String
   createdAt DateTime @default(now())
+
+  @@index([postId])
+  @@index([authorId])
 }
 
 model PostLike {
@@ -146,6 +158,7 @@ model PostLike {
   user   User   @relation(fields: [userId], references: [id])
 
   @@unique([postId, userId])
+  @@index([userId])
 }
 
 // ——— Магазин ———
@@ -172,6 +185,8 @@ model Order {
   totalRub  Int         @default(0)
   createdAt DateTime    @default(now())
   items     OrderItem[]
+
+  @@index([userId])
 }
 
 model OrderItem {
@@ -182,4 +197,7 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
   qty       Int     @default(1)
   priceRub  Int
+
+  @@index([orderId])
+  @@index([productId])
 }

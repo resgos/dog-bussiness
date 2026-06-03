@@ -23,16 +23,22 @@ export async function POST(
     return NextResponse.json({ error: "Пост не найден" }, { status: 404 });
   }
 
-  const existing = await db.postLike.findUnique({
-    where: { postId_userId: { postId: id, userId: user.id } },
-  });
-
-  if (existing) {
-    await db.postLike.delete({ where: { id: existing.id } });
-  } else {
+  // Toggle лайка атомарно: пробуем создать запись (liked=true). Если она уже есть,
+  // Prisma бросает P2002 (нарушение @@unique([postId, userId])) — значит лайк уже
+  // стоял, снимаем его (liked=false). Это защищает от гонки/двойного клика.
+  let liked: boolean;
+  try {
     await db.postLike.create({ data: { postId: id, userId: user.id } });
+    liked = true;
+  } catch (e) {
+    if ((e as { code?: string })?.code === "P2002") {
+      await db.postLike.deleteMany({ where: { postId: id, userId: user.id } });
+      liked = false;
+    } else {
+      throw e;
+    }
   }
 
   const likes = await db.postLike.count({ where: { postId: id } });
-  return NextResponse.json({ ok: true, liked: !existing, likes });
+  return NextResponse.json({ ok: true, liked, likes });
 }
