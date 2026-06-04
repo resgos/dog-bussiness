@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ShunyaCompanion } from "@/components/brand/ShunyaCompanion";
+import { PushRegister } from "@/components/notifications/PushRegister";
 import { getCurrentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 
@@ -79,6 +80,7 @@ export default async function RootLayout({
         <main className="flex-1">{children}</main>
         <Footer />
         <ShunyaCompanion />
+        <PushRegister />
       </body>
     </html>
   );

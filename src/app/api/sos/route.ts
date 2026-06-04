@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { notifyMany } from "@/lib/notify";
+import { rateLimit, ipKey } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +15,12 @@ export async function POST(req: Request) {
   const petName = b && typeof b.petName === "string" ? b.petName.trim() : "";
   if (!petName) {
     return NextResponse.json({ error: "Выбери питомца" }, { status: 400 });
+  }
+  if (!rateLimit(ipKey(req, "sos"), 5, 60_000)) {
+    return NextResponse.json(
+      { error: "Слишком часто — попробуйте через минуту." },
+      { status: 429 },
+    );
   }
 
   // Текущий пользователь (если залогинен) — привязываем к нему объявление,
@@ -54,15 +62,15 @@ export async function POST(req: Request) {
           .filter(Boolean)
           .join(" · ");
 
-        await db.notification.createMany({
-          data: recipients.map((u) => ({
-            userId: u.id,
+        await notifyMany(
+          recipients.map((u) => u.id),
+          {
             type: "sos",
             title: `Рядом пропал ${report.petName}`,
             body: details || "Помогите найти — каждая минута на счету.",
             link: "/feed/lost",
-          })),
-        });
+          },
+        );
       }
     } catch {
       /* рассылка не критична — игнорируем */

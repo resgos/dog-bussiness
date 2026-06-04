@@ -67,6 +67,14 @@ export function Footer() {
 
         <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-blush pt-6 text-sm text-ink-soft sm:flex-row">
           <p>© {new Date().getFullYear()} Лапка помощи. Москва.</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <Link href="/privacy" className="transition-colors hover:text-petal-deep">
+              Политика конфиденциальности
+            </Link>
+            <Link href="/offer" className="transition-colors hover:text-petal-deep">
+              Оферта
+            </Link>
+          </div>
           <p className="inline-flex items-center gap-1.5">
             Сделано с <Heart className="size-4 fill-petal text-petal" aria-hidden /> и
             заботой о хвостах

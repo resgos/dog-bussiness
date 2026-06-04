@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { notifyMany } from "@/lib/notify";
+import { rateLimit, ipKey } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +17,12 @@ export async function POST(req: Request) {
   const b = await req.json().catch(() => null);
   if (!b || typeof b !== "object") {
     return NextResponse.json({ error: "Некорректные данные" }, { status: 400 });
+  }
+  if (!rateLimit(ipKey(req, "found"), 5, 60_000)) {
+    return NextResponse.json(
+      { error: "Слишком часто — попробуйте через минуту." },
+      { status: 429 },
+    );
   }
 
   const size = str(b.size);
@@ -55,14 +63,11 @@ export async function POST(req: Request) {
       if (ownerIds.length > 0) {
         const details =
           [report.color, report.breed].filter(Boolean).join(" ") || "собаку";
-        await db.notification.createMany({
-          data: ownerIds.map((userId) => ({
-            userId,
-            type: "found",
-            title: "Возможно, нашли вашу собаку",
-            body: `Рядом нашли: ${details} в районе`,
-            link: "/found",
-          })),
+        await notifyMany(ownerIds, {
+          type: "found",
+          title: "Возможно, нашли вашу собаку",
+          body: `Рядом нашли: ${details} в районе`,
+          link: "/found",
         });
       }
     } catch {

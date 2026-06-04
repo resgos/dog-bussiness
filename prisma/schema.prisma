@@ -140,6 +140,7 @@ model User {
   notifications Notification[]
   lostReports   LostReport[]
   foundReports  FoundReport[]
+  pushSubs      PushSubscription[]
 }
 
 model Session {
@@ -232,6 +233,19 @@ model OrderItem {
 
   @@index([orderId])
   @@index([productId])
+}
+
+/// Подписка браузера/устройства на web-push.
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 // ——— Уведомления (in-app) ———

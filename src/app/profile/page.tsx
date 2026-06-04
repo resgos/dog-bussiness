@@ -18,6 +18,7 @@ import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
+import { PushToggle } from "@/components/notifications/PushToggle";
 import { getCurrentUser } from "@/lib/auth";
 import { findDistrict } from "@/lib/districts";
 import { logoutAction } from "@/components/auth/actions";
@@ -136,6 +137,10 @@ export default async function ProfilePage() {
             </span>
           </div>
         </div>
+      </div>
+
+      <div className="mt-8">
+        <PushToggle />
       </div>
 
       {/* Навигация ЛК */}
