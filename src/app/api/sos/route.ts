@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,39 @@ export async function POST(req: Request) {
       status: "active",
     },
   });
+
+  // Оповещаем соседей того же района о пропаже. Рассылка вынесена в try/catch:
+  // любой сбой здесь не должен мешать созданию объявления.
+  if (report.district) {
+    try {
+      const me = await getCurrentUser();
+      const neighbours = await db.user.findMany({
+        where: { district: report.district },
+        select: { id: true },
+        take: 200,
+      });
+      const recipients = neighbours.filter((u) => u.id !== me?.id);
+
+      if (recipients.length > 0) {
+        const details = [report.breed, report.district, report.comment]
+          .map((s) => (typeof s === "string" ? s.trim() : ""))
+          .filter(Boolean)
+          .join(" · ");
+
+        await db.notification.createMany({
+          data: recipients.map((u) => ({
+            userId: u.id,
+            type: "sos",
+            title: `Рядом пропал ${report.petName}`,
+            body: details || "Помогите найти — каждая минута на счету.",
+            link: "/feed/lost",
+          })),
+        });
+      }
+    } catch {
+      /* рассылка не критична — игнорируем */
+    }
+  }
 
   return NextResponse.json({ id: report.id }, { status: 201 });
 }

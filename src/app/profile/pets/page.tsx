@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowRight, PawPrint, Plus, QrCode } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight, Camera, Plus, QrCode } from "lucide-react";
 import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
@@ -53,12 +54,27 @@ export default async function PetsPage() {
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img
                     src={pet.photo}
-                    alt={pet.name}
+                    alt={`Фото питомца ${pet.name}`}
                     className="size-full object-cover"
                   />
                 ) : (
-                  <div className="flex size-full items-center justify-center text-petal">
-                    <PawPrint className="size-12" aria-hidden />
+                  <div className="flex size-full flex-col items-center justify-center gap-2 p-4 text-center">
+                    <div className="relative size-20">
+                      <Image
+                        src="/shunya/pose-surprised-cut.png"
+                        alt="Шуня ждёт фото"
+                        fill
+                        sizes="80px"
+                        className="object-contain"
+                      />
+                    </div>
+                    <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep">
+                      <Camera className="size-4" aria-hidden />
+                      Добавьте фото
+                    </p>
+                    <p className="text-xs leading-snug text-ink-soft">
+                      Так собаку узнают быстрее
+                    </p>
                   </div>
                 )}
                 <span className="absolute left-3 top-3">

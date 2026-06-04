@@ -1,4 +1,5 @@
-import { Clock, Eye, MapPin, PawPrint } from "lucide-react";
+import Image from "next/image";
+import { Camera, Clock, Eye, MapPin } from "lucide-react";
 import { findDistrict } from "@/lib/districts";
 import { timeAgo, plural } from "@/lib/format";
 import { Badge } from "@/components/ui/Badge";
@@ -29,10 +30,22 @@ export function ReportCard({ report }: { report: ReportLite }) {
       <div className="relative aspect-[4/3] bg-blush-soft">
         {report.photo ? (
           /* eslint-disable-next-line @next/next/no-img-element */
-          <img src={report.photo} alt={report.petName} className="size-full object-cover" />
+          <img src={report.photo} alt={`Фото питомца ${report.petName}`} className="size-full object-cover" />
         ) : (
-          <div className="flex size-full items-center justify-center text-petal">
-            <PawPrint className="size-12" aria-hidden />
+          <div className="flex size-full flex-col items-center justify-center gap-2 p-4 text-center">
+            <div className="relative size-20">
+              <Image
+                src="/shunya/pose-surprised-cut.png"
+                alt="Шуня ищет фото"
+                fill
+                sizes="80px"
+                className="object-contain"
+              />
+            </div>
+            <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep">
+              <Camera className="size-4" aria-hidden />
+              Фото не добавлено
+            </p>
           </div>
         )}
         <span className="absolute left-3 top-3">

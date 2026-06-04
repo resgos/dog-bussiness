@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
-import { MapPin, Phone, Send, PawPrint, ShieldAlert } from "lucide-react";
+import { Camera, MapPin, Phone, Send, PawPrint, ShieldAlert } from "lucide-react";
 import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
@@ -73,18 +74,33 @@ export default async function PassportPage({
         ) : null}
 
         <div className="overflow-hidden rounded-3xl border border-blush bg-card shadow-card">
-          <div className="grid gap-0 sm:grid-cols-[minmax(0,16rem)_1fr]">
-            <div className="relative aspect-square bg-blush-soft">
+          <div className="grid gap-0 sm:grid-cols-[minmax(0,20rem)_1fr]">
+            <div className="relative aspect-square bg-blush-soft sm:aspect-auto sm:min-h-[20rem]">
               {pet.photo ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={pet.photo}
-                  alt={pet.name}
+                  alt={`Фото питомца ${pet.name}`}
                   className="size-full object-cover"
                 />
               ) : (
-                <div className="flex size-full items-center justify-center text-petal">
-                  <PawPrint className="size-16" aria-hidden />
+                <div className="flex size-full flex-col items-center justify-center gap-3 p-6 text-center">
+                  <div className="relative size-28 sm:size-32">
+                    <Image
+                      src="/shunya/pose-surprised-cut.png"
+                      alt="Шуня ищет фото"
+                      fill
+                      sizes="128px"
+                      className="object-contain"
+                    />
+                  </div>
+                  <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep">
+                    <Camera className="size-4" aria-hidden />
+                    Фото не добавлено
+                  </p>
+                  <p className="max-w-[14rem] text-xs leading-relaxed text-ink-soft">
+                    По фото собаку узнают быстрее всего
+                  </p>
                 </div>
               )}
             </div>

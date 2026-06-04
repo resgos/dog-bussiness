@@ -6,9 +6,12 @@ import Link from "next/link";
 import { ChevronDown, LogIn, Menu, X } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { SosButton } from "./SosButton";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ButtonLink } from "@/components/ui/Button";
 import { primaryNav, secondaryNav } from "@/lib/nav";
 import { cn } from "@/lib/cn";
+
+type HeaderUser = { name: string } | null;
 
 function useIsActive() {
   const pathname = usePathname();
@@ -16,7 +19,13 @@ function useIsActive() {
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 }
 
-export function Header() {
+export function Header({
+  user = null,
+  unread = 0,
+}: {
+  user?: HeaderUser;
+  unread?: number;
+}) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const isActive = useIsActive();
@@ -81,15 +90,33 @@ export function Header() {
 
         {/* Действия */}
         <div className="flex items-center gap-2">
-          <ButtonLink
-            href="/auth"
-            variant="secondary"
-            size="sm"
-            className="hidden sm:inline-flex"
-          >
-            <LogIn className="size-4" aria-hidden />
-            Войти
-          </ButtonLink>
+          {user ? (
+            <>
+              <NotificationBell unread={unread} />
+              <Link
+                href="/profile"
+                className="hidden items-center gap-2 rounded-full py-1 pl-1 pr-3 transition-colors hover:bg-blush-soft sm:inline-flex"
+                aria-label="Личный кабинет"
+              >
+                <span className="grid size-8 place-items-center rounded-full bg-blush font-display text-sm font-bold text-petal-deep">
+                  {user.name.slice(0, 1).toUpperCase()}
+                </span>
+                <span className="max-w-28 truncate text-sm font-semibold text-ink">
+                  {user.name}
+                </span>
+              </Link>
+            </>
+          ) : (
+            <ButtonLink
+              href="/auth"
+              variant="secondary"
+              size="sm"
+              className="hidden sm:inline-flex"
+            >
+              <LogIn className="size-4" aria-hidden />
+              Войти
+            </ButtonLink>
+          )}
           <SosButton size="sm" className="hidden sm:inline-flex" />
 
           {/* Мобильный тоггл */}
@@ -147,10 +174,16 @@ export function Header() {
               ))}
             </div>
             <div className="flex flex-col gap-2 pt-3">
-              <ButtonLink href="/auth" variant="secondary" size="md">
-                <LogIn className="size-4" aria-hidden />
-                Войти
-              </ButtonLink>
+              {user ? (
+                <ButtonLink href="/profile" variant="secondary" size="md">
+                  Личный кабинет · {user.name}
+                </ButtonLink>
+              ) : (
+                <ButtonLink href="/auth" variant="secondary" size="md">
+                  <LogIn className="size-4" aria-hidden />
+                  Войти
+                </ButtonLink>
+              )}
               <SosButton size="md" />
             </div>
           </nav>

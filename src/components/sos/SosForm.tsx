@@ -6,6 +6,7 @@ import { Button, ButtonLink } from "@/components/ui/Button";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
 import { TagToggle } from "@/components/ui/TagToggle";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
+import { LeafletMap } from "@/components/map/LeafletMap";
 
 type PetLite = {
   id: string;
@@ -149,26 +150,38 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
         <Field
           label="Где пропал?"
           hint={
-            geo === "ok"
-              ? "📍 Геолокация определена"
+            coords
+              ? "📍 Точка отмечена — можно поправить кликом по карте"
               : geo === "err"
-                ? "Не удалось определить — поиск пойдёт по району питомца"
-                : "Точку уточним по геолокации (точная карта — скоро)"
+                ? "Не удалось определить — ткни точку на карте или поиск пойдёт по району питомца"
+                : "Ткни точку пропажи на карте или определи по геолокации"
           }
         >
-          <Button
-            type="button"
-            variant={coords ? "secondary" : "primary"}
-            onClick={locate}
-            disabled={geo === "loading"}
-          >
-            <Crosshair className="size-4" aria-hidden />
-            {geo === "loading"
-              ? "Определяю…"
-              : coords
-                ? "Геолокация получена"
-                : "Определить геолокацию"}
-          </Button>
+          <div className="space-y-3">
+            <LeafletMap
+              picker
+              picked={coords}
+              onPick={(lat, lng) => {
+                setCoords({ lat, lng });
+                setGeo("ok");
+              }}
+              center={coords ? [coords.lat, coords.lng] : undefined}
+              height={300}
+            />
+            <Button
+              type="button"
+              variant={coords ? "secondary" : "primary"}
+              onClick={locate}
+              disabled={geo === "loading"}
+            >
+              <Crosshair className="size-4" aria-hidden />
+              {geo === "loading"
+                ? "Определяю…"
+                : coords
+                  ? "Геолокация получена"
+                  : "Определить геолокацию"}
+            </Button>
+          </div>
         </Field>
 
         <Field label="Когда пропал?">

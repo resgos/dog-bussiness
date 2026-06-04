@@ -71,6 +71,7 @@ async function main() {
       ownerPhone: "+7 (999) 123-45-67",
       telegram: "@anya",
       showPhone: true,
+      photo: "/shunya/pose-happy-cut.png",
       status: "home",
       ownerId: anya.id,
       userId: anyaUser.id,
@@ -86,6 +87,7 @@ async function main() {
       size: "large",
       district: "presnensky",
       ownerPhone: "+7 (999) 765-43-21",
+      photo: "/shunya/pose-grumpy-cut.png",
       status: "home",
       userId: anyaUser.id,
     },
@@ -139,10 +141,18 @@ async function main() {
   await db.comment.create({ data: { postId: p1.id, authorId: anyaUser.id, text: "Подтверждаю, шлейка реально спасает." } });
   await db.postLike.create({ data: { postId: p1.id, userId: anyaUser.id } });
 
-  const [pets, lost, products, posts] = await Promise.all([
-    db.pet.count(), db.lostReport.count(), db.product.count(), db.post.count(),
+  await db.notification.createMany({
+    data: [
+      { userId: anyaUser.id, type: "sos", title: "Рядом ищут собаку", body: "В Хамовниках пропал Тиша (джек-рассел). Глянь по сторонам на прогулке.", link: "/feed/lost", read: false },
+      { userId: anyaUser.id, type: "found", title: "Лорд нашёлся! 🧡", body: "Соседи помогли вернуть Лорда домой.", link: "/feed/found", read: true },
+      { userId: anyaUser.id, type: "system", title: "Достижение «Сосед»", body: "Ты добавил первого питомца в стаю.", link: "/profile", read: false },
+    ],
+  });
+
+  const [pets, lost, products, posts, notifs] = await Promise.all([
+    db.pet.count(), db.lostReport.count(), db.product.count(), db.post.count(), db.notification.count(),
   ]);
-  console.log(`Seeded: user anya (demo1234), ${pets} pets, ${lost} reports, ${products} products, ${posts} posts.`);
+  console.log(`Seeded: user anya (demo1234), ${pets} pets, ${lost} reports, ${products} products, ${posts} posts, ${notifs} notifications.`);
 }
 
 main()

@@ -4,6 +4,8 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ShunyaCompanion } from "@/components/brand/ShunyaCompanion";
+import { getCurrentUser } from "@/lib/auth";
+import { db } from "@/lib/db";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -35,8 +37,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: "Лапка помощи — поиск потерявшихся собак в Москве",
-    description:
-      "Поднимем весь район за 60 секунд. Каждый хвост на учёт.",
+    description: "Поднимем весь район за 60 секунд. Каждый хвост на учёт.",
     type: "website",
     locale: "ru_RU",
     siteName: "Лапка помощи",
@@ -58,18 +59,23 @@ export const viewport: Viewport = {
   themeColor: "#FFF9F5",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getCurrentUser();
+  const unread = user
+    ? await db.notification.count({ where: { userId: user.id, read: false } })
+    : 0;
+
   return (
     <html
       lang="ru"
       className={`${nunito.variable} ${comfortaa.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <Header />
+        <Header user={user ? { name: user.name } : null} unread={unread} />
         <main className="flex-1">{children}</main>
         <Footer />
         <ShunyaCompanion />
