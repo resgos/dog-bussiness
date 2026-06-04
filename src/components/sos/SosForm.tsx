@@ -154,6 +154,7 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
             <LeafletMap
               picker
               picked={coords}
+              pickedRadiusKm={radius}
               onPick={(lat, lng) => {
                 setCoords({ lat, lng });
                 setGeo("ok");
