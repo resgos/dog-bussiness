@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Crosshair, Check, ArrowRight, Map, List } from "lucide-react";
+import { Crosshair, ArrowRight, Map, List } from "lucide-react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
 import { TagToggle } from "@/components/ui/TagToggle";
+import { SuccessNote } from "@/components/ui/SuccessNote";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { LeafletMap } from "@/components/map/LeafletMap";
+import { postJson } from "@/lib/http";
 
 type PetLite = {
   id: string;
@@ -60,23 +62,17 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch("/api/sos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          petId: pet.id,
-          petName: pet.name,
-          breed: pet.breed,
-          district: pet.district,
-          lat: coords?.lat ?? null,
-          lng: coords?.lng ?? null,
-          lostAt: lostAt || null,
-          comment,
-          radiusKm: radius,
-        }),
+      const j = await postJson<{ id: string }>("/api/sos", {
+        petId: pet.id,
+        petName: pet.name,
+        breed: pet.breed,
+        district: pet.district,
+        lat: coords?.lat ?? null,
+        lng: coords?.lng ?? null,
+        lostAt: lostAt || null,
+        comment,
+        radiusKm: radius,
       });
-      if (!res.ok) throw new Error();
-      const j = await res.json();
       setDoneId(j.id);
     } catch {
       setError("Не удалось опубликовать. Попробуй ещё раз.");
@@ -102,10 +98,7 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
   if (doneId) {
     return (
       <div className="mx-auto max-w-xl text-center">
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-status-found/15 px-4 py-2 text-sm font-bold text-[#4f9e63]">
-          <Check className="size-4" aria-hidden />
-          Объявление опубликовано
-        </div>
+        <SuccessNote className="mb-3">Объявление опубликовано</SuccessNote>
         <h1 className="text-3xl font-bold sm:text-4xl">
           Подняли район за 60 секунд! 🐾
         </h1>

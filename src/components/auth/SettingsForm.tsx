@@ -2,9 +2,10 @@
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
-import { Check } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Field, Input, Select, Checkbox } from "@/components/ui/Field";
+import { ErrorBox } from "@/components/ui/ErrorBox";
+import { SuccessNote } from "@/components/ui/SuccessNote";
 import { districtsByOkrug } from "@/lib/districts";
 import { updateProfileAction, type AuthState } from "@/components/auth/actions";
 
@@ -79,17 +80,9 @@ export function SettingsForm({ name, district, telegram }: Props) {
       </div>
 
       {state.error ? (
-        <p
-          role="alert"
-          className="rounded-2xl border border-status-lost/30 bg-status-lost/10 px-4 py-3 text-sm font-medium text-status-lost"
-        >
-          {state.error}
-        </p>
+        <ErrorBox message={state.error} />
       ) : state.saved ? (
-        <p className="inline-flex items-center gap-2 rounded-2xl bg-status-found/15 px-4 py-3 text-sm font-bold text-[#4f9e63]">
-          <Check className="size-4" aria-hidden />
-          Сохранено!
-        </p>
+        <SuccessNote variant="block">Сохранено!</SuccessNote>
       ) : null}
 
       <div className="pt-2">

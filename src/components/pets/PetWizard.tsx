@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   ArrowRight,
   Camera,
-  Check,
   PawPrint,
   Plus,
   ShoppingBag,
@@ -15,6 +14,8 @@ import {
 } from "lucide-react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Field, Input, Select, Textarea, Checkbox } from "@/components/ui/Field";
+import { SuccessNote } from "@/components/ui/SuccessNote";
+import { postJson } from "@/lib/http";
 import { TagToggle } from "@/components/ui/TagToggle";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { districtsByOkrug } from "@/lib/districts";
@@ -103,13 +104,7 @@ export function PetWizard() {
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch("/api/pets", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error("save failed");
-      const json = await res.json();
+      const json = await postJson<{ id: string }>("/api/pets", data);
       setPassportId(json.id);
       setDone(true);
     } catch {
@@ -128,10 +123,9 @@ export function PetWizard() {
     const percent = completion(data);
     return (
       <div className="mx-auto max-w-xl text-center">
-        <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-status-found/15 px-4 py-2 text-sm font-bold text-[#4f9e63]">
-          <Check className="size-4" aria-hidden />
+        <SuccessNote className="mb-2">
           Карточка «{data.name || "питомца"}» создана
-        </div>
+        </SuccessNote>
         <h1 className="mt-3 text-3xl font-bold sm:text-4xl">
           Ура! Теперь {data.name || "малыш"} — часть стаи 🐾
         </h1>

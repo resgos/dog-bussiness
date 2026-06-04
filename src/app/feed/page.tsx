@@ -50,7 +50,7 @@ export default async function FeedPage() {
           className="flex items-center justify-between rounded-3xl border border-blush bg-card p-6 shadow-card transition-all hover:-translate-y-1 hover:shadow-soft"
         >
           <div>
-            <p className="text-3xl font-bold text-[#4f9e63]">{found}</p>
+            <p className="text-3xl font-bold text-status-found-ink">{found}</p>
             <p className="font-semibold text-ink">🟢 Найдены</p>
           </div>
           <ArrowRight className="size-5 text-ink-soft" aria-hidden />

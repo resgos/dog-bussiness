@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, Check, ArrowRight } from "lucide-react";
 import { Button, ButtonLink } from "@/components/ui/Button";
+import { postJson } from "@/lib/http";
 
 /** Кнопка «В корзину» на странице товара → POST /api/shop/cart {op:"add"}. */
 export function AddToCart({ productId }: { productId: string }) {
@@ -15,16 +16,12 @@ export function AddToCart({ productId }: { productId: string }) {
     if (busy) return;
     setBusy(true);
     try {
-      const res = await fetch("/api/shop/cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, op: "add" }),
-      });
-      if (res.ok) {
-        setAdded(true);
-        // Обновим серверные данные (бейдж корзины в шапке, если он есть).
-        router.refresh();
-      }
+      await postJson("/api/shop/cart", { productId, op: "add" });
+      setAdded(true);
+      // Обновим серверные данные (бейдж корзины в шапке, если он есть).
+      router.refresh();
+    } catch {
+      /* при ошибке оставляем кнопку в исходном состоянии */
     } finally {
       setBusy(false);
     }

@@ -1,4 +1,4 @@
-import { db } from "@/lib/db";
+import { getCatalog } from "@/lib/catalog";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { CategoryNav } from "@/components/shop/CategoryNav";
@@ -8,17 +8,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Адресники" };
 
 export default async function AddressnikiPage() {
-  const products = await db.product.findMany({
-    where: { category: "addressniki" },
-    orderBy: { createdAt: "desc" },
-    select: {
-      slug: true,
-      name: true,
-      category: true,
-      priceRub: true,
-      image: true,
-    },
-  });
+  const products = await getCatalog("addressniki");
 
   return (
     <Container className="py-12 sm:py-16">

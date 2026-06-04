@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, PackageCheck, ShoppingBag } from "lucide-react";
+import { PackageCheck, ShoppingBag } from "lucide-react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Field, Input, Textarea } from "@/components/ui/Field";
+import { SuccessNote } from "@/components/ui/SuccessNote";
+import { postJson } from "@/lib/http";
 
 type Props = {
   /** Префилл из профиля, если пользователь залогинен. */
@@ -32,13 +34,11 @@ export function CheckoutForm({ defaultName = "", defaultPhone = "" }: Props) {
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch("/api/shop/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, address }),
+      const j = await postJson<{ orderId: string }>("/api/shop/checkout", {
+        name,
+        phone,
+        address,
       });
-      const j = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(j?.error || "Ошибка оформления");
       setOrderId(j.orderId);
       router.refresh(); // корзина очищена на сервере
     } catch (err) {
@@ -51,10 +51,7 @@ export function CheckoutForm({ defaultName = "", defaultPhone = "" }: Props) {
   if (orderId) {
     return (
       <div className="rounded-3xl border border-blush bg-card p-8 text-center shadow-card">
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-status-found/15 px-4 py-2 text-sm font-bold text-[#4f9e63]">
-          <Check className="size-4" aria-hidden />
-          Заказ оформлен
-        </div>
+        <SuccessNote className="mb-3">Заказ оформлен</SuccessNote>
         <h2 className="text-2xl font-bold sm:text-3xl">Спасибо! Уже мчим за заказом 🐾</h2>
         <p className="mt-3 leading-relaxed text-ink-soft">
           Заказ <span className="font-mono font-semibold text-ink">#{orderId.slice(0, 8)}</span>{" "}

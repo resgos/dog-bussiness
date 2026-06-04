@@ -6,6 +6,7 @@ import { Send } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Field, Select, Textarea } from "@/components/ui/Field";
 import { Button } from "@/components/ui/Button";
+import { postJson } from "@/lib/http";
 import { POST_TYPES, postTypeMeta, type PostType } from "./postMeta";
 
 type DistrictOption = { id: string; name: string };
@@ -39,12 +40,11 @@ export function CreatePostForm({
     setError(null);
     setBusy(true);
     try {
-      const res = await fetch("/api/community/posts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, district: district || null, text: trimmed }),
+      await postJson("/api/community/posts", {
+        type,
+        district: district || null,
+        text: trimmed,
       });
-      if (!res.ok) throw new Error();
       setText("");
       setType("обсуждение");
       router.refresh();

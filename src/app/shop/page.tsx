@@ -1,5 +1,5 @@
 import { ScanLine } from "lucide-react";
-import { db } from "@/lib/db";
+import { getCatalog } from "@/lib/catalog";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
@@ -10,16 +10,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Магазин" };
 
 export default async function ShopPage() {
-  const products = await db.product.findMany({
-    orderBy: { createdAt: "desc" },
-    select: {
-      slug: true,
-      name: true,
-      category: true,
-      priceRub: true,
-      image: true,
-    },
-  });
+  const products = await getCatalog();
 
   return (
     <Container className="py-12 sm:py-16">

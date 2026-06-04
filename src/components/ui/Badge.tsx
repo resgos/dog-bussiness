@@ -8,8 +8,8 @@ const tones: Record<Tone, string> = {
   petal: "bg-blush text-petal-deep",
   paw: "bg-paw/40 text-ink",
   lost: "bg-status-lost/15 text-status-lost",
-  found: "bg-status-found/15 text-[#4f9e63]",
-  seen: "bg-status-seen/15 text-[#3d7cc0]",
+  found: "bg-status-found/15 text-status-found-ink",
+  seen: "bg-status-seen/15 text-status-seen-ink",
 };
 
 export function Badge({

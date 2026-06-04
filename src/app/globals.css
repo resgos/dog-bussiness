@@ -26,6 +26,9 @@
   --color-status-lost: #ef6461; /* потерялась — красный */
   --color-status-found: #79c98b; /* найдена — зелёный */
   --color-status-seen: #6aa9e9; /* видели — синий */
+  /* Насыщенные «чернила» для текста на светлых плашках статусов */
+  --color-status-found-ink: #4f9e63; /* найдена — текст на плашке */
+  --color-status-seen-ink: #3d7cc0; /* видели — текст на плашке */
 
   /* Шрифты (переменные задаёт next/font в layout) */
   --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;

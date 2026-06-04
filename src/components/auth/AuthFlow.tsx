@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ArrowRight, LogIn, PawPrint } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Field, Input, Select } from "@/components/ui/Field";
+import { ErrorBox } from "@/components/ui/ErrorBox";
 import { districtsByOkrug } from "@/lib/districts";
 import {
   loginAction,
@@ -70,18 +71,6 @@ function DistrictSelect() {
         ))}
       </Select>
     </Field>
-  );
-}
-
-function ErrorBox({ message }: { message?: string }) {
-  if (!message) return null;
-  return (
-    <p
-      role="alert"
-      className="rounded-2xl border border-status-lost/30 bg-status-lost/10 px-4 py-3 text-sm font-medium text-status-lost"
-    >
-      {message}
-    </p>
   );
 }
 

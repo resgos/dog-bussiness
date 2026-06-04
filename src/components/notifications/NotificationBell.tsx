@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Bell } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { postJson } from "@/lib/http";
 import { timeAgo } from "@/lib/format";
 
 type Notif = {
@@ -55,11 +56,7 @@ export function NotificationBell({ unread: initialUnread }: { unread: number }) 
 
   const markAll = async () => {
     try {
-      await fetch("/api/notifications/read", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-      });
+      await postJson("/api/notifications/read", {});
     } catch {
       /* тихо */
     }

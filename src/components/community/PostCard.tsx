@@ -6,7 +6,9 @@ import { Heart, MapPin, MessageCircle, Send, Clock } from "lucide-react";
 import { findDistrict } from "@/lib/districts";
 import { timeAgo, plural } from "@/lib/format";
 import { cn } from "@/lib/cn";
+import { postJson } from "@/lib/http";
 import { Badge } from "@/components/ui/Badge";
+import { Input } from "@/components/ui/Field";
 import { postTypeMeta, type PostType } from "./postMeta";
 
 export type CommentLite = {
@@ -57,11 +59,9 @@ export function PostCard({ post, canInteract }: { post: PostLite; canInteract: b
     setLiked(!prevLiked);
     setLikes(prevLikes + (prevLiked ? -1 : 1));
     try {
-      const res = await fetch(`/api/community/posts/${post.id}/like`, {
-        method: "POST",
-      });
-      if (!res.ok) throw new Error();
-      const data = await res.json();
+      const data = await postJson<{ liked: boolean; likes: number }>(
+        `/api/community/posts/${post.id}/like`,
+      );
       setLiked(Boolean(data.liked));
       setLikes(Number(data.likes));
       router.refresh();
@@ -82,12 +82,7 @@ export function PostCard({ post, canInteract }: { post: PostLite; canInteract: b
     setError(null);
     setCommentBusy(true);
     try {
-      const res = await fetch(`/api/community/posts/${post.id}/comments`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
-      if (!res.ok) throw new Error();
+      await postJson(`/api/community/posts/${post.id}/comments`, { text });
       setCommentText("");
       router.refresh();
     } catch {
@@ -184,12 +179,12 @@ export function PostCard({ post, canInteract }: { post: PostLite; canInteract: b
 
           {canInteract ? (
             <form onSubmit={submitComment} className="flex items-end gap-2">
-              <input
+              <Input
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
                 placeholder="Добавить комментарий…"
                 maxLength={500}
-                className="w-full rounded-2xl border border-blush bg-card px-4 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-ink-soft/60 focus:border-petal focus:ring-4 focus:ring-blush"
+                className="text-sm"
               />
               <button
                 type="submit"
