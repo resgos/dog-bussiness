@@ -15,9 +15,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Выбери питомца" }, { status: 400 });
   }
 
+  // Текущий пользователь (если залогинен) — привязываем к нему объявление,
+  // чтобы он мог вести/закрывать поиск и получать уведомления о наблюдениях.
+  const me = await getCurrentUser();
+
   const radius = Number(b.radiusKm);
   const report = await db.lostReport.create({
     data: {
+      userId: me?.id ?? null,
       petId: str(b.petId),
       petName: petName.slice(0, 80),
       breed: str(b.breed),
@@ -36,7 +41,6 @@ export async function POST(req: Request) {
   // любой сбой здесь не должен мешать созданию объявления.
   if (report.district) {
     try {
-      const me = await getCurrentUser();
       const neighbours = await db.user.findMany({
         where: { district: report.district },
         select: { id: true },

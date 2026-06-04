@@ -19,6 +19,7 @@ const hoursAgo = (h) => new Date(Date.now() - h * 3600 * 1000);
 
 async function main() {
   // Чистим в порядке внешних ключей.
+  await db.notification.deleteMany();
   await db.orderItem.deleteMany();
   await db.order.deleteMany();
   await db.product.deleteMany();
@@ -29,6 +30,7 @@ async function main() {
   await db.sighting.deleteMany();
   await db.lostReport.deleteMany();
   await db.foundEvent.deleteMany();
+  await db.foundReport.deleteMany();
   await db.pet.deleteMany();
   await db.owner.deleteMany();
   await db.user.deleteMany();
@@ -103,7 +105,7 @@ async function main() {
   let firstActiveId = null;
   for (const r of reports) {
     const [lat, lng] = coords[r.district] ?? coords.khamovniki;
-    const created = await db.lostReport.create({ data: { ...r, lat, lng } });
+    const created = await db.lostReport.create({ data: { ...r, lat, lng, userId: anyaUser.id } });
     if (!firstActiveId && r.status === "active") firstActiveId = created.id;
   }
   if (firstActiveId) {
@@ -120,6 +122,15 @@ async function main() {
   const dists = ["khamovniki", "presnensky", "yakimanka", "tverskoy", "sokol"];
   await db.foundEvent.createMany({
     data: Array.from({ length: 24 }, (_, i) => ({ petName: names[i % names.length], district: dists[i % dists.length] })),
+  });
+
+  // Находки: нашли чужую собаку — ищем владельца.
+  await db.foundReport.createMany({
+    data: [
+      { userId: anyaUser.id, finderName: "Аня", contactTelegram: "@anya", breed: "Метис / не знаю", color: "рыжий", size: "medium", district: "khamovniki", lat: coords.khamovniki[0] + 0.005, lng: coords.khamovniki[1] - 0.004, comment: "Бегает у Парка культуры, без ошейника, идёт на руки. Приютила на ночь.", status: "open", createdAt: hoursAgo(3) },
+      { finderName: "Марина", contactPhone: "+7 (905) 200-30-40", breed: "Шпиц", color: "белый", size: "small", district: "presnensky", lat: coords.presnensky[0] - 0.003, lng: coords.presnensky[1] + 0.003, comment: "Поймала во дворе, очень напуган, без документов. Ищу хозяина.", status: "open", createdAt: hoursAgo(10) },
+      { finderName: "Дмитрий", contactPhone: "+7 (916) 555-11-22", breed: "Не знаю", color: "чёрный с подпалом", size: "large", district: "tverskoy", lat: coords.tverskoy[0] + 0.002, lng: coords.tverskoy[1] + 0.005, comment: "Большой пёс в синем ошейнике сидит у подъезда, ждёт кого-то.", status: "open", createdAt: hoursAgo(28) },
+    ],
   });
 
   // Товары магазина.
@@ -149,10 +160,10 @@ async function main() {
     ],
   });
 
-  const [pets, lost, products, posts, notifs] = await Promise.all([
-    db.pet.count(), db.lostReport.count(), db.product.count(), db.post.count(), db.notification.count(),
+  const [pets, lost, found, products, posts, notifs] = await Promise.all([
+    db.pet.count(), db.lostReport.count(), db.foundReport.count(), db.product.count(), db.post.count(), db.notification.count(),
   ]);
-  console.log(`Seeded: user anya (demo1234), ${pets} pets, ${lost} reports, ${products} products, ${posts} posts, ${notifs} notifications.`);
+  console.log(`Seeded: user anya (demo1234), ${pets} pets, ${lost} reports, ${found} found, ${products} products, ${posts} posts, ${notifs} notifications.`);
 }
 
 main()

@@ -7,12 +7,17 @@ import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { findDistrict } from "@/lib/districts";
 import { ageOptions, sizeOptions } from "@/lib/petForm";
+import { ShareButton } from "@/components/share/ShareButton";
 
 export const dynamic = "force-dynamic";
 
 async function getPet(id: string) {
   return db.pet.findUnique({ where: { id } });
 }
+
+// Фото питомца часто приходит как data URL (base64) — краулеры соцсетей его не
+// показывают, поэтому в превью отдаём фирменную картинку Шуни.
+const OG_IMAGE = "/shunya/pose-surprised.png";
 
 export async function generateMetadata({
   params,
@@ -21,7 +26,50 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const pet = await getPet(id);
-  return { title: pet ? `Паспорт · ${pet.name}` : "Паспорт питомца" };
+
+  const metadataBase = new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3002",
+  );
+
+  // Питомец не найден — оставляем дефолтный заголовок без OG-карточки.
+  if (!pet) {
+    return { metadataBase, title: "Паспорт питомца" };
+  }
+
+  const districtName = pet.district ? findDistrict(pet.district)?.name : null;
+  const isLost = pet.status === "lost";
+
+  const title = isLost
+    ? `🆘 Разыскивается: ${pet.name}`
+    : `Паспорт · ${pet.name}`;
+  const description = isLost
+    ? `${[pet.breed, districtName]
+        .filter(Boolean)
+        .join(", ")}. Помогите вернуть домой — поделитесь!`
+    : `${[pet.breed, districtName]
+        .filter(Boolean)
+        .join(", ")} · Цифровой паспорт питомца «Лапка помощи».`;
+  const alt = isLost ? `Разыскивается ${pet.name}` : `Паспорт ${pet.name}`;
+  const images = [{ url: OG_IMAGE, width: 1200, height: 630, alt }];
+
+  return {
+    metadataBase,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      url: `/p/${id}`,
+      images,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images,
+    },
+  };
 }
 
 const statusMap: Record<string, { label: string; tone: "found" | "lost" | "neutral" }> = {
@@ -114,6 +162,23 @@ export default async function PassportPage({
               {facts.length ? (
                 <p className="text-ink-soft">{facts.join(" · ")}</p>
               ) : null}
+
+              {/* Репост паспорта — главный виральный канал поиска (ТЗ) */}
+              <ShareButton
+                path={`/p/${pet.id}`}
+                title={
+                  pet.status === "lost"
+                    ? `🆘 Разыскивается: ${pet.name}`
+                    : `Паспорт · ${pet.name}`
+                }
+                text={
+                  pet.status === "lost"
+                    ? `Помогите найти ${pet.name}!${
+                        district ? ` Район: ${district}.` : ""
+                      } Поделитесь паспортом.`
+                    : `Цифровой паспорт питомца ${pet.name} · Лапка помощи`
+                }
+              />
 
               {district ? (
                 <p className="inline-flex items-center gap-1.5 text-sm text-ink-soft">

@@ -7,6 +7,7 @@ import {
   PawPrint,
   Phone,
   Plus,
+  Search,
   Send,
   Settings,
   ShoppingBag,
@@ -32,6 +33,7 @@ const navItems: {
   icon: typeof PawPrint;
 }[] = [
   { href: "/profile/pets", label: "Мои питомцы", desc: "Карточки и QR-паспорта", icon: PawPrint },
+  { href: "/profile/my-searches", label: "Мои поиски", desc: "SOS-объявления и наблюдения", icon: Search },
   { href: "/profile/pets/add", label: "Добавить питомца", desc: "Новая карточка в стаю", icon: Plus },
   { href: "/profile/orders", label: "Мои заказы", desc: "Адресники и мерч", icon: ShoppingBag },
   { href: "/profile/achievements", label: "Достижения", desc: "Бейджи и прогресс", icon: Trophy },

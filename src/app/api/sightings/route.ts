@@ -18,5 +18,31 @@ export async function POST(req: Request) {
       photo: str(b?.photo),
     },
   });
+
+  // «Петля владельца»: если наблюдение привязано к чьему-то поиску —
+  // уведомляем владельца, что его собаку видели. Некритично → try/catch.
+  if (sighting.reportId) {
+    try {
+      const report = await db.lostReport.findUnique({
+        where: { id: sighting.reportId },
+      });
+      if (report?.userId) {
+        await db.notification.create({
+          data: {
+            userId: report.userId,
+            type: "found",
+            title: `Вашу собаку видели: ${report.petName}`,
+            body:
+              sighting.comment ||
+              "Кто-то отметил наблюдение на карте поиска",
+            link: "/profile/my-searches",
+          },
+        });
+      }
+    } catch {
+      /* уведомление владельцу не критично — игнорируем */
+    }
+  }
+
   return NextResponse.json({ id: sighting.id }, { status: 201 });
 }

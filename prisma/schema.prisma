@@ -62,6 +62,8 @@ model FoundEvent {
 
 model LostReport {
   id        String     @id @default(cuid())
+  userId    String?
+  user      User?      @relation(fields: [userId], references: [id])
   petId     String?
   petName   String
   breed     String?
@@ -75,6 +77,33 @@ model LostReport {
   status    String     @default("active") // active | found | home
   createdAt DateTime   @default(now())
   sightings Sighting[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+/// Находка: нашли чужую/бездомную собаку (ищем владельца).
+model FoundReport {
+  id              String   @id @default(cuid())
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id])
+  finderName      String?
+  contactPhone    String?
+  contactTelegram String?
+  photo           String?
+  breed           String?
+  color           String?
+  size            String? // small | medium | large
+  district        String?
+  lat             Float?
+  lng             Float?
+  comment         String?
+  status          String   @default("open") // open | reunited
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+  @@index([district])
+  @@index([status])
 }
 
 model Sighting {
@@ -109,6 +138,8 @@ model User {
   postLikes     PostLike[]
   orders        Order[]
   notifications Notification[]
+  lostReports   LostReport[]
+  foundReports  FoundReport[]
 }
 
 model Session {

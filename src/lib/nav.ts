@@ -14,6 +14,7 @@ export const primaryNav: NavItem[] = [
     children: [
       { label: "Потерялись", href: "/feed/lost" },
       { label: "Найдены", href: "/feed/found" },
+      { label: "Я нашёл собаку", href: "/found/new" },
     ],
   },
   {
@@ -46,6 +47,7 @@ export const secondaryNav: NavItem[] = [
 export const profileNav: NavItem[] = [
   { label: "Мои питомцы", href: "/profile/pets" },
   { label: "Добавить питомца", href: "/profile/pets/add" },
+  { label: "Мои поиски", href: "/profile/my-searches" },
   { label: "Моя стая", href: "/profile/my-pack" },
   { label: "Мои заказы", href: "/profile/orders" },
   { label: "Достижения", href: "/profile/achievements" },

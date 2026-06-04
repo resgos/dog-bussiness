@@ -11,7 +11,10 @@ export async function PATCH(
 ) {
   const { id } = await params;
   const body = await req.json().catch(() => ({}));
-  const next = body?.status === "home" ? "home" : "found";
+  // Допустимые статусы поиска. Неизвестное значение трактуем как "found"
+  // ради обратной совместимости (FoundButton шлёт {status:"found"}).
+  const allowed = ["found", "home", "active"] as const;
+  const next = allowed.includes(body?.status) ? body.status : "found";
 
   const report = await db.lostReport.findUnique({ where: { id } });
   if (!report) {
