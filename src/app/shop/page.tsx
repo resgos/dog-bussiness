@@ -15,7 +15,7 @@ export default async function ShopPage() {
   return (
     <Container className="py-12 sm:py-16">
       {/* Тёплый hero с Шуней */}
-      <div className="mb-10 overflow-hidden rounded-[2.5rem] border border-blush bg-gradient-to-br from-blush-soft to-card p-8 shadow-soft sm:p-12">
+      <div className="mb-8 overflow-hidden rounded-[2.5rem] border border-blush bg-gradient-to-br from-blush-soft to-card p-6 shadow-soft sm:p-8">
         <Badge tone="petal">🛍️ Магазин</Badge>
         <h1 className="mt-3 max-w-2xl text-3xl font-bold sm:text-4xl">
           Адресники с QR-кодом, браслеты и мерч с Шуней

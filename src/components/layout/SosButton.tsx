@@ -6,16 +6,18 @@ import { cn } from "@/lib/cn";
 export function SosButton({
   size = "md",
   withLabel = true,
+  variant = "sos",
   className,
 }: {
   size?: "sm" | "md" | "lg";
   withLabel?: boolean;
+  variant?: "sos" | "sos-outline";
   className?: string;
 }) {
   return (
     <ButtonLink
       href="/sos"
-      variant="sos"
+      variant={variant}
       size={size}
       className={cn("group", className)}
       aria-label="Сообщить о пропаже — режим SOS"

@@ -3,40 +3,58 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Анимированный count-up. Стартует с 0 (одинаково на сервере и клиенте —
- * без рассинхрона гидрации), подтягивает реальное число с /api/found-today
- * и плавно набегает к нему от текущего значения.
+ * Анимированный count-up для счётчика на hero.
+ * Стартует с 0 (одинаково на сервере и клиенте — без рассинхрона гидрации),
+ * один раз плавно набегает к реальному числу с /api/found-today.
+ * Если сегодня ещё 0 находок — показываем накопительный итог (никогда не «0»),
+ * переключая подпись с todayLabel на totalLabel.
  */
 export function FoundCounter({
-  fallback = 47,
+  fallback = 240,
   duration = 1500,
-  className,
+  todayLabel = "собак найдено сегодня",
+  totalLabel = "собак уже дома",
 }: {
   fallback?: number;
   duration?: number;
-  className?: string;
+  todayLabel?: string;
+  totalLabel?: string;
 }) {
   const [value, setValue] = useState(0);
-  const [target, setTarget] = useState(fallback);
+  const [target, setTarget] = useState(0);
+  const [label, setLabel] = useState(todayLabel);
   const valueRef = useRef(0);
 
-  // Реальное значение с сервера.
+  // Реальные числа с сервера: сегодня + накопительно.
   useEffect(() => {
     let alive = true;
     fetch("/api/found-today")
       .then((r) => r.json())
       .then((d) => {
-        if (alive && typeof d?.count === "number") setTarget(d.count);
+        if (!alive) return;
+        const today = typeof d?.count === "number" ? d.count : 0;
+        const total = typeof d?.total === "number" ? d.total : 0;
+        if (today > 0) {
+          setTarget(today);
+          setLabel(todayLabel);
+        } else if (total > 0) {
+          setTarget(total);
+          setLabel(totalLabel);
+        } else {
+          setTarget(fallback);
+          setLabel(totalLabel);
+        }
       })
       .catch(() => {
-        /* оставляем fallback */
+        setTarget(fallback);
+        setLabel(totalLabel);
       });
     return () => {
       alive = false;
     };
-  }, []);
+  }, [fallback, todayLabel, totalLabel]);
 
-  // Плавная анимация от текущего значения к target.
+  // Плавная анимация от текущего значения к target (только вверх — цель ≥ 0).
   useEffect(() => {
     const from = valueRef.current;
     let raf = 0;
@@ -55,8 +73,8 @@ export function FoundCounter({
   }, [target, duration]);
 
   return (
-    <span className={className} suppressHydrationWarning>
-      {value}
+    <span suppressHydrationWarning>
+      {value} {label}
     </span>
   );
 }

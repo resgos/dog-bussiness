@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
-type Variant = "primary" | "secondary" | "ghost" | "sos";
+type Variant = "primary" | "secondary" | "ghost" | "sos" | "sos-outline";
 type Size = "sm" | "md" | "lg";
 
 const base =
@@ -16,10 +16,13 @@ const variants: Record<Variant, string> = {
     "bg-card text-ink border-2 border-blush hover:border-petal hover:text-petal-deep",
   ghost: "bg-transparent text-ink hover:bg-blush-soft",
   sos: "bg-status-lost text-white shadow-lift hover:brightness-105 active:translate-y-px",
+  // Подчинённый SOS на hero: красный контур, но не перетягивает первичную кнопку
+  "sos-outline":
+    "bg-card text-status-lost-ink border-2 border-status-lost-ink/45 hover:bg-status-lost-ink/8 active:translate-y-px",
 };
 
 const sizes: Record<Size, string> = {
-  sm: "h-9 px-4 text-sm",
+  sm: "h-10 px-4 text-sm",
   md: "h-11 px-6 text-[0.95rem]",
   lg: "h-14 px-8 text-lg",
 };

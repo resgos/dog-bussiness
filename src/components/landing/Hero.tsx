@@ -40,7 +40,7 @@ export function Hero() {
               Добавить питомца
               <ArrowRight className="size-5" aria-hidden />
             </ButtonLink>
-            <SosButton size="lg" />
+            <SosButton size="lg" variant="sos-outline" />
           </div>
 
           {/* Живой счётчик */}
@@ -51,7 +51,10 @@ export function Hero() {
             </span>
             <div>
               <p className="text-2xl font-bold leading-none text-ink">
-                <FoundCounter fallback={47} /> собак найдено сегодня
+                <FoundCounter
+                  todayLabel="собак найдено сегодня"
+                  totalLabel="собак уже дома"
+                />
               </p>
               <p className="mt-1 text-sm text-ink-soft">
                 вместе со «стаей» своего района

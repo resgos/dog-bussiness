@@ -9,12 +9,13 @@ export async function GET() {
   const start = new Date();
   start.setHours(0, 0, 0, 0);
 
-  const count = await db.foundEvent.count({
-    where: { createdAt: { gte: start } },
-  });
+  const [count, total] = await Promise.all([
+    db.foundEvent.count({ where: { createdAt: { gte: start } } }),
+    db.foundEvent.count(),
+  ]);
 
   return NextResponse.json(
-    { count, date: start.toISOString().slice(0, 10) },
+    { count, total, date: start.toISOString().slice(0, 10) },
     { headers: { "Cache-Control": "no-store" } },
   );
 }

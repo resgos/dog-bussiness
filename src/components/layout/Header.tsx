@@ -123,7 +123,7 @@ export function Header({
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="inline-flex size-10 items-center justify-center rounded-full text-ink transition-colors hover:bg-blush-soft lg:hidden"
+            className="inline-flex size-11 items-center justify-center rounded-full text-ink transition-colors hover:bg-blush-soft lg:hidden"
             aria-label={open ? "Закрыть меню" : "Открыть меню"}
             aria-expanded={open}
           >

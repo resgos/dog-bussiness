@@ -71,11 +71,11 @@ export function NotificationBell({ unread: initialUnread }: { unread: number }) 
         type="button"
         onClick={toggle}
         aria-label="Уведомления"
-        className="relative grid size-10 place-items-center rounded-full text-ink transition-colors hover:bg-blush-soft"
+        className="relative grid size-11 place-items-center rounded-full text-ink transition-colors hover:bg-blush-soft"
       >
         <Bell className="size-5" aria-hidden />
         {unread > 0 ? (
-          <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-status-lost px-1 text-[10px] font-bold text-white">
+          <span className="absolute right-1.5 top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-status-lost-ink px-1 text-[10px] font-bold text-white">
             {unread > 9 ? "9+" : unread}
           </span>
         ) : null}

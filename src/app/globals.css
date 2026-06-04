@@ -11,13 +11,13 @@
 
   /* Текст */
   --color-ink: #4a4a4a; /* основной текст — мягкий серый */
-  --color-ink-soft: #8c8480; /* второстепенный текст */
+  --color-ink-soft: #787169; /* второстепенный текст (AA ≥4.5:1 на светлом) */
 
   /* Акценты бренда */
   --color-paw: #facea2; /* кнопки — пастельно-оранжевый (из лого) */
   --color-paw-deep: #f3b275; /* кнопки: hover */
   --color-petal: #e6a4b4; /* ссылки, иконки — пастельно-розовый (из лого) */
-  --color-petal-deep: #d9849a; /* розовый: hover/active */
+  --color-petal-deep: #b35070; /* розовый: hover/active/ссылки (AA ≥4.5:1) */
   --color-blush: #fcd9e2; /* тени, разделители — бледно-розовый */
   --color-blush-soft: #fef0f4; /* очень светлый розовый для заливок */
   --color-coral: #f0997a; /* коралловый акцент из лого */
@@ -27,8 +27,9 @@
   --color-status-found: #79c98b; /* найдена — зелёный */
   --color-status-seen: #6aa9e9; /* видели — синий */
   /* Насыщенные «чернила» для текста на светлых плашках статусов */
-  --color-status-found-ink: #4f9e63; /* найдена — текст на плашке */
-  --color-status-seen-ink: #3d7cc0; /* видели — текст на плашке */
+  --color-status-found-ink: #3f8456; /* найдена — текст на плашке (AA ≥4.5:1) */
+  --color-status-seen-ink: #3873b5; /* видели — текст на плашке (AA ≥4.5:1) */
+  --color-status-lost-ink: #d2453f; /* красный для текста/мелких элементов (AA ≥4.5:1) */
 
   /* Шрифты (переменные задаёт next/font в layout) */
   --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
