@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
-import { notifyMany } from "@/lib/notify";
+import { notifyUser, notifyMany } from "@/lib/notify";
 
 export const dynamic = "force-dynamic";
 
@@ -51,6 +51,33 @@ export async function PATCH(
     await db.foundEvent.create({
       data: { petName: report.petName, district: report.district },
     });
+
+    // «Кто помог»: +1 helpedCount каждому уникальному автору наблюдений (не владельцу).
+    const seen = await db.sighting.findMany({
+      where: { reportId: id, userId: { not: null } },
+      select: { userId: true },
+    });
+    const helperIds = [
+      ...new Set(
+        seen
+          .map((s) => s.userId)
+          .filter(
+            (uid): uid is string => Boolean(uid) && uid !== report.userId,
+          ),
+      ),
+    ];
+    for (const hid of helperIds) {
+      await db.user.update({
+        where: { id: hid },
+        data: { helpedCount: { increment: 1 } },
+      });
+      await notifyUser(hid, {
+        type: "found",
+        title: "Спасибо! Ты помог найти 🐾",
+        body: `Собака «${report.petName}» нашлась — твоё наблюдение помогло. +1 к «помог найти».`,
+        link: "/profile/achievements",
+      });
+    }
   }
 
   // Уведомляем подписчиков розыска о смене статуса. Некритично → не валим ответ.

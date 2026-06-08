@@ -111,6 +111,7 @@ model LostReport {
   createdAt DateTime   @default(now())
   sightings Sighting[]
   subscribers ReportSubscription[]
+  reunions  Reunion[]
 
   @@index([userId])
   @@index([status])
@@ -158,6 +159,8 @@ model Sighting {
   id        String      @id @default(cuid())
   reportId  String?
   report    LostReport? @relation(fields: [reportId], references: [id])
+  userId    String? // автор наблюдения (если залогинен) — для кредита «помог найти»
+  user      User?       @relation(fields: [userId], references: [id])
   lat       Float?
   lng       Float?
   comment   String?
@@ -165,6 +168,24 @@ model Sighting {
   createdAt DateTime    @default(now())
 
   @@index([reportId])
+  @@index([userId])
+}
+
+/// История воссоединения: владелец рассказывает, как нашлась собака
+/// (соцдоказательство и эмоция бренда). Публичная лента /reunited.
+model Reunion {
+  id        String      @id @default(cuid())
+  reportId  String?
+  report    LostReport? @relation(fields: [reportId], references: [id])
+  userId    String?
+  user      User?       @relation(fields: [userId], references: [id])
+  petName   String
+  story     String
+  photo     String?
+  district  String?
+  createdAt DateTime    @default(now())
+
+  @@index([createdAt])
 }
 
 // ——— Авторизация ———
@@ -199,6 +220,8 @@ model User {
   referrals       User[]   @relation("Referrals")
   walkCheckins    WalkCheckin[]
   reportSubs      ReportSubscription[]
+  sightings       Sighting[]
+  reunions        Reunion[]
 }
 
 /// Токен подтверждения e-mail (мягкая верификация, не блокирует вход).

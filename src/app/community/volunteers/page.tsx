@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { MapPin, Medal, PawPrint, Trophy } from "lucide-react";
 import { db } from "@/lib/db";
 import { findDistrict } from "@/lib/districts";
@@ -79,7 +80,12 @@ export default async function VolunteersPage() {
 
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="truncate font-bold text-ink">{u.name}</span>
+                      <Link
+                        href={`/community/volunteers/${u.id}`}
+                        className="truncate font-bold text-ink hover:text-petal-deep hover:underline"
+                      >
+                        {u.name}
+                      </Link>
                       <Badge tone={role.tone}>
                         <span aria-hidden>{role.emoji}</span>
                         {role.label}

@@ -25,6 +25,7 @@ export const primaryNav: NavItem[] = [
     children: [
       { label: "Районные ленты", href: "/community/districts" },
       { label: "Рейтинг волонтёров", href: "/community/volunteers" },
+      { label: "Истории спасения", href: "/reunited" },
       { label: "Приюты — забрать друга", href: "/adoption" },
       { label: "Сервисы рядом", href: "/services" },
     ],
