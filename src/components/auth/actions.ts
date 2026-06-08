@@ -13,6 +13,7 @@ import {
 import { findDistrict } from "@/lib/districts";
 import { digits, isEmailValid } from "@/lib/onboarding";
 import { sendVerificationEmail } from "@/lib/verify";
+import { randomBytes } from "node:crypto";
 
 /**
  * Результат Server Action: либо ошибка (показываем человеку), либо редирект,
@@ -90,6 +91,13 @@ export async function registerAction(
     };
   }
 
+  // Рефералка: код приглашения для нового участника + привязка к пригласившему.
+  const refCode = String(formData.get("ref") ?? "").trim();
+  const referrer = refCode
+    ? await db.user.findUnique({ where: { referralCode: refCode } })
+    : null;
+  const myReferralCode = randomBytes(5).toString("hex");
+
   let user;
   try {
     user = await db.user.create({
@@ -100,6 +108,8 @@ export async function registerAction(
         passwordHash: hashPassword(password),
         district: districtId,
         telegram,
+        referralCode: myReferralCode,
+        referredById: referrer?.id ?? null,
       },
     });
   } catch (e: unknown) {

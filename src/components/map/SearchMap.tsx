@@ -10,6 +10,7 @@ import { TagToggle } from "@/components/ui/TagToggle";
 import { Button } from "@/components/ui/Button";
 import { LeafletMap, type MapMarker } from "@/components/map/LeafletMap";
 import { SightingModal } from "@/components/map/SightingModal";
+import { WalkButton } from "@/components/map/WalkButton";
 
 type Sighting = {
   id: string;
@@ -35,6 +36,14 @@ type Report = {
   createdAt: Date | string;
   sightings: Sighting[];
 };
+/** Сосед, отметивший «гуляю сейчас» (актуальность ~2 часа). */
+type Walker = {
+  id: string;
+  lat: number | null;
+  lng: number | null;
+  user: { name: string };
+  createdAt: Date | string;
+};
 
 const FILTERS = [
   { id: "all", label: "Все" },
@@ -51,7 +60,15 @@ const RECENCY = [
 ] as const;
 type Recency = (typeof RECENCY)[number]["id"];
 
-export function SearchMap({ reports }: { reports: Report[] }) {
+export function SearchMap({
+  reports,
+  walkers = [],
+  walking = false,
+}: {
+  reports: Report[];
+  walkers?: Walker[];
+  walking?: boolean;
+}) {
   const router = useRouter();
   const [filter, setFilter] = useState<Filter>("all");
   const [recency, setRecency] = useState<Recency>("all");
@@ -142,6 +159,19 @@ export function SearchMap({ reports }: { reports: Report[] }) {
       title: "Вы здесь",
     });
   }
+  // «Глаза района» — соседи, гуляющие прямо сейчас (с координатами).
+  for (const w of walkers) {
+    if (w.lat != null && w.lng != null) {
+      mapMarkers.push({
+        id: `w-${w.id}`,
+        lat: w.lat,
+        lng: w.lng,
+        kind: "walk",
+        title: `🐾 ${w.user.name} на прогулке`,
+        meta: timeAgo(w.createdAt),
+      });
+    }
+  }
 
   const focusCard = (id: string) => {
     focusMarker(id);
@@ -193,6 +223,12 @@ export function SearchMap({ reports }: { reports: Report[] }) {
           <span className="inline-flex items-center gap-1.5">
             <span className="size-2.5 rounded-full bg-status-seen" /> наблюдение
           </span>
+          {walkers.length > 0 ? (
+            <span className="inline-flex items-center gap-1.5 font-semibold text-violet-700">
+              <span className="size-2.5 rounded-full" style={{ background: "#7c3aed" }} />
+              🐾 {walkers.length} {plural(walkers.length, "сосед", "соседа", "соседей")} гуляют рядом
+            </span>
+          ) : null}
         </div>
       </div>
 
@@ -217,6 +253,8 @@ export function SearchMap({ reports }: { reports: Report[] }) {
             <ArrowDownNarrowWide className="size-3.5" aria-hidden /> Сначала ближайшие
           </TagToggle>
         ) : null}
+        <span className="mx-1 hidden h-5 w-px bg-blush sm:block" />
+        <WalkButton initialWalking={walking} />
       </div>
 
       <div id="search-map" className="scroll-mt-24">

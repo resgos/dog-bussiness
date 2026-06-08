@@ -20,6 +20,9 @@ const hoursAgo = (h) => new Date(Date.now() - h * 3600 * 1000);
 async function main() {
   // Чистим в порядке внешних ключей.
   await db.notification.deleteMany();
+  await db.walkCheckin.deleteMany();
+  await db.partner.deleteMany();
+  await db.adoptionListing.deleteMany();
   await db.orderItem.deleteMany();
   await db.order.deleteMany();
   await db.product.deleteMany();
@@ -47,6 +50,7 @@ async function main() {
       telegram: "@anya",
       role: "volunteer",
       helpedCount: 3,
+      referralCode: randomBytes(5).toString("hex"),
     },
   });
 

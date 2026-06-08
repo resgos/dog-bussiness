@@ -11,7 +11,7 @@ import type {
   Circle as LCircle,
 } from "leaflet";
 
-export type MarkerKind = "lost" | "found" | "seen" | "me";
+export type MarkerKind = "lost" | "found" | "seen" | "me" | "walk";
 
 export type MapMarker = {
   id: string;
@@ -58,6 +58,7 @@ const KIND_COLORS: Record<MarkerKind, string> = {
   found: "#79c98b",
   seen: "#6aa9e9",
   me: "#2f6bd8",
+  walk: "#7c3aed",
 };
 
 function dot(color: string, me = false) {

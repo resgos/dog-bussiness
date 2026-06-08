@@ -23,6 +23,8 @@ export const primaryNav: NavItem[] = [
     children: [
       { label: "Районные ленты", href: "/community/districts" },
       { label: "Рейтинг волонтёров", href: "/community/volunteers" },
+      { label: "Приюты — забрать друга", href: "/adoption" },
+      { label: "Сервисы рядом", href: "/services" },
     ],
   },
   {
@@ -48,6 +50,7 @@ export const profileNav: NavItem[] = [
   { label: "Мои питомцы", href: "/profile/pets" },
   { label: "Добавить питомца", href: "/profile/pets/add" },
   { label: "Мои поиски", href: "/profile/my-searches" },
+  { label: "Пригласить соседа", href: "/profile/invite" },
   { label: "Моя стая", href: "/profile/my-pack" },
   { label: "Мои заказы", href: "/profile/orders" },
   { label: "Достижения", href: "/profile/achievements" },

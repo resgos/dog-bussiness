@@ -75,13 +75,15 @@ function DistrictSelect() {
   );
 }
 
-function RegisterForm() {
+function RegisterForm({ referral }: { referral?: string }) {
   const [state, formAction] = useActionState(registerAction, initial);
   const [mode, setMode] = useState<Mode>("phone");
 
   return (
     <form action={formAction} className="space-y-4">
       <input type="hidden" name="mode" value={mode} />
+      {/* Код приглашения соседа (?ref=...) — бэкенд проставит referredById. */}
+      <input type="hidden" name="ref" value={referral ?? ""} />
 
       <Field label="Как тебя зовут?" required>
         <Input name="name" placeholder="Например, Аня" autoComplete="name" required />
@@ -198,10 +200,11 @@ function LoginForm() {
   );
 }
 
-export function AuthFlow() {
+export function AuthFlow({ referral }: { referral?: string }) {
   // 0 — приветствие Шуни, затем форма с табами.
   const [greeted, setGreeted] = useState(false);
   const [tab, setTab] = useState<Tab>("register");
+  const invited = Boolean(referral);
 
   return (
     <div className="mx-auto flex max-w-xl flex-col items-center">
@@ -243,6 +246,13 @@ export function AuthFlow() {
         </>
       ) : (
         <div className="mt-6 w-full">
+          {/* Плашка-приветствие, если пришли по ссылке-приглашению соседа. */}
+          {invited ? (
+            <div className="mb-5 rounded-2xl border border-petal/40 bg-blush-soft px-4 py-3 text-center text-sm font-semibold text-petal-deep">
+              🐾 Вас пригласил сосед — добро пожаловать в стаю!
+            </div>
+          ) : null}
+
           {/* Табы Вход / Регистрация */}
           <div className="mb-6 grid grid-cols-2 gap-1 rounded-full border border-blush bg-card p-1">
             <button
@@ -280,7 +290,11 @@ export function AuthFlow() {
           </p>
 
           <div className="rounded-3xl border border-blush bg-card p-6 shadow-card sm:p-7">
-            {tab === "register" ? <RegisterForm /> : <LoginForm />}
+            {tab === "register" ? (
+              <RegisterForm referral={referral} />
+            ) : (
+              <LoginForm />
+            )}
           </div>
         </div>
       )}

@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { getCurrentUser } from "@/lib/auth";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { SearchMap } from "@/components/map/SearchMap";
@@ -7,10 +8,23 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Карта поиска" };
 
 export default async function MapPage() {
-  const reports = await db.lostReport.findMany({
-    orderBy: { createdAt: "desc" },
-    include: { sightings: true },
-  });
+  const me = await getCurrentUser();
+
+  const [reports, walkers] = await Promise.all([
+    db.lostReport.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { sightings: true },
+    }),
+    // «Гуляю сейчас» — живые соседи за последние 2 часа.
+    db.walkCheckin.findMany({
+      where: { createdAt: { gte: new Date(Date.now() - 2 * 3600 * 1000) } },
+      include: { user: { select: { name: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+
+  // Гуляет ли сам пользователь — чтобы кнопка стартовала в нужном состоянии.
+  const walking = me ? walkers.some((w) => w.userId === me.id) : false;
 
   return (
     <Container className="py-12 sm:py-16">
@@ -22,7 +36,7 @@ export default async function MapPage() {
           поставь метку!
         </p>
       </div>
-      <SearchMap reports={reports} />
+      <SearchMap reports={reports} walkers={walkers} walking={walking} />
     </Container>
   );
 }
