@@ -74,6 +74,7 @@ model LostReport {
   lostAt    DateTime?
   comment   String?
   radiusKm  Int        @default(3)
+  reward    Int? // вознаграждение нашедшему, ₽
   status    String     @default("active") // active | found | home
   createdAt DateTime   @default(now())
   sightings Sighting[]

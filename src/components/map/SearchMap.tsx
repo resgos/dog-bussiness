@@ -30,6 +30,7 @@ type Report = {
   lng: number | null;
   status: string;
   radiusKm: number;
+  reward: number | null;
   lostAt: Date | string | null;
   createdAt: Date | string;
   sightings: Sighting[];
@@ -110,7 +111,7 @@ export function SearchMap({ reports }: { reports: Report[] }) {
         kind: found ? "found" : "lost",
         title: r.petName,
         subtitle: sub || undefined,
-        meta: `${timeAgo(r.lostAt ?? r.createdAt)} · ${r.sightings.length} ${plural(r.sightings.length, "наблюдение", "наблюдения", "наблюдений")}`,
+        meta: `${timeAgo(r.lostAt ?? r.createdAt)} · ${r.sightings.length} ${plural(r.sightings.length, "наблюдение", "наблюдения", "наблюдений")}${r.reward ? ` · 🎁 ${r.reward.toLocaleString("ru-RU")} ₽` : ""}`,
         photo: r.photo,
         href: r.petId ? `/p/${r.petId}` : found ? "/feed/found" : "/feed/lost",
         radiusKm: r.radiusKm,

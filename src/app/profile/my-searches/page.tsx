@@ -1,4 +1,4 @@
-import { Clock, Eye, LogIn, MapPin, PawPrint } from "lucide-react";
+import { Clock, Eye, Gift, LogIn, MapPin, PawPrint, Printer } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
@@ -124,10 +124,22 @@ export default async function MySearchesPage() {
                       "наблюдений",
                     )}
                   </span>
+                  {report.reward ? (
+                    <span className="inline-flex items-center gap-1.5 font-semibold text-ink">
+                      <Gift className="size-4 text-coral" aria-hidden />
+                      Награда {report.reward.toLocaleString("ru-RU")} ₽
+                    </span>
+                  ) : null}
                 </div>
 
-                <div className="mt-auto pt-1">
+                <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
                   <SearchControls id={report.id} status={report.status} />
+                  {report.status === "active" ? (
+                    <ButtonLink href={`/poster/${report.id}`} variant="secondary" size="sm">
+                      <Printer className="size-4" aria-hidden />
+                      Плакат
+                    </ButtonLink>
+                  ) : null}
                 </div>
               </article>
             );

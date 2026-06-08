@@ -97,9 +97,9 @@ async function main() {
 
   // Объявления о пропаже.
   const reports = [
-    { petName: "Тиша", breed: "Джек-рассел-терьер", district: "khamovniki", comment: "Сорвался с поводка у метро, побежал в сторону парка.", radiusKm: 3, status: "active", lostAt: hoursAgo(2) },
+    { petName: "Тиша", breed: "Джек-рассел-терьер", district: "khamovniki", comment: "Сорвался с поводка у метро, побежал в сторону парка.", radiusKm: 3, reward: 5000, status: "active", lostAt: hoursAgo(2) },
     { petName: "Майя", breed: "Хаски", district: "presnensky", comment: "Испугалась салюта, убежала во дворы.", radiusKm: 5, status: "active", lostAt: hoursAgo(6) },
-    { petName: "Бади", breed: "Метис / не знаю", district: "yakimanka", comment: "Рыжий, среднего размера, в синем ошейнике.", radiusKm: 1, status: "active", lostAt: hoursAgo(20) },
+    { petName: "Бади", breed: "Метис / не знаю", district: "yakimanka", comment: "Рыжий, среднего размера, в синем ошейнике.", radiusKm: 1, reward: 3000, status: "active", lostAt: hoursAgo(20) },
     { petName: "Лорд", breed: "Лабрадор-ретривер", district: "tverskoy", comment: "Нашёлся благодаря соседям! Спасибо стае 🧡", radiusKm: 3, status: "found", lostAt: hoursAgo(30) },
   ];
   let firstActiveId = null;

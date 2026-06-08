@@ -28,6 +28,7 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
   const [petId, setPetId] = useState(pets[0]?.id ?? "");
   const [comment, setComment] = useState("");
   const [radius, setRadius] = useState(3);
+  const [reward, setReward] = useState("");
   const [lostAt, setLostAt] = useState("");
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [geo, setGeo] = useState<"idle" | "loading" | "ok" | "err">("idle");
@@ -72,6 +73,7 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
         lostAt: lostAt || null,
         comment,
         radiusKm: radius,
+        reward: reward ? Number(reward) : null,
       });
       setDoneId(j.id);
     } catch {
@@ -205,6 +207,21 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="Сорвалась с поводка у парка, испугалась салюта…"
+          />
+        </Field>
+
+        <Field
+          label="Награда нашедшему, ₽"
+          hint="Необязательно — но мотивирует соседей искать активнее"
+        >
+          <Input
+            type="number"
+            min={0}
+            step={500}
+            inputMode="numeric"
+            value={reward}
+            onChange={(e) => setReward(e.target.value)}
+            placeholder="Например, 5000"
           />
         </Field>
 

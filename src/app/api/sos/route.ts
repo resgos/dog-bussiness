@@ -41,6 +41,10 @@ export async function POST(req: Request) {
       lostAt: b.lostAt ? new Date(b.lostAt) : new Date(),
       comment: str(b.comment),
       radiusKm: [1, 3, 5, 10].includes(radius) ? radius : 3,
+      reward:
+        typeof b.reward === "number" && b.reward > 0
+          ? Math.round(b.reward)
+          : null,
       status: "active",
     },
   });

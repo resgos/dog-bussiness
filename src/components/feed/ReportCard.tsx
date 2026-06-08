@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { Camera, Clock, Eye, MapPin } from "lucide-react";
+import Link from "next/link";
+import { Camera, Clock, Eye, MapPin, Printer } from "lucide-react";
 import { findDistrict } from "@/lib/districts";
 import { timeAgo, plural } from "@/lib/format";
 import { Badge } from "@/components/ui/Badge";
@@ -14,6 +15,7 @@ type ReportLite = {
   lostAt: Date | string | null;
   comment: string | null;
   radiusKm: number;
+  reward: number | null;
   status: string;
   createdAt: Date | string;
   sightings: { id: string }[];
@@ -53,6 +55,11 @@ export function ReportCard({ report }: { report: ReportLite }) {
             {isFound ? "Найдена" : "Активный поиск"}
           </Badge>
         </span>
+        {report.reward ? (
+          <span className="absolute right-3 top-3">
+            <Badge tone="paw">🎁 {report.reward.toLocaleString("ru-RU")} ₽</Badge>
+          </span>
+        ) : null}
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-5">
@@ -88,6 +95,16 @@ export function ReportCard({ report }: { report: ReportLite }) {
           )}
           {!isFound ? <FoundButton id={report.id} /> : null}
         </div>
+
+        {!isFound ? (
+          <Link
+            href={`/poster/${report.id}`}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
+          >
+            <Printer className="size-4" aria-hidden />
+            Розыскной плакат
+          </Link>
+        ) : null}
       </div>
     </article>
   );

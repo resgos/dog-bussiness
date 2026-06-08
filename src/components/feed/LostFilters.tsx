@@ -18,6 +18,7 @@ type LostReport = {
   lostAt: Date | string | null;
   comment: string | null;
   radiusKm: number;
+  reward: number | null;
   status: string;
   createdAt: Date | string;
   sightings: { id: string }[];
