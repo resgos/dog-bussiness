@@ -14,18 +14,18 @@
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   html{font-family:'Nunito',-apple-system,'Segoe UI',sans-serif;color:var(--ink);}
+  body{counter-reset:slide;}
   @page{size:A4 landscape;margin:0;}
   h1,h2,h3,.font-display{font-family:'Comfortaa','Nunito',sans-serif;}
   .slide{
-    position:relative;width:297mm;height:210mm;overflow:hidden;
-    background:var(--cream);page-break-after:always;padding:17mm 18mm 14mm;
+    position:relative;width:297mm;height:210mm;overflow:hidden;counter-increment:slide;
+    background:var(--cream);page-break-after:always;padding:17mm 18mm 15mm;
     display:flex;flex-direction:column;
   }
   .slide:last-child{page-break-after:auto;}
-  /* header / footer */
   .kicker{display:inline-flex;align-items:center;gap:7px;font-weight:800;font-size:12.5px;
     letter-spacing:.06em;text-transform:uppercase;color:var(--petal-deep);
-    background:var(--blush-soft);border:1px solid var(--blush);padding:6px 13px;border-radius:999px;}
+    background:var(--blush-soft);border:1px solid var(--blush);padding:6px 13px;border-radius:999px;align-self:flex-start;}
   .s-title{font-size:38px;font-weight:700;color:var(--ink);margin-top:14px;line-height:1.08;}
   .s-sub{font-size:16.5px;color:var(--ink-soft);margin-top:8px;max-width:880px;line-height:1.5;}
   .foot{position:absolute;left:18mm;right:18mm;bottom:8mm;display:flex;align-items:center;
@@ -33,20 +33,17 @@
     border-top:1px solid var(--blush);padding-top:7px;}
   .foot b{color:var(--petal-deep);font-family:'Comfortaa';font-weight:700;}
   .pageno{font-weight:700;color:var(--petal-deep);}
-  /* cards grid */
+  .pageno::before{content:counter(slide,decimal-leading-zero);}
   .grid{display:grid;gap:14px;margin-top:22px;flex:1;align-content:start;}
   .g3{grid-template-columns:repeat(3,1fr);} .g4{grid-template-columns:repeat(4,1fr);}
-  .g2{grid-template-columns:repeat(2,1fr);}
   .card{background:var(--white);border:1px solid var(--blush);border-radius:20px;
     padding:18px 18px;box-shadow:0 8px 22px -16px rgba(194,95,124,.45);}
   .ic{width:46px;height:46px;border-radius:14px;background:var(--blush-soft);
     display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:11px;}
   .card h3{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:5px;}
   .card p{font-size:13.5px;color:var(--ink-soft);line-height:1.45;}
-  .tag{display:inline-block;font-size:11px;font-weight:800;color:var(--green);
-    background:rgba(95,184,122,.13);padding:2px 9px;border-radius:999px;margin-top:9px;}
   /* cover */
-  .cover{background:linear-gradient(135deg,#FFEFF4 0%,#FFF9F5 55%,#FFF4EA 100%);align-items:flex-start;justify-content:center;}
+  .cover{background:linear-gradient(135deg,#FFEFF4 0%,#FFF9F5 55%,#FFF4EA 100%);justify-content:center;}
   .cover .logo{height:74px;margin-bottom:26px;}
   .cover h1{font-size:74px;font-weight:700;line-height:1.02;letter-spacing:-.01em;}
   .cover h1 .pink{color:var(--petal-deep);}
@@ -56,7 +53,6 @@
   .pill{background:var(--white);border:1px solid var(--blush);border-radius:999px;
     padding:9px 17px;font-weight:700;font-size:14px;color:var(--petal-deep);
     box-shadow:0 8px 22px -16px rgba(194,95,124,.5);}
-  .shunya-cover{position:absolute;right:5mm;bottom:0;height:188mm;filter:drop-shadow(0 18px 30px rgba(194,95,124,.28));}
   .shunya-corner{position:absolute;right:12mm;bottom:9mm;height:62mm;}
   /* stats */
   .stat{background:var(--white);border:1px solid var(--blush);border-radius:22px;padding:24px 22px;
@@ -68,7 +64,9 @@
   .pillar{background:var(--white);border:1px solid var(--blush);border-radius:22px;padding:24px;
     box-shadow:0 10px 26px -18px rgba(194,95,124,.5);}
   .pillar .ic{width:56px;height:56px;font-size:30px;border-radius:18px;}
-  .pillar h3{font-size:21px;margin:6px 0;} .pillar p{font-size:14px;}
+  .pillar h3{font-size:21px;margin:6px 0;} .pillar p{font-size:14px;color:var(--ink-soft);line-height:1.45;}
+  .tag{display:inline-block;font-size:11px;font-weight:800;color:var(--green);
+    background:rgba(95,184,122,.13);padding:2px 9px;border-radius:999px;margin-top:9px;}
   /* table */
   table{width:100%;border-collapse:separate;border-spacing:0 9px;margin-top:18px;}
   th,td{text-align:left;padding:14px 18px;font-size:15px;}
@@ -82,11 +80,26 @@
   /* journey */
   .flow{display:flex;align-items:stretch;gap:0;margin-top:30px;flex:1;}
   .step{flex:1;background:var(--white);border:1px solid var(--blush);border-radius:20px;padding:18px 15px;
-    box-shadow:0 8px 22px -16px rgba(194,95,124,.45);display:flex;flex-direction:column;gap:7px;position:relative;}
+    box-shadow:0 8px 22px -16px rgba(194,95,124,.45);display:flex;flex-direction:column;gap:7px;}
   .step .n{width:34px;height:34px;border-radius:50%;background:var(--paw);color:#7a4a1c;font-weight:800;
     display:flex;align-items:center;justify-content:center;font-size:16px;}
   .step h3{font-size:15.5px;} .step p{font-size:12px;color:var(--ink-soft);line-height:1.4;}
   .arrow{display:flex;align-items:center;color:var(--petal);font-size:26px;font-weight:800;padding:0 4px;}
+  /* SCREEN slide: one screenshot + description */
+  .screen{flex-direction:row;align-items:center;gap:32px;}
+  .screen .txt{flex:0 0 32%;display:flex;flex-direction:column;}
+  .screen .txt h2{font-size:33px;font-weight:700;margin-top:13px;line-height:1.1;}
+  .screen .txt .lead{font-size:15.5px;color:var(--ink-soft);margin:9px 0 16px;line-height:1.5;}
+  .screen .li2{font-size:14.5px;color:var(--ink);margin:8px 0;line-height:1.4;display:flex;gap:9px;}
+  .screen .li2 b{color:var(--petal);font-weight:800;flex-shrink:0;}
+  .screen .shotwrap{flex:1;min-width:0;}
+  .bframe{width:100%;background:var(--white);border:1px solid var(--blush);border-radius:16px;
+    overflow:hidden;box-shadow:0 16px 34px -20px rgba(194,95,124,.6);}
+  .bbar{display:flex;align-items:center;gap:6px;padding:10px 14px;background:var(--blush-soft);border-bottom:1px solid var(--blush);}
+  .bbar i{width:10px;height:10px;border-radius:50%;display:inline-block;}
+  .bbar .u{margin-left:12px;font-size:12px;color:var(--ink-soft);font-weight:700;}
+  .bview{width:100%;height:152mm;overflow:hidden;background:var(--cream);}
+  .bview img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;}
   /* two-col lists */
   .cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px;flex:1;}
   .panel{background:var(--white);border:1px solid var(--blush);border-radius:22px;padding:24px 26px;
@@ -103,17 +116,6 @@
   .metric .ms{font-size:12.5px;color:var(--ink-soft);}
   .note{margin-top:16px;background:var(--blush-soft);border:1px solid var(--blush);border-radius:16px;
     padding:13px 18px;font-size:13.5px;color:var(--petal-deep);font-weight:700;}
-  /* screenshots */
-  .shots{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;flex:1;}
-  .frame{background:var(--white);border:1px solid var(--blush);border-radius:16px;overflow:hidden;
-    box-shadow:0 12px 28px -18px rgba(194,95,124,.55);display:flex;flex-direction:column;min-height:0;}
-  .frame .bar{display:flex;align-items:center;gap:6px;padding:9px 13px;background:var(--blush-soft);border-bottom:1px solid var(--blush);}
-  .frame .bar i{width:9px;height:9px;border-radius:50%;display:inline-block;}
-  .frame .bar .u{margin-left:10px;font-size:11px;color:var(--ink-soft);font-weight:700;}
-  .frame .shot{flex:1;position:relative;background:var(--cream);min-height:0;overflow:hidden;}
-  .frame .shot img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;}
-  .frame .cap{padding:9px 14px;font-size:13px;font-weight:800;color:var(--ink);border-top:1px solid var(--blush);}
-  .frame .cap span{color:var(--ink-soft);font-weight:600;}
   /* finale */
   .finale{background:linear-gradient(135deg,#FFEFF4,#FFF9F5 60%,#FFF4EA);align-items:center;justify-content:center;text-align:center;}
   .finale h1{font-size:60px;color:var(--petal-deep);font-weight:700;}
@@ -125,7 +127,7 @@
 </head>
 <body>
 
-<!-- 1. COVER -->
+<!-- COVER -->
 <section class="slide cover">
   <img class="logo" src="__LOGO__" alt="Лапка помощи"/>
   <h1>Лапка <span class="pink">помощи</span></h1>
@@ -140,21 +142,21 @@
   <img class="shunya-corner" src="__SHUNYA_WAVE__" alt="Шуня"/>
 </section>
 
-<!-- 2. PROBLEM -->
+<!-- PROBLEM -->
 <section class="slide">
   <span class="kicker">🐾 Зачем это нужно</span>
   <div class="s-title">Каждая минута на счету</div>
   <div class="s-sub">Собаки теряются часто и массово, а спасают их прежде всего неравнодушные соседи. Мы превращаем это в систему.</div>
-  <div class="grid g4" style="grid-template-columns:repeat(4,1fr);">
+  <div class="grid g4">
     <div class="stat"><span class="num">41%</span><span class="lbl">владельцев в России хотя бы раз теряли питомца</span><span class="src">Kaspersky, 2023</span></div>
     <div class="stat"><span class="num">×3</span><span class="lbl">всплеск пропаж собак в январе — салюты и петарды</span><span class="src">Pet911</span></div>
     <div class="stat"><span class="num">168k</span><span class="lbl">объявлений о пропаже/находке за 2024 (+17%)</span><span class="src">ТАСС, 2024</span></div>
     <div class="stat"><span class="num">91%</span><span class="lbl">найденных собак обнаружены волонтёрами</span><span class="src">Pet911</span></div>
   </div>
-  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">02</span></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno"></span></div>
 </section>
 
-<!-- 3. SOLUTION -->
+<!-- SOLUTION -->
 <section class="slide">
   <span class="kicker">💡 Решение</span>
   <div class="s-title">Районная стая + технологии + забота</div>
@@ -164,10 +166,10 @@
     <div class="pillar"><div class="ic">🤝</div><h3>Комьюнити</h3><p>Собачники района — это стая. Районные ленты, рейтинг волонтёров, «моя стая» и рефералы держат людей вовлечёнными.</p><span class="tag">готово</span></div>
     <div class="pillar"><div class="ic">💛</div><h3>Забота 365</h3><p>Не только про кризис: цифровой паспорт с QR, дневник здоровья, адресники — культура ответственного владения.</p><span class="tag">готово</span></div>
   </div>
-  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">03</span></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno"></span></div>
 </section>
 
-<!-- 4. VS COMPETITORS -->
+<!-- VS -->
 <section class="slide">
   <span class="kicker">⚡ Отличия</span>
   <div class="s-title">Не доска объявлений, а живая стая района</div>
@@ -182,10 +184,10 @@
       <tr><td>Маскот и эмоция</td><td class="col-them">Нет</td><td class="col-us">Шуня — узнаваемый персонаж 🐶</td></tr>
     </tbody>
   </table>
-  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">04</span></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno"></span></div>
 </section>
 
-<!-- 5. USER JOURNEY -->
+<!-- JOURNEY -->
 <section class="slide">
   <span class="kicker">🧭 Как это работает</span>
   <div class="s-title">Путь от тревоги до «дома» 🎉</div>
@@ -202,46 +204,172 @@
     <div class="arrow">→</div>
     <div class="step"><div class="n">6</div><h3>Дома 🎉</h3><p>Статус «найдена», счётчик и достижения.</p></div>
   </div>
-  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">05</span></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno"></span></div>
 </section>
 
-<!-- 6. MODULES READY -->
-<section class="slide">
-  <span class="kicker">✅ Готовый функционал</span>
-  <div class="s-title">Полная карта возможностей</div>
-  <div class="grid g3">
-    <div class="card"><div class="ic">👋</div><h3>Онбординг с Шуней</h3><p>3 экрана знакомства и мастер питомца на 6 шагов.</p></div>
-    <div class="card"><div class="ic">🪪</div><h3>Паспорт питомца + QR</h3><p>Публичная страница с фото, приметами и контактами по согласию.</p></div>
-    <div class="card"><div class="ic">🚨</div><h3>Режим SOS</h3><p>Объявление о пропаже, радиус 1–10 км, награда.</p></div>
-    <div class="card"><div class="ic">🗺️</div><h3>Карта поиска</h3><p>Метки пропаж/находок/наблюдений, фильтры, «рядом со мной».</p></div>
-    <div class="card"><div class="ic">📰</div><h3>Лента «Потерялись / Найдены»</h3><p>Карточки, поиск, фильтры, розыскной плакат.</p></div>
-    <div class="card"><div class="ic">🏘️</div><h3>Комьюнити</h3><p>Районные ленты, посты, лайки, комментарии, волонтёры.</p></div>
-    <div class="card"><div class="ic">🛍️</div><h3>Магазин</h3><p>Адресники, браслеты, корзина и заказы.</p></div>
-    <div class="card"><div class="ic">👤</div><h3>Личный кабинет</h3><p>Профиль, питомцы, поиски, заказы, настройки, согласия.</p></div>
-    <div class="card"><div class="ic">🏆</div><h3>Достижения и «моя стая»</h3><p>Бейджи за заботу и помощь, соседи рядом.</p></div>
+<!-- SCREEN 1: HOME -->
+<section class="slide screen">
+  <div class="txt">
+    <span class="kicker">🖥️ Экран · 1/8</span>
+    <h2>Главная</h2>
+    <p class="lead">Шуня встречает и сразу ведёт к действию.</p>
+    <div class="li2"><b>▹</b><span>Посыл «поднимем район за 60 секунд»</span></div>
+    <div class="li2"><b>▹</b><span>Живой счётчик «собак найдено сегодня»</span></div>
+    <div class="li2"><b>▹</b><span>Быстрые кнопки: добавить питомца · SOS</span></div>
+    <div class="li2"><b>▹</b><span>Интерактивный маскот на всех экранах</span></div>
   </div>
-  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">06</span></div>
+  <div class="shotwrap"><div class="bframe">
+    <div class="bbar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app /</span></div>
+    <div class="bview"><img src="__SHOT_HOME__" alt="Главная"/></div>
+  </div></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno"></span></div>
 </section>
 
-<!-- 7. SEARCH & RECOVERY -->
+<!-- SCREEN 2: MAP -->
+<section class="slide screen">
+  <div class="txt">
+    <span class="kicker">🖥️ Экран · 2/8</span>
+    <h2>Карта поиска</h2>
+    <p class="lead">Весь район как на ладони, в реальном времени.</p>
+    <div class="li2"><b>▹</b><span>Метки: 🔴 пропажи · 🟢 находки · 🔵 наблюдения</span></div>
+    <div class="li2"><b>▹</b><span>Фильтры по статусу и свежести</span></div>
+    <div class="li2"><b>▹</b><span>«Рядом со мной» по геолокации</span></div>
+    <div class="li2"><b>▹</b><span>«Гуляю сейчас» — живые глаза района</span></div>
+  </div>
+  <div class="shotwrap"><div class="bframe">
+    <div class="bbar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / map</span></div>
+    <div class="bview"><img src="__SHOT_MAP__" alt="Карта поиска"/></div>
+  </div></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno"></span></div>
+</section>
+
+<!-- SCREEN 3: FEED -->
+<section class="slide screen">
+  <div class="txt">
+    <span class="kicker">🖥️ Экран · 3/8</span>
+    <h2>Лента «Потерялись»</h2>
+    <p class="lead">Все активные поиски района в одном месте.</p>
+    <div class="li2"><b>▹</b><span>Карточки розыска с фото и статусом</span></div>
+    <div class="li2"><b>▹</b><span>Поиск по кличке и породе</span></div>
+    <div class="li2"><b>▹</b><span>Фильтр по району и наличию наблюдений</span></div>
+    <div class="li2"><b>▹</b><span>Награда нашедшему · розыскной плакат</span></div>
+  </div>
+  <div class="shotwrap"><div class="bframe">
+    <div class="bbar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / feed / lost</span></div>
+    <div class="bview"><img src="__SHOT_FEED__" alt="Лента Потерялись"/></div>
+  </div></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno"></span></div>
+</section>
+
+<!-- SCREEN 4: PASSPORT -->
+<section class="slide screen">
+  <div class="txt">
+    <span class="kicker">🖥️ Экран · 4/8</span>
+    <h2>Цифровой паспорт</h2>
+    <p class="lead">Публичная страница питомца с QR для адресника.</p>
+    <div class="li2"><b>▹</b><span>Фото, приметы, характер, размер, окрас</span></div>
+    <div class="li2"><b>▹</b><span>Номер микрочипа</span></div>
+    <div class="li2"><b>▹</b><span>QR-код → паспорт (для гравировки)</span></div>
+    <div class="li2"><b>▹</b><span>Контакты — только с согласия владельца</span></div>
+  </div>
+  <div class="shotwrap"><div class="bframe">
+    <div class="bbar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / p / …</span></div>
+    <div class="bview"><img src="__SHOT_PASSPORT__" alt="Цифровой паспорт"/></div>
+  </div></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno"></span></div>
+</section>
+
+<!-- SCREEN 5: CHIP -->
+<section class="slide screen">
+  <div class="txt">
+    <span class="kicker">🖥️ Экран · 5/8</span>
+    <h2>Поиск по чипу</h2>
+    <p class="lead">Нашёл собаку — найди владельца по номеру.</p>
+    <div class="li2"><b>▹</b><span>15-значный номер → владелец в базе «Лапки»</span></div>
+    <div class="li2"><b>▹</b><span>Контакты только при согласии владельца</span></div>
+    <div class="li2"><b>▹</b><span>Ссылки в нацреестры Animal-ID.RU / AnimalFace</span></div>
+    <div class="li2"><b>▹</b><span>Владельцу уходит уведомление «чип проверили»</span></div>
+  </div>
+  <div class="shotwrap"><div class="bframe">
+    <div class="bbar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / chip</span></div>
+    <div class="bview"><img src="__SHOT_CHIP__" alt="Поиск по чипу"/></div>
+  </div></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno"></span></div>
+</section>
+
+<!-- SCREEN 6: GUIDE -->
+<section class="slide screen">
+  <div class="txt">
+    <span class="kicker">🖥️ Экран · 6/8</span>
+    <h2>Гайд первых 24 часов</h2>
+    <p class="lead">Пошаговый план, что делать сразу после пропажи.</p>
+    <div class="li2"><b>▹</b><span>«Не паникуй, но действуй» · «не гонись»</span></div>
+    <div class="li2"><b>▹</b><span>«Маяки» дома, поиск в знакомых местах</span></div>
+    <div class="li2"><b>▹</b><span>Чип-реестр, обход клиник и приютов</span></div>
+    <div class="li2"><b>▹</b><span>Отдельный плейбук «нашёл собаку»</span></div>
+  </div>
+  <div class="shotwrap"><div class="bframe">
+    <div class="bbar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / guide / lost</span></div>
+    <div class="bview"><img src="__SHOT_GUIDE__" alt="Гайд первых 24 часов"/></div>
+  </div></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno"></span></div>
+</section>
+
+<!-- SCREEN 7: SHOP -->
+<section class="slide screen">
+  <div class="txt">
+    <span class="kicker">🖥️ Экран · 7/8</span>
+    <h2>Магазин</h2>
+    <p class="lead">Монетизация и профилактика в одном.</p>
+    <div class="li2"><b>▹</b><span>Адресники с QR-паспортом питомца</span></div>
+    <div class="li2"><b>▹</b><span>Браслеты, аксессуары, мерч с Шуней</span></div>
+    <div class="li2"><b>▹</b><span>Корзина и оформление заказа</span></div>
+    <div class="li2"><b>▹</b><span>История заказов в личном кабинете</span></div>
+  </div>
+  <div class="shotwrap"><div class="bframe">
+    <div class="bbar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / shop</span></div>
+    <div class="bview"><img src="__SHOT_SHOP__" alt="Магазин"/></div>
+  </div></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno"></span></div>
+</section>
+
+<!-- SCREEN 8: ADOPTION -->
+<section class="slide screen">
+  <div class="txt">
+    <span class="kicker">🖥️ Экран · 8/8</span>
+    <h2>Приюты — забрать друга</h2>
+    <p class="lead">Пристройство собак в добрые руки.</p>
+    <div class="li2"><b>▹</b><span>Карточки собак на пристройство</span></div>
+    <div class="li2"><b>▹</b><span>История, приметы, район</span></div>
+    <div class="li2"><b>▹</b><span>Прямые контакты приюта/куратора</span></div>
+    <div class="li2"><b>▹</b><span>Закрывает весь жизненный цикл заботы</span></div>
+  </div>
+  <div class="shotwrap"><div class="bframe">
+    <div class="bbar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / adoption</span></div>
+    <div class="bview"><img src="__SHOT_ADOPTION__" alt="Приюты"/></div>
+  </div></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno"></span></div>
+</section>
+
+<!-- SEARCH TOOLSET -->
 <section class="slide">
   <span class="kicker">🔎 Поиск и возврат</span>
-  <div class="s-title">Всё для возвращения собаки домой</div>
-  <div class="s-sub">Полный инструментарий восстановления — от мгновенного оповещения до национальных реестров чипов.</div>
+  <div class="s-title">Полный инструментарий восстановления</div>
+  <div class="s-sub">От мгновенного оповещения до национальных реестров чипов — всё для возвращения собаки домой.</div>
   <div class="grid g4">
     <div class="card"><div class="ic">🚨</div><h3>SOS-оповещение</h3><p>Push соседям, лента и Telegram за 60 сек.</p></div>
-    <div class="card"><div class="ic">📍</div><h3>Наблюдения на карте</h3><p>«Я видел эту собаку» с фото и геометкой.</p></div>
-    <div class="card"><div class="ic">🔖</div><h3>Поиск по чипу</h3><p>Номер чипа → владелец; ссылки в Animal-ID.RU.</p></div>
-    <div class="card"><div class="ic">🆘</div><h3>Гайд первых 24 часов</h3><p>Пошаговый плейбук «потерялась / нашёл».</p></div>
-    <div class="card"><div class="ic">📋</div><h3>Чек-лист поиска</h3><p>Трекаемые шаги по конкретному розыску.</p></div>
-    <div class="card"><div class="ic">🖨️</div><h3>Розыскной плакат</h3><p>Готовый к печати плакат с QR.</p></div>
+    <div class="card"><div class="ic">📍</div><h3>Наблюдения</h3><p>«Я видел эту собаку» с фото и геометкой.</p></div>
     <div class="card"><div class="ic">🔔</div><h3>Подписка на розыск</h3><p>Уведомления о наблюдениях и смене статуса.</p></div>
+    <div class="card"><div class="ic">🖨️</div><h3>Розыскной плакат</h3><p>Готовый к печати плакат с QR.</p></div>
+    <div class="card"><div class="ic">📋</div><h3>Чек-лист поиска</h3><p>Трекаемые шаги по конкретному розыску.</p></div>
     <div class="card"><div class="ic">🎁</div><h3>Вознаграждение</h3><p>Мотивирует соседей искать активнее.</p></div>
+    <div class="card"><div class="ic">🤝</div><h3>Петля владельца</h3><p>Автоуведомление, когда собаку видели.</p></div>
+    <div class="card"><div class="ic">✅</div><h3>Статусы</h3><p>Активный → найдена → дома, счётчик.</p></div>
   </div>
-  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">07</span></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno"></span></div>
 </section>
 
-<!-- 8. CARE 365 -->
+<!-- CARE 365 -->
 <section class="slide">
   <span class="kicker">💛 Забота 365 дней</span>
   <div class="s-title">Не только про кризис</div>
@@ -250,29 +378,29 @@
     <div class="card"><div class="ic">🏥</div><h3>Дневник здоровья</h3><p>Прививки, обработки, вес, напоминания о следующей дате.</p></div>
     <div class="card"><div class="ic">📸</div><h3>Фотогалерея до 10</h3><p>Разные ракурсы — собаку узнают быстрее.</p></div>
     <div class="card"><div class="ic">🏆</div><h3>Достижения</h3><p>«Сосед», «Первый хвост», «Нюх как у Шуни» и др.</p></div>
-    <div class="card"><div class="ic">🐶</div><h3>Приюты и пристройство</h3><p>«Забрать друга» — собаки в добрые руки.</p></div>
-    <div class="card"><div class="ic">🛠️</div><h3>Сервисы рядом</h3><p>Ветклиники, груминг, гостиницы, кинологи района.</p></div>
-    <div class="card"><div class="ic">🚶</div><h3>Прогулки-чекины</h3><p>«Гуляю сейчас» — живые глаза района на карте.</p></div>
+    <div class="card"><div class="ic">🚶</div><h3>Прогулки-чекины</h3><p>«Гуляю сейчас» — живые глаза района.</p></div>
+    <div class="card"><div class="ic">👥</div><h3>Моя стая</h3><p>Соседи-собачники, кто получает SOS первым.</p></div>
+    <div class="card"><div class="ic">🪪</div><h3>Адресник + QR</h3><p>Сканируешь жетон → сразу контакты.</p></div>
   </div>
-  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">08</span></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno"></span></div>
 </section>
 
-<!-- 9. COMMUNITY & GROWTH -->
+<!-- COMMUNITY & GROWTH -->
 <section class="slide">
   <span class="kicker">📣 Комьюнити и рост</span>
   <div class="s-title">Каналы вовлечения и виральности</div>
   <div class="grid g3">
-    <div class="card"><div class="ic">🏘️</div><h3>Районные ленты</h3><p>Посты с типами: пропажа, находка, наблюдение, совет, событие.</p></div>
-    <div class="card"><div class="ic">🥇</div><h3>Рейтинг волонтёров</h3><p>Баллы за помощь и активность, таблица лидеров по районам.</p></div>
+    <div class="card"><div class="ic">🏘️</div><h3>Районные ленты</h3><p>Посты: пропажа, находка, наблюдение, совет, событие.</p></div>
+    <div class="card"><div class="ic">🥇</div><h3>Рейтинг волонтёров</h3><p>Баллы за помощь, таблица лидеров по районам.</p></div>
     <div class="card"><div class="ic">🎉</div><h3>Рефералы</h3><p>«Пригласи соседа» — рост стаи района.</p></div>
-    <div class="card"><div class="ic">✈️</div><h3>Telegram-бот</h3><p>Дублирование SOS в районные чаты, привязка аккаунта.</p></div>
+    <div class="card"><div class="ic">✈️</div><h3>Telegram-бот</h3><p>Дублирование SOS в районные чаты.</p></div>
     <div class="card"><div class="ic">🔔</div><h3>Web-push (PWA)</h3><p>Уведомления на устройство без нативки.</p></div>
     <div class="card"><div class="ic">🛡️</div><h3>Модерация</h3><p>Жалобы на контент и админ-разбор.</p></div>
   </div>
-  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">09</span></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno"></span></div>
 </section>
 
-<!-- 10. TECH & RELIABILITY -->
+<!-- TECH -->
 <section class="slide">
   <span class="kicker">⚙️ Технологии и надёжность</span>
   <div class="s-title">Современный стек, готовый к проду</div>
@@ -296,10 +424,10 @@
       <div class="li"><span class="b">▹</span><span>Юридические страницы: политика и оферта</span></div>
     </div>
   </div>
-  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">10</span></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno"></span></div>
 </section>
 
-<!-- 11. PERFORMANCE -->
+<!-- PERFORMANCE -->
 <section class="slide">
   <span class="kicker">⚡ Производительность</span>
   <div class="s-title">Оптимизировано и измерено</div>
@@ -310,68 +438,10 @@
     <div class="metric"><div class="big">×2</div><div class="mt">Поиск по чипу</div><div class="ms">индекс БД: Seq Scan → Index Scan</div></div>
   </div>
   <div class="note">Плюс React cache() против дублей запросов, тримминг тяжёлых полей и optimizePackageImports — без регрессий, сборка и тесты зелёные.</div>
-  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">11</span></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno"></span></div>
 </section>
 
-<!-- 12. SCREENS · MAIN -->
-<section class="slide">
-  <span class="kicker">🖥️ Продукт в деле</span>
-  <div class="s-title">Так это выглядит — главное</div>
-  <div class="shots">
-    <div class="frame">
-      <div class="bar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app /</span></div>
-      <div class="shot"><img src="__SHOT_HOME__" alt="Главная"/></div>
-      <div class="cap">Главная <span>· район за 60 секунд, живой счётчик</span></div>
-    </div>
-    <div class="frame">
-      <div class="bar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / map</span></div>
-      <div class="shot"><img src="__SHOT_MAP__" alt="Карта поиска"/></div>
-      <div class="cap">Карта поиска <span>· метки, фильтры, наблюдения</span></div>
-    </div>
-    <div class="frame">
-      <div class="bar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / feed / lost</span></div>
-      <div class="shot"><img src="__SHOT_FEED__" alt="Лента Потерялись"/></div>
-      <div class="cap">Лента «Потерялись» <span>· поиск, фильтры, награды</span></div>
-    </div>
-    <div class="frame">
-      <div class="bar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / p / …</span></div>
-      <div class="shot"><img src="__SHOT_PASSPORT__" alt="Паспорт питомца"/></div>
-      <div class="cap">Цифровой паспорт <span>· фото, приметы, чип, QR</span></div>
-    </div>
-  </div>
-  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">12</span></div>
-</section>
-
-<!-- 13. SCREENS · SEARCH & SERVICES -->
-<section class="slide">
-  <span class="kicker">🖥️ Продукт в деле</span>
-  <div class="s-title">Поиск, гайды и сервисы</div>
-  <div class="shots">
-    <div class="frame">
-      <div class="bar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / chip</span></div>
-      <div class="shot"><img src="__SHOT_CHIP__" alt="Поиск по чипу"/></div>
-      <div class="cap">Поиск по чипу <span>· владелец по номеру + реестры</span></div>
-    </div>
-    <div class="frame">
-      <div class="bar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / guide / lost</span></div>
-      <div class="shot"><img src="__SHOT_GUIDE__" alt="Гайд первых 24 часов"/></div>
-      <div class="cap">Гайд первых 24 часов <span>· пошаговый плейбук</span></div>
-    </div>
-    <div class="frame">
-      <div class="bar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / shop</span></div>
-      <div class="shot"><img src="__SHOT_SHOP__" alt="Магазин адресников"/></div>
-      <div class="cap">Магазин адресников <span>· QR-жетоны, мерч</span></div>
-    </div>
-    <div class="frame">
-      <div class="bar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / adoption</span></div>
-      <div class="shot"><img src="__SHOT_ADOPTION__" alt="Приюты"/></div>
-      <div class="cap">Приюты — забрать друга <span>· пристройство</span></div>
-    </div>
-  </div>
-  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">13</span></div>
-</section>
-
-<!-- 14. ТЗ COMPLIANCE -->
+<!-- ТЗ COMPLIANCE -->
 <section class="slide">
   <span class="kicker">📋 Соответствие ТЗ</span>
   <div class="s-title">Сверено с техническим заданием</div>
@@ -394,10 +464,10 @@
       <div class="li soon"><span class="b">▹</span><span>Нативное приложение (iOS / Android)</span></div>
     </div>
   </div>
-  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">14</span></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno"></span></div>
 </section>
 
-<!-- 13. FINALE -->
+<!-- FINALE -->
 <section class="slide finale">
   <img class="sh" src="__SHUNYA_HAPPY__" alt="Шуня"/>
   <div style="margin-left:120mm;">
