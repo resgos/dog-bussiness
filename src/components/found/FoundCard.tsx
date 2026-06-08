@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Camera, MapPin, Phone, Send } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { ReportButton } from "@/components/moderation/ReportButton";
 import { findDistrict } from "@/lib/districts";
 import { timeAgo } from "@/lib/format";
 import { sizeOptions } from "@/lib/petForm";
@@ -113,6 +114,10 @@ export function FoundCard({ item }: { item: FoundItem }) {
             Контакты не указаны — отслеживайте в ленте находок.
           </p>
         )}
+
+        <div className="flex justify-end border-t border-blush pt-2">
+          <ReportButton targetType="found" targetId={item.id} />
+        </div>
       </div>
     </article>
   );

@@ -12,6 +12,7 @@ import {
 } from "@/lib/auth";
 import { findDistrict } from "@/lib/districts";
 import { digits, isEmailValid } from "@/lib/onboarding";
+import { sendVerificationEmail } from "@/lib/verify";
 
 /**
  * Результат Server Action: либо ошибка (показываем человеку), либо редирект,
@@ -108,6 +109,9 @@ export async function registerAction(
     }
     throw e;
   }
+
+  // Письмо-подтверждение e-mail (мягкая верификация — вход не блокирует).
+  if (user.email) await sendVerificationEmail(user.id, user.email);
 
   const token = await createSession(user.id);
   await setSessionCookie(token);

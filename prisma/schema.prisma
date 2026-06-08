@@ -140,8 +140,38 @@ model User {
   notifications Notification[]
   lostReports   LostReport[]
   foundReports  FoundReport[]
-  pushSubs      PushSubscription[]
-  resetTokens   PasswordResetToken[]
+  pushSubs        PushSubscription[]
+  resetTokens     PasswordResetToken[]
+  verifyTokens    EmailVerificationToken[]
+  reports         Report[]
+  emailVerifiedAt DateTime?
+}
+
+/// Токен подтверждения e-mail (мягкая верификация, не блокирует вход).
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+/// Жалоба на контент (модерация).
+model Report {
+  id         String   @id @default(cuid())
+  targetType String // post | found | lost | comment
+  targetId   String
+  reason     String // spam | abuse | fake | other
+  comment    String?
+  reporterId String?
+  reporter   User?    @relation(fields: [reporterId], references: [id])
+  status     String   @default("open") // open | resolved | dismissed
+  createdAt  DateTime @default(now())
+
+  @@index([status])
 }
 
 /// Одноразовый токен сброса пароля (с TTL).

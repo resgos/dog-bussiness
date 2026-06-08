@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { PushToggle } from "@/components/notifications/PushToggle";
+import { VerifyBanner } from "@/components/auth/VerifyBanner";
 import { getCurrentUser } from "@/lib/auth";
 import { findDistrict } from "@/lib/districts";
 import { logoutAction } from "@/components/auth/actions";
@@ -92,6 +93,14 @@ export default async function ProfilePage() {
           </Button>
         </form>
       </div>
+
+      {/* Мягкое напоминание подтвердить e-mail (не блокирует доступ).
+          Сам баннер вернёт null, если e-mail нет или он уже подтверждён —
+          поэтому отступ задаём внутри компонента, без пустой обёртки. */}
+      <VerifyBanner
+        email={user.email}
+        verified={Boolean(user.emailVerifiedAt)}
+      />
 
       {/* Карточка профиля */}
       <div className="rounded-3xl border border-blush bg-card p-6 shadow-card sm:p-8">

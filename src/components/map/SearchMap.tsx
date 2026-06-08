@@ -9,12 +9,14 @@ import { distanceKm, formatDistance } from "@/lib/geo";
 import { TagToggle } from "@/components/ui/TagToggle";
 import { Button } from "@/components/ui/Button";
 import { LeafletMap, type MapMarker } from "@/components/map/LeafletMap";
+import { SightingModal } from "@/components/map/SightingModal";
 
 type Sighting = {
   id: string;
   lat: number | null;
   lng: number | null;
   comment: string | null;
+  photo: string | null;
   createdAt: Date | string;
 };
 type Report = {
@@ -52,7 +54,7 @@ export function SearchMap({ reports }: { reports: Report[] }) {
   const router = useRouter();
   const [filter, setFilter] = useState<Filter>("all");
   const [recency, setRecency] = useState<Recency>("all");
-  const [busyId, setBusyId] = useState<string | null>(null);
+  const [sightingFor, setSightingFor] = useState<{ id: string; name: string } | null>(null);
   const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
   const [nearestFirst, setNearestFirst] = useState(false);
@@ -125,6 +127,7 @@ export function SearchMap({ reports }: { reports: Report[] }) {
           title: `Видели: ${r.petName}`,
           subtitle: s.comment ?? undefined,
           meta: timeAgo(s.createdAt),
+          photo: s.photo,
         });
       }
     }
@@ -162,27 +165,10 @@ export function SearchMap({ reports }: { reports: Report[] }) {
     );
   };
 
-  const iSaw = (reportId: string) => {
-    if (busyId) return;
-    setBusyId(reportId);
-    const post = (lat: number | null, lng: number | null) =>
-      fetch("/api/sightings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reportId, lat, lng }),
-      })
-        .then(() => router.refresh())
-        .finally(() => setBusyId(null));
-
-    const loc = userLoc;
-    if (loc) post(loc.lat, loc.lng);
-    else if (typeof navigator !== "undefined" && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (p) => post(p.coords.latitude, p.coords.longitude),
-        () => post(null, null),
-        { timeout: 8000 },
-      );
-    } else post(null, null);
+  // Открыть модалку наблюдения для указанной пропажи (по id из карточки/попапа).
+  const openSighting = (reportId: string) => {
+    const r = reports.find((x) => x.id === reportId);
+    if (r) setSightingFor({ id: r.id, name: r.petName });
   };
 
   return (
@@ -240,7 +226,7 @@ export function SearchMap({ reports }: { reports: Report[] }) {
           focusId={focusId}
           focusNonce={focusNonce}
           fitToMarkers
-          onReport={iSaw}
+          onReport={openSighting}
         />
       </div>
 
@@ -300,12 +286,11 @@ export function SearchMap({ reports }: { reports: Report[] }) {
                   className="mt-1 self-start"
                   onClick={(e) => {
                     e.stopPropagation();
-                    iSaw(r.id);
+                    setSightingFor({ id: r.id, name: r.petName });
                   }}
-                  disabled={busyId === r.id}
                 >
                   <Crosshair className="size-4" aria-hidden />
-                  {busyId === r.id ? "Отмечаю…" : "Я видел(а) эту собаку"}
+                  Я видел(а) эту собаку
                 </Button>
               ) : null}
             </div>
@@ -317,6 +302,15 @@ export function SearchMap({ reports }: { reports: Report[] }) {
         <p className="rounded-3xl border border-blush bg-card p-8 text-center text-ink-soft shadow-card">
           Меток пока нет — попробуй сменить фильтр.
         </p>
+      ) : null}
+
+      {sightingFor ? (
+        <SightingModal
+          reportId={sightingFor.id}
+          petName={sightingFor.name}
+          onClose={() => setSightingFor(null)}
+          onDone={() => router.refresh()}
+        />
       ) : null}
     </div>
   );

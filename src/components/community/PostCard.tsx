@@ -9,6 +9,7 @@ import { cn } from "@/lib/cn";
 import { postJson } from "@/lib/http";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Field";
+import { ReportButton } from "@/components/moderation/ReportButton";
 import { postTypeMeta, type PostType } from "./postMeta";
 
 export type CommentLite = {
@@ -149,6 +150,10 @@ export function PostCard({ post, canInteract }: { post: PostLite; canInteract: b
           {post.comments.length}{" "}
           {plural(post.comments.length, "комментарий", "комментария", "комментариев")}
         </button>
+
+        <span className="ml-auto">
+          <ReportButton targetType="post" targetId={post.id} />
+        </span>
       </div>
 
       {error ? (
