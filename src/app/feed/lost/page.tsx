@@ -9,10 +9,12 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Потерялись" };
 
 export default async function FeedLostPage() {
+  // Ленте нужно лишь ЧИСЛО наблюдений (ReportCard: sightings.length), поэтому
+  // тянем только их id — не таскаем тяжёлые photo/comment наблюдений.
   const reports = await db.lostReport.findMany({
     where: { status: "active" },
     orderBy: { createdAt: "desc" },
-    include: { sightings: true },
+    include: { sightings: { select: { id: true } } },
   });
 
   return (

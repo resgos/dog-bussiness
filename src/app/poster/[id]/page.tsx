@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
@@ -6,9 +7,10 @@ import { LostPoster } from "@/components/poster/LostPoster";
 // Данные плаката всегда свежие (телефон/награда/статус могут меняться).
 export const dynamic = "force-dynamic";
 
-async function getReport(id: string) {
-  return db.lostReport.findUnique({ where: { id } });
-}
+// Дедуп выборки между generateMetadata и страницей (один запрос вместо двух).
+const getReport = cache((id: string) =>
+  db.lostReport.findUnique({ where: { id } }),
+);
 
 export async function generateMetadata({
   params,

@@ -7,6 +7,13 @@ const nextConfig: NextConfig = {
   // wrong workspace root. Pin tracing to this project (npm scripts run with the
   // project dir as cwd).
   outputFileTracingRoot: process.cwd(),
+  // Не светим заголовок X-Powered-By.
+  poweredByHeader: false,
+  // Tree-shake барель-импорты тяжёлых пакетов (framer-motion живёт в layout-бандле
+  // через ShunyaCompanion, иконки — на каждой странице).
+  experimental: {
+    optimizePackageImports: ["lucide-react", "framer-motion"],
+  },
 };
 
 export default nextConfig;

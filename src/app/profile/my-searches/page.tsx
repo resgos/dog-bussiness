@@ -56,12 +56,24 @@ export default async function MySearchesPage() {
 
   const reports = await db.lostReport.findMany({
     where: { userId: user.id },
-    include: { sightings: true },
+    include: { sightings: { select: { id: true } } },
     orderBy: { createdAt: "desc" },
   });
 
   // Открытые находки грузим один раз — матчим против каждой активной пропажи.
-  const founds = await db.foundReport.findMany({ where: { status: "open" } });
+  // Матчингу (lib/match) нужны только приметы — НЕ тянем photo (data URL), иначе
+  // на каждый рендер «Мои поиски» прилетают все фото всех находок города.
+  const founds = await db.foundReport.findMany({
+    where: { status: "open" },
+    select: {
+      id: true,
+      breed: true,
+      color: true,
+      size: true,
+      district: true,
+      createdAt: true,
+    },
+  });
 
   return (
     <Container className="py-12 sm:py-16">

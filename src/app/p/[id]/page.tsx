@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -11,9 +12,9 @@ import { ShareButton } from "@/components/share/ShareButton";
 
 export const dynamic = "force-dynamic";
 
-async function getPet(id: string) {
-  return db.pet.findUnique({ where: { id } });
-}
+// React cache() дедуплицирует выборку: generateMetadata и сама страница
+// вызывают getPet с тем же id в одном рендере → один запрос вместо двух.
+const getPet = cache((id: string) => db.pet.findUnique({ where: { id } }));
 
 // Фото питомца часто приходит как data URL (base64) — краулеры соцсетей его не
 // показывают, поэтому в превью отдаём фирменную картинку Шуни.
