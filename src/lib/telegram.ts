@@ -19,6 +19,7 @@ export async function sendTelegramChannel(text: string) {
         text,
         disable_web_page_preview: false,
       }),
+      signal: AbortSignal.timeout(5000),
     });
   } catch (e) {
     console.error("sendTelegramChannel failed", e);

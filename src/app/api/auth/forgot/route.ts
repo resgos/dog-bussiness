@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { randomBytes } from "node:crypto";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { rateLimit, ipKey } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,10 @@ const TTL_MS = 60 * 60 * 1000; // 1 час
  * существует ли аккаунт с таким email (защита от перебора).
  */
 export async function POST(req: Request) {
+  // Защита от mail-bombing и накопления токенов сброса (ответ не меняем — не палим лимит).
+  if (!rateLimit(ipKey(req, "forgot"), 3, 60_000)) {
+    return NextResponse.json({ ok: true });
+  }
   const body = (await req.json().catch(() => ({}))) as { email?: unknown };
   const email = String(body.email ?? "")
     .trim()

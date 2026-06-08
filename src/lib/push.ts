@@ -35,6 +35,7 @@ export async function sendPushToUser(userId: string, payload: PushPayload) {
         await webpush.sendNotification(
           { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
           data,
+          { timeout: 5000 },
         );
       } catch (e) {
         const code = (e as { statusCode?: number })?.statusCode;

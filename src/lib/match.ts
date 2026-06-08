@@ -20,10 +20,15 @@ type FoundLike = {
 
 const norm = (s?: string | null) =>
   (s || "").toLowerCase().replace(/ё/g, "е").trim();
+// Стоп-слова из вольного описания — не должны давать «совпадение».
+const STOP = new Set([
+  "не", "знаю", "нет", "или", "около", "примерно", "возможно",
+  "похож", "похожа", "похожий", "цвет", "окрас", "порода", "размер", "средний",
+]);
 const tokens = (s?: string | null) =>
   norm(s)
     .split(/[\s,/.-]+/)
-    .filter((t) => t.length >= 3);
+    .filter((t) => t.length >= 4 && !STOP.has(t));
 
 function overlap(a?: string | null, b?: string | null): boolean {
   const ta = tokens(a);

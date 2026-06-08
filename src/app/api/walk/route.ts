@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { rateLimit, ipKey } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,9 @@ export async function POST(req: Request) {
   const me = await getCurrentUser();
   if (!me) {
     return NextResponse.json({ error: "Нужно войти" }, { status: 401 });
+  }
+  if (!rateLimit(ipKey(req, "walk"), 6, 60_000)) {
+    return NextResponse.json({ error: "Слишком часто." }, { status: 429 });
   }
 
   const b = await req.json().catch(() => null);

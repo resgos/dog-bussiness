@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       radiusKm: [1, 3, 5, 10].includes(radius) ? radius : 3,
       reward:
         typeof b.reward === "number" && b.reward > 0
-          ? Math.round(b.reward)
+          ? Math.min(Math.round(b.reward), 1_000_000)
           : null,
       status: "active",
     },

@@ -20,6 +20,8 @@ export async function POST() {
     await db.$transaction([
       db.pushSubscription.deleteMany({ where: { userId } }),
       db.passwordResetToken.deleteMany({ where: { userId } }),
+      db.emailVerificationToken.deleteMany({ where: { userId } }),
+      db.walkCheckin.deleteMany({ where: { userId } }),
       db.notification.deleteMany({ where: { userId } }),
       db.postLike.deleteMany({ where: { userId } }),
       db.postLike.deleteMany({ where: { post: { authorId: userId } } }),
@@ -28,9 +30,15 @@ export async function POST() {
       db.post.deleteMany({ where: { authorId: userId } }),
       db.orderItem.deleteMany({ where: { order: { userId } } }),
       db.order.deleteMany({ where: { userId } }),
+      // Жалобы и публичные объявления анонимизируем (не удаляем).
+      db.report.updateMany({ where: { reporterId: userId }, data: { reporterId: null } }),
       db.lostReport.updateMany({ where: { userId }, data: { userId: null } }),
       db.foundReport.updateMany({ where: { userId }, data: { userId: null } }),
+      // Записи здоровья — до удаления питомцев (FK petId).
+      db.healthRecord.deleteMany({ where: { pet: { userId } } }),
       db.pet.deleteMany({ where: { userId } }),
+      // Разрываем само-связь: приглашённые больше не ссылаются на этого юзера.
+      db.user.updateMany({ where: { referredById: userId }, data: { referredById: null } }),
       db.session.deleteMany({ where: { userId } }),
       db.user.delete({ where: { id: userId } }),
     ]);

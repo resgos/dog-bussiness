@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       reportId: str(b?.reportId),
       lat: num(b?.lat),
       lng: num(b?.lng),
-      comment: str(b?.comment),
+      comment: str(b?.comment)?.slice(0, 500) ?? null,
       photo: str(b?.photo),
     },
   });
