@@ -53,29 +53,37 @@ export async function PATCH(
     });
 
     // «Кто помог»: +1 helpedCount каждому уникальному автору наблюдений (не владельцу).
-    const seen = await db.sighting.findMany({
-      where: { reportId: id, userId: { not: null } },
-      select: { userId: true },
-    });
-    const helperIds = [
-      ...new Set(
-        seen
-          .map((s) => s.userId)
-          .filter(
-            (uid): uid is string => Boolean(uid) && uid !== report.userId,
-          ),
-      ),
-    ];
-    for (const hid of helperIds) {
-      await db.user.update({
-        where: { id: hid },
-        data: { helpedCount: { increment: 1 } },
+    // Идемпотентно: начисляем РОВНО ОДИН раз за всё время жизни розыска
+    // (флаг helpersCreditedAt защищает от повторного кредита при reopen found→home→found).
+    if (!report.helpersCreditedAt) {
+      const seen = await db.sighting.findMany({
+        where: { reportId: id, userId: { not: null } },
+        select: { userId: true },
       });
-      await notifyUser(hid, {
-        type: "found",
-        title: "Спасибо! Ты помог найти 🐾",
-        body: `Собака «${report.petName}» нашлась — твоё наблюдение помогло. +1 к «помог найти».`,
-        link: "/profile/achievements",
+      const helperIds = [
+        ...new Set(
+          seen
+            .map((s) => s.userId)
+            .filter(
+              (uid): uid is string => Boolean(uid) && uid !== report.userId,
+            ),
+        ),
+      ];
+      for (const hid of helperIds) {
+        await db.user.update({
+          where: { id: hid },
+          data: { helpedCount: { increment: 1 } },
+        });
+        await notifyUser(hid, {
+          type: "found",
+          title: "Спасибо! Ты помог найти 🐾",
+          body: `Собака «${report.petName}» нашлась — твоё наблюдение помогло. +1 к «помог найти».`,
+          link: "/profile/achievements",
+        });
+      }
+      await db.lostReport.update({
+        where: { id },
+        data: { helpersCreditedAt: new Date() },
       });
     }
   }

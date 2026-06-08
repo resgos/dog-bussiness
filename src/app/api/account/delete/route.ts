@@ -23,6 +23,7 @@ export async function POST() {
       db.emailVerificationToken.deleteMany({ where: { userId } }),
       db.walkCheckin.deleteMany({ where: { userId } }),
       db.reportSubscription.deleteMany({ where: { userId } }),
+      db.foundSubscription.deleteMany({ where: { userId } }),
       db.notification.deleteMany({ where: { userId } }),
       db.postLike.deleteMany({ where: { userId } }),
       db.postLike.deleteMany({ where: { post: { authorId: userId } } }),

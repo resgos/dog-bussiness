@@ -31,6 +31,7 @@ async function main() {
   await db.post.deleteMany();
   await db.session.deleteMany();
   await db.reportSubscription.deleteMany();
+  await db.foundSubscription.deleteMany();
   await db.reunion.deleteMany();
   await db.sighting.deleteMany();
   await db.lostReport.deleteMany();

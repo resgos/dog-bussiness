@@ -29,12 +29,22 @@ export async function POST(req: Request) {
   const me = await getCurrentUser();
 
   const radius = Number(b.radiusKm);
+  // Подтягиваем размер/окрас из карточки питомца — для матчинга и фильтров ленты.
+  const petId = str(b.petId);
+  const pet = petId
+    ? await db.pet.findUnique({
+        where: { id: petId },
+        select: { size: true, color: true },
+      })
+    : null;
   const report = await db.lostReport.create({
     data: {
       userId: me?.id ?? null,
-      petId: str(b.petId),
+      petId,
       petName: petName.slice(0, 80),
       breed: str(b.breed),
+      size: pet?.size ?? null,
+      color: pet?.color ?? null,
       photo: str(b.photo),
       district: str(b.district),
       lat: num(b.lat),

@@ -13,7 +13,9 @@ import { FoundCard, type FoundItem } from "./FoundCard";
 export function FoundList({ items }: { items: FoundItem[] }) {
   const [query, setQuery] = useState("");
   const [district, setDistrict] = useState<string | null>(null);
+  const [breed, setBreed] = useState<string | null>(null);
   const [size, setSize] = useState<string | null>(null);
+  const [color, setColor] = useState<string | null>(null);
 
   // Показываем чипы только для районов, по которым есть находки — лишних не плодим.
   const presentDistricts = useMemo(() => {
@@ -23,11 +25,35 @@ export function FoundList({ items }: { items: FoundItem[] }) {
       .filter(([, list]) => list.length > 0);
   }, [items]);
 
+  // Породы, реально встречающиеся в находках (непустые, уникальные).
+  const presentBreeds = useMemo(() => {
+    const set = new Set(
+      items.map((i) => i.breed?.trim()).filter(Boolean) as string[],
+    );
+    return [...set].sort((a, b) => a.localeCompare(b, "ru"));
+  }, [items]);
+
+  // Размеры — только те из справочника, что присутствуют в находках.
+  const presentSizes = useMemo(() => {
+    const set = new Set(items.map((i) => i.size).filter(Boolean) as string[]);
+    return sizeOptions.filter((o) => set.has(o.value));
+  }, [items]);
+
+  // Окрасы, реально встречающиеся в находках (непустые, уникальные).
+  const presentColors = useMemo(() => {
+    const set = new Set(
+      items.map((i) => i.color?.trim()).filter(Boolean) as string[],
+    );
+    return [...set].sort((a, b) => a.localeCompare(b, "ru"));
+  }, [items]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return items.filter((i) => {
       if (district && i.district !== district) return false;
+      if (breed && i.breed !== breed) return false;
       if (size && i.size !== size) return false;
+      if (color && i.color !== color) return false;
       if (q) {
         const hay = [i.breed, i.color, i.comment]
           .filter(Boolean)
@@ -37,14 +63,18 @@ export function FoundList({ items }: { items: FoundItem[] }) {
       }
       return true;
     });
-  }, [items, query, district, size]);
+  }, [items, query, district, breed, size, color]);
 
-  const hasFilters = Boolean(query.trim() || district || size);
+  const hasFilters = Boolean(
+    query.trim() || district || breed || size || color,
+  );
 
   const reset = () => {
     setQuery("");
     setDistrict(null);
+    setBreed(null);
     setSize(null);
+    setColor(null);
   };
 
   return (
@@ -84,20 +114,65 @@ export function FoundList({ items }: { items: FoundItem[] }) {
           </div>
         ) : null}
 
-        <div>
-          <p className="mb-2 text-sm font-semibold text-ink">Размер</p>
-          <div className="flex flex-wrap gap-2">
-            {sizeOptions.map((o) => (
-              <TagToggle
-                key={o.value}
-                active={size === o.value}
-                onClick={() => setSize(size === o.value ? null : o.value)}
-              >
-                {o.label}
+        {presentBreeds.length > 0 ? (
+          <div>
+            <p className="mb-2 text-sm font-semibold text-ink">Порода</p>
+            <div className="flex flex-wrap gap-2">
+              <TagToggle active={breed === null} onClick={() => setBreed(null)}>
+                Все
               </TagToggle>
-            ))}
+              {presentBreeds.map((b) => (
+                <TagToggle
+                  key={b}
+                  active={breed === b}
+                  onClick={() => setBreed(breed === b ? null : b)}
+                >
+                  {b}
+                </TagToggle>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : null}
+
+        {presentSizes.length > 0 ? (
+          <div>
+            <p className="mb-2 text-sm font-semibold text-ink">Размер</p>
+            <div className="flex flex-wrap gap-2">
+              <TagToggle active={size === null} onClick={() => setSize(null)}>
+                Любой
+              </TagToggle>
+              {presentSizes.map((o) => (
+                <TagToggle
+                  key={o.value}
+                  active={size === o.value}
+                  onClick={() => setSize(size === o.value ? null : o.value)}
+                >
+                  {o.label}
+                </TagToggle>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {presentColors.length > 0 ? (
+          <div>
+            <p className="mb-2 text-sm font-semibold text-ink">Окрас</p>
+            <div className="flex flex-wrap gap-2">
+              <TagToggle active={color === null} onClick={() => setColor(null)}>
+                Любой
+              </TagToggle>
+              {presentColors.map((c) => (
+                <TagToggle
+                  key={c}
+                  active={color === c}
+                  onClick={() => setColor(color === c ? null : c)}
+                >
+                  {c}
+                </TagToggle>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         {hasFilters ? (
           <button

@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Camera, MapPin, Phone, Send } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { ReportButton } from "@/components/moderation/ReportButton";
+import { FoundSubscribeButton } from "@/components/found/FoundSubscribeButton";
 import { findDistrict } from "@/lib/districts";
 import { timeAgo } from "@/lib/format";
 import { sizeOptions } from "@/lib/petForm";
@@ -115,7 +116,8 @@ export function FoundCard({ item }: { item: FoundItem }) {
           </p>
         )}
 
-        <div className="flex justify-end border-t border-blush pt-2">
+        <div className="flex items-center justify-between gap-2 border-t border-blush pt-2">
+          <FoundSubscribeButton foundId={item.id} />
           <ReportButton targetType="found" targetId={item.id} />
         </div>
       </div>

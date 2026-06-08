@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { savePhoto } from "@/lib/storage";
 import { notifyMany } from "@/lib/notify";
+import { rankLostForFound } from "@/lib/match";
 import { rateLimit, ipKey } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
@@ -47,34 +48,24 @@ export async function POST(req: Request) {
     },
   });
 
-  // Обратный матчинг: оповещаем владельцев активных пропаж того же района.
-  // Любой сбой здесь не должен мешать публикации находки — оборачиваем в try/catch.
-  if (report.district) {
-    try {
-      const lost = await db.lostReport.findMany({
-        where: { district: report.district, status: "active", userId: { not: null } },
-        select: { userId: true },
-        take: 200,
+  const found = report;
+
+  // Умный алерт: новая находка может совпасть с активными пропажами — оповестим владельцев.
+  try {
+    const losts = await db.lostReport.findMany({ where: { status: "active" } });
+    const matches = rankLostForFound(found, losts, 40); // только сильные совпадения
+    const ownerIds = [...new Set(
+      matches.map((m) => m.item.userId).filter((uid): uid is string => Boolean(uid) && uid !== found.userId),
+    )];
+    if (ownerIds.length) {
+      await notifyMany(ownerIds, {
+        type: "found",
+        title: "Возможно, нашлась твоя собака! 🔎",
+        body: `Рядом опубликовали находку, похожую по приметам. Загляни в ленту находок.`,
+        link: "/feed/found",
       });
-
-      const ownerIds = Array.from(
-        new Set(lost.map((l) => l.userId).filter((id): id is string => Boolean(id))),
-      );
-
-      if (ownerIds.length > 0) {
-        const details =
-          [report.color, report.breed].filter(Boolean).join(" ") || "собаку";
-        await notifyMany(ownerIds, {
-          type: "found",
-          title: "Возможно, нашли вашу собаку",
-          body: `Рядом нашли: ${details} в районе`,
-          link: "/found",
-        });
-      }
-    } catch {
-      /* рассылка не критична — игнорируем */
     }
-  }
+  } catch { /* алерт некритичен */ }
 
   return NextResponse.json({ id: report.id }, { status: 201 });
 }

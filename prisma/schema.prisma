@@ -104,9 +104,12 @@ model LostReport {
   lng       Float?
   lostAt    DateTime?
   comment   String?
+  size      String? // снимок размера питомца — для матчинга и фильтров ленты
+  color     String? // снимок окраса питомца — для матчинга и фильтров ленты
   radiusKm  Int        @default(3)
   reward    Int? // вознаграждение нашедшему, ₽
   checklist String? // JSON-массив выполненных шагов плейбука поиска
+  helpersCreditedAt DateTime? // когда начислен кредит «кто помог» (идемпотентность)
   status    String     @default("active") // active | found | home
   createdAt DateTime   @default(now())
   sightings Sighting[]
@@ -149,10 +152,24 @@ model FoundReport {
   comment         String?
   status          String   @default("open") // open | reunited
   createdAt       DateTime @default(now())
+  subscribers     FoundSubscription[]
 
   @@index([userId])
   @@index([district])
   @@index([status])
+}
+
+/// Подписка на объявление о НАХОДКЕ — уведомления об обновлениях и совпадениях.
+model FoundSubscription {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  foundId   String
+  found     FoundReport @relation(fields: [foundId], references: [id])
+  createdAt DateTime    @default(now())
+
+  @@unique([userId, foundId])
+  @@index([foundId])
 }
 
 model Sighting {
@@ -222,6 +239,7 @@ model User {
   reportSubs      ReportSubscription[]
   sightings       Sighting[]
   reunions        Reunion[]
+  foundSubs       FoundSubscription[]
 }
 
 /// Токен подтверждения e-mail (мягкая верификация, не блокирует вход).
