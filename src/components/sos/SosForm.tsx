@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Crosshair, ArrowRight, Map, List } from "lucide-react";
+import { Crosshair, ArrowRight, Map, List, BookOpen } from "lucide-react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
 import { TagToggle } from "@/components/ui/TagToggle";
@@ -116,6 +116,10 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
           <ButtonLink href="/feed/lost" variant="secondary" size="lg">
             <List className="size-5" aria-hidden />
             В ленту «Потерялись»
+          </ButtonLink>
+          <ButtonLink href="/guide/lost" variant="secondary" size="lg">
+            <BookOpen className="size-5" aria-hidden />
+            Что делать дальше
           </ButtonLink>
         </div>
       </div>

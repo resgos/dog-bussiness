@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Clock, Eye, Gift, LogIn, MapPin, PawPrint, Printer, Search } from "lucide-react";
+import { Clock, Eye, Gift, ListChecks, LogIn, MapPin, PawPrint, Printer, Search } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 import { findDistrict } from "@/lib/districts";
 import { timeAgo, plural } from "@/lib/format";
 import { rankFoundForLost } from "@/lib/match";
+import { parseChecklist, SEARCH_STEPS } from "@/lib/searchSteps";
 import { SearchControls } from "@/components/profile/SearchControls";
 
 // Порог совпадения — держим синхронно со страницей matches, иначе бейдж
@@ -169,6 +170,17 @@ export default async function MySearchesPage() {
                     <ButtonLink href={`/poster/${report.id}`} variant="secondary" size="sm">
                       <Printer className="size-4" aria-hidden />
                       Плакат
+                    </ButtonLink>
+                  ) : null}
+                  {report.status === "active" ? (
+                    <ButtonLink
+                      href={`/profile/my-searches/${report.id}/checklist`}
+                      variant="secondary"
+                      size="sm"
+                    >
+                      <ListChecks className="size-4" aria-hidden />
+                      Чек-лист {parseChecklist(report.checklist).length}/
+                      {SEARCH_STEPS.length}
                     </ButtonLink>
                   ) : null}
                 </div>

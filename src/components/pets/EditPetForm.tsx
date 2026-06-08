@@ -25,6 +25,7 @@ export type EditablePet = {
   telegram: string | null;
   showPhone: boolean;
   marksText: string | null;
+  chip: string | null;
   status: string;
 };
 
@@ -48,6 +49,7 @@ export function EditPetForm({ pet }: { pet: EditablePet }) {
   const [telegram, setTelegram] = useState(pet.telegram ?? "");
   const [showPhone, setShowPhone] = useState(pet.showPhone);
   const [marksText, setMarksText] = useState(pet.marksText ?? "");
+  const [chip, setChip] = useState(pet.chip ?? "");
   const [status, setStatus] = useState(pet.status || "home");
 
   const [saving, setSaving] = useState(false);
@@ -82,6 +84,7 @@ export function EditPetForm({ pet }: { pet: EditablePet }) {
           telegram,
           showPhone,
           marksText,
+          chip,
           status,
         }),
       });
@@ -204,6 +207,18 @@ export function EditPetForm({ pet }: { pet: EditablePet }) {
             value={marksText}
             onChange={(e) => setMarksText(e.target.value)}
             placeholder="Шрам на ухе, белый кончик хвоста…"
+          />
+        </Field>
+
+        <Field
+          label="Номер микрочипа"
+          hint="15 цифр, сканируется в любой ветклинике — помогает вернуть собаку"
+        >
+          <Input
+            inputMode="numeric"
+            value={chip}
+            onChange={(e) => setChip(e.target.value)}
+            placeholder="643..."
           />
         </Field>
 

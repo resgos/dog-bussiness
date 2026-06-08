@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { Camera, MapPin, Phone, Send, PawPrint, ShieldAlert } from "lucide-react";
+import { Camera, MapPin, Phone, Send, PawPrint, ShieldAlert, ScanLine } from "lucide-react";
 import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
@@ -184,6 +184,13 @@ export default async function PassportPage({
                 <p className="inline-flex items-center gap-1.5 text-sm text-ink-soft">
                   <MapPin className="size-4 text-petal" aria-hidden />
                   Район: {district}
+                </p>
+              ) : null}
+
+              {pet.chip ? (
+                <p className="inline-flex items-center gap-1.5 text-sm text-ink-soft">
+                  <ScanLine className="size-4 text-petal" aria-hidden />
+                  Микрочип: <span className="font-mono">{pet.chip}</span>
                 </p>
               ) : null}
 

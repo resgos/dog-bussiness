@@ -59,6 +59,7 @@ export async function PATCH(
       telegram: str(body.telegram),
       showPhone: Boolean(body.showPhone),
       marksText: str(body.marksText),
+      chip: str(body.chip),
       status,
     },
   });

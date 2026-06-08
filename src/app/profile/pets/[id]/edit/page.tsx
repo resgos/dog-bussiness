@@ -71,6 +71,7 @@ export default async function EditPetPage({
             telegram: pet.telegram,
             showPhone: pet.showPhone,
             marksText: pet.marksText,
+            chip: pet.chip,
             status: pet.status,
           }}
         />

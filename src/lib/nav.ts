@@ -15,6 +15,8 @@ export const primaryNav: NavItem[] = [
       { label: "Потерялись", href: "/feed/lost" },
       { label: "Найдены", href: "/feed/found" },
       { label: "Я нашёл собаку", href: "/found/new" },
+      { label: "Если потерялась — что делать", href: "/guide/lost" },
+      { label: "Проверить чип", href: "/chip" },
     ],
   },
   {

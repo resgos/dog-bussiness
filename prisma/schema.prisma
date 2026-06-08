@@ -92,6 +92,7 @@ model LostReport {
   comment   String?
   radiusKm  Int        @default(3)
   reward    Int? // вознаграждение нашедшему, ₽
+  checklist String? // JSON-массив выполненных шагов плейбука поиска
   status    String     @default("active") // active | found | home
   createdAt DateTime   @default(now())
   sightings Sighting[]
