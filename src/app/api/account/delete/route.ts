@@ -22,6 +22,7 @@ export async function POST() {
       db.passwordResetToken.deleteMany({ where: { userId } }),
       db.emailVerificationToken.deleteMany({ where: { userId } }),
       db.walkCheckin.deleteMany({ where: { userId } }),
+      db.reportSubscription.deleteMany({ where: { userId } }),
       db.notification.deleteMany({ where: { userId } }),
       db.postLike.deleteMany({ where: { userId } }),
       db.postLike.deleteMany({ where: { post: { authorId: userId } } }),
@@ -34,7 +35,8 @@ export async function POST() {
       db.report.updateMany({ where: { reporterId: userId }, data: { reporterId: null } }),
       db.lostReport.updateMany({ where: { userId }, data: { userId: null } }),
       db.foundReport.updateMany({ where: { userId }, data: { userId: null } }),
-      // Записи здоровья — до удаления питомцев (FK petId).
+      // Доп. фото и записи здоровья — до удаления питомцев (FK petId).
+      db.petPhoto.deleteMany({ where: { pet: { userId } } }),
       db.healthRecord.deleteMany({ where: { pet: { userId } } }),
       db.pet.deleteMany({ where: { userId } }),
       // Разрываем само-связь: приглашённые больше не ссылаются на этого юзера.

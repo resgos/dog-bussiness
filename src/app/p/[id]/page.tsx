@@ -9,12 +9,18 @@ import { Badge } from "@/components/ui/Badge";
 import { findDistrict } from "@/lib/districts";
 import { ageOptions, sizeOptions } from "@/lib/petForm";
 import { ShareButton } from "@/components/share/ShareButton";
+import { PetGallery } from "@/components/pets/PetGallery";
 
 export const dynamic = "force-dynamic";
 
 // React cache() дедуплицирует выборку: generateMetadata и сама страница
 // вызывают getPet с тем же id в одном рендере → один запрос вместо двух.
-const getPet = cache((id: string) => db.pet.findUnique({ where: { id } }));
+const getPet = cache((id: string) =>
+  db.pet.findUnique({
+    where: { id },
+    include: { photos: { orderBy: { order: "asc" } } },
+  }),
+);
 
 // Фото питомца часто приходит как data URL (base64) — краулеры соцсетей его не
 // показывают, поэтому в превью отдаём фирменную картинку Шуни.
@@ -264,6 +270,15 @@ export default async function PassportPage({
             </div>
           </div>
         </div>
+
+        {pet.photos.length ? (
+          <div className="mx-auto mt-6 max-w-2xl">
+            <PetGallery
+              photos={pet.photos.map((p) => ({ id: p.id, url: p.url }))}
+              petName={pet.name}
+            />
+          </div>
+        ) : null}
       </div>
     </Container>
   );

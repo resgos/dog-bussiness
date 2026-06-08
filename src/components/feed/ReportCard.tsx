@@ -5,6 +5,7 @@ import { findDistrict } from "@/lib/districts";
 import { timeAgo, plural } from "@/lib/format";
 import { Badge } from "@/components/ui/Badge";
 import { FoundButton } from "./FoundButton";
+import { SubscribeButton } from "./SubscribeButton";
 
 type ReportLite = {
   id: string;
@@ -97,13 +98,16 @@ export function ReportCard({ report }: { report: ReportLite }) {
         </div>
 
         {!isFound ? (
-          <Link
-            href={`/poster/${report.id}`}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
-          >
-            <Printer className="size-4" aria-hidden />
-            Розыскной плакат
-          </Link>
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <Link
+              href={`/poster/${report.id}`}
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
+            >
+              <Printer className="size-4" aria-hidden />
+              Розыскной плакат
+            </Link>
+            <SubscribeButton reportId={report.id} />
+          </div>
         ) : null}
       </div>
     </article>

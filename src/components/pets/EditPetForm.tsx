@@ -9,6 +9,7 @@ import { TagToggle } from "@/components/ui/TagToggle";
 import { SuccessNote } from "@/components/ui/SuccessNote";
 import { ErrorBox } from "@/components/ui/ErrorBox";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
+import { PhotoManager } from "./PhotoManager";
 import { districtsByOkrug } from "@/lib/districts";
 import { ageOptions, sizeOptions } from "@/lib/petForm";
 
@@ -27,6 +28,7 @@ export type EditablePet = {
   marksText: string | null;
   chip: string | null;
   status: string;
+  photos?: { id: string; url: string }[];
 };
 
 const statusOptions = [
@@ -209,6 +211,13 @@ export function EditPetForm({ pet }: { pet: EditablePet }) {
             placeholder="Шрам на ухе, белый кончик хвоста…"
           />
         </Field>
+
+        <div>
+          <span className="mb-1.5 block text-sm font-semibold text-ink">
+            Фотогалерея
+          </span>
+          <PhotoManager petId={pet.id} initial={pet.photos ?? []} />
+        </div>
 
         <Field
           label="Номер микрочипа"

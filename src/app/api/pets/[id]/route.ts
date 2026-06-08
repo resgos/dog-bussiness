@@ -84,8 +84,9 @@ export async function DELETE(
     return NextResponse.json({ error: "Питомец не найден" }, { status: 404 });
   }
 
-  // Сначала записи дневника здоровья (FK petId), затем питомца.
+  // Сначала зависимые записи (FK petId): доп. фото и дневник здоровья, затем питомца.
   await db.$transaction([
+    db.petPhoto.deleteMany({ where: { petId: id } }),
     db.healthRecord.deleteMany({ where: { petId: id } }),
     db.pet.delete({ where: { id } }),
   ]);

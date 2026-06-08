@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { notifyMany } from "@/lib/notify";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +51,31 @@ export async function PATCH(
     await db.foundEvent.create({
       data: { petName: report.petName, district: report.district },
     });
+  }
+
+  // Уведомляем подписчиков розыска о смене статуса. Некритично → не валим ответ.
+  try {
+    const subs = await db.reportSubscription.findMany({
+      where: { reportId: id },
+      select: { userId: true },
+    });
+    await notifyMany(
+      subs.map((s) => s.userId),
+      {
+        type: next === "found" ? "found" : "info",
+        title: next === "found" ? "Нашлась! 🎉" : "Обновление поиска",
+        body: `Статус розыска «${report.petName}»: ${
+          next === "found"
+            ? "найдена"
+            : next === "home"
+              ? "дома"
+              : "активный поиск"
+        }`,
+        link: "/feed/lost",
+      },
+    );
+  } catch {
+    /* уведомления подписчикам некритичны — игнорируем */
   }
 
   return NextResponse.json({ ok: true, status: updated.status });

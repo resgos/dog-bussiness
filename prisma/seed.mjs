@@ -30,10 +30,12 @@ async function main() {
   await db.comment.deleteMany();
   await db.post.deleteMany();
   await db.session.deleteMany();
+  await db.reportSubscription.deleteMany();
   await db.sighting.deleteMany();
   await db.lostReport.deleteMany();
   await db.foundEvent.deleteMany();
   await db.foundReport.deleteMany();
+  await db.petPhoto.deleteMany();
   await db.healthRecord.deleteMany();
   await db.pet.deleteMany();
   await db.owner.deleteMany();

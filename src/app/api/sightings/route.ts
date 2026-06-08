@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { notifyUser } from "@/lib/notify";
+import { notifyUser, notifyMany } from "@/lib/notify";
 import { rateLimit, ipKey } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
@@ -39,8 +39,25 @@ export async function POST(req: Request) {
           link: "/profile/my-searches",
         });
       }
+
+      // Уведомляем подписчиков розыска о новом наблюдении (владельца не дублируем).
+      if (report) {
+        const subs = await db.reportSubscription.findMany({
+          where: { reportId: sighting.reportId },
+          select: { userId: true },
+        });
+        await notifyMany(
+          subs.map((s) => s.userId).filter((uid) => uid !== report.userId),
+          {
+            type: "info",
+            title: "Новое наблюдение 🔎",
+            body: `Кто-то видел собаку из розыска «${report.petName}»`,
+            link: "/map",
+          },
+        );
+      }
     } catch {
-      /* уведомление владельцу не критично — игнорируем */
+      /* уведомления некритичны — игнорируем */
     }
   }
 

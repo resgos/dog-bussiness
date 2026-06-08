@@ -38,7 +38,10 @@ export default async function EditPetPage({
     );
   }
 
-  const pet = await db.pet.findUnique({ where: { id } });
+  const pet = await db.pet.findUnique({
+    where: { id },
+    include: { photos: { orderBy: { order: "asc" } } },
+  });
   // Нет питомца или это не его — 404, чтобы не раскрывать чужие карточки.
   if (!pet || pet.userId !== user.id) {
     notFound();
@@ -73,6 +76,7 @@ export default async function EditPetPage({
             marksText: pet.marksText,
             chip: pet.chip,
             status: pet.status,
+            photos: pet.photos.map((p) => ({ id: p.id, url: p.url })),
           }}
         />
       </div>

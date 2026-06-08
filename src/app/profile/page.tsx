@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Award,
   LogIn,
@@ -21,9 +22,11 @@ import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { PushToggle } from "@/components/notifications/PushToggle";
 import { VerifyBanner } from "@/components/auth/VerifyBanner";
 import { getCurrentUser } from "@/lib/auth";
+import { db } from "@/lib/db";
 import { findDistrict } from "@/lib/districts";
 import { logoutAction } from "@/components/auth/actions";
 import { roleInfo } from "@/components/community/postMeta";
+import { ACHIEVEMENTS, earnedCount } from "@/lib/achievements";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Личный кабинет" };
@@ -76,6 +79,22 @@ export default async function ProfilePage() {
   // —— Участник: карточка профиля + навигация ——
   const district = user.district ? findDistrict(user.district) : undefined;
   const contact = user.phone || user.email || "—";
+
+  // Полоска достижений: считаем те же метрики, что и страница /profile/achievements.
+  const [pets, likes, complete] = await Promise.all([
+    db.pet.count({ where: { userId: user.id } }),
+    db.postLike.count({ where: { post: { authorId: user.id } } }),
+    db.pet.count({
+      where: {
+        userId: user.id,
+        photo: { not: null },
+        breed: { not: null },
+        district: { not: null },
+        marksText: { not: null },
+      },
+    }),
+  ]);
+  const earned = earnedCount({ pets, likes, helped: user.helpedCount, complete });
 
   return (
     <Container className="py-12 sm:py-16">
@@ -147,6 +166,18 @@ export default async function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Компактная полоска достижений — ведёт на /profile/achievements */}
+      <Link
+        href="/profile/achievements"
+        className="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-blush-soft px-4 py-3 text-sm font-semibold text-petal-deep transition hover:bg-blush"
+      >
+        <span className="inline-flex items-center gap-2">
+          <Trophy className="size-4" aria-hidden />
+          🏅 Достижения: {earned} из {ACHIEVEMENTS.length} получено
+        </span>
+        <span aria-hidden>→</span>
+      </Link>
 
       <div className="mt-8">
         <PushToggle />
