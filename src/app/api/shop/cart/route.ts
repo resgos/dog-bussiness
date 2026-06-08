@@ -5,6 +5,8 @@ import {
   cartCount,
   readCart,
   writeCart,
+  readVariants,
+  writeVariants,
 } from "@/components/shop/cart-cookie";
 
 export const dynamic = "force-dynamic";
@@ -51,9 +53,22 @@ export async function POST(req: Request) {
     }
   }
 
+  const variant =
+    typeof body.variant === "string" ? body.variant.trim().slice(0, 200) : "";
+
   const cart = await readCart();
   const next = applyOp(cart, productId, op, qty);
   await writeCart(next);
+
+  // Параллельно ведём выбранный вариант товара: при добавлении/установке —
+  // сохраняем, при удалении позиции — чистим.
+  const variants = await readVariants();
+  if (!next[productId]) {
+    delete variants[productId];
+  } else if ((op === "add" || op === "set") && variant) {
+    variants[productId] = variant;
+  }
+  await writeVariants(variants);
 
   return NextResponse.json({
     count: cartCount(next),

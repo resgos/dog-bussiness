@@ -344,6 +344,32 @@ model Product {
   image       String?
   createdAt   DateTime    @default(now())
   orderItems  OrderItem[]
+  images      ProductImage[]
+  variants    ProductVariant[]
+}
+
+/// Доп. изображение товара (галерея) — ТЗ 4.7 «фотогалерея».
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  url       String
+  order     Int     @default(0)
+
+  @@index([productId])
+}
+
+/// Параметр товара (вариант) — ТЗ 4.7 «выбор параметров». Группируется по name.
+model ProductVariant {
+  id         String  @id @default(cuid())
+  productId  String
+  product    Product @relation(fields: [productId], references: [id])
+  name       String // группа, напр. «Цвет» / «Размер»
+  value      String // значение, напр. «Розовый» / «S»
+  priceDelta Int     @default(0) // надбавка к цене, ₽
+  order      Int     @default(0)
+
+  @@index([productId])
 }
 
 model Order {
@@ -369,6 +395,7 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
   qty       Int     @default(1)
   priceRub  Int
+  variant   String? // выбранные параметры, напр. «Цвет: Розовый · Размер: S»
 
   @@index([orderId])
   @@index([productId])

@@ -25,6 +25,8 @@ async function main() {
   await db.adoptionListing.deleteMany();
   await db.orderItem.deleteMany();
   await db.order.deleteMany();
+  await db.productImage.deleteMany();
+  await db.productVariant.deleteMany();
   await db.product.deleteMany();
   await db.postLike.deleteMany();
   await db.comment.deleteMany();

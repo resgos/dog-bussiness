@@ -89,6 +89,48 @@ export function cartTotal<P extends { id: string; priceRub: number }>(
   return lines.reduce((sum, line) => sum + line.product.priceRub * line.qty, 0);
 }
 
+// ——— Выбранные параметры (варианты) товаров в корзине ———
+// Храним параллельно qty-корзине: cookie `lapka_cart_variants` = { productId: "Цвет: Розовый · Размер: S" }.
+export const CART_VARIANTS_COOKIE = "lapka_cart_variants";
+export type CartVariants = Record<string, string>;
+
+export function parseVariants(raw: string | undefined | null): CartVariants {
+  if (!raw) return {};
+  try {
+    const data = JSON.parse(raw) as unknown;
+    if (!data || typeof data !== "object" || Array.isArray(data)) return {};
+    const out: CartVariants = {};
+    for (const [id, label] of Object.entries(data as Record<string, unknown>)) {
+      if (id && typeof label === "string" && label.trim()) {
+        out[id] = label.trim().slice(0, 200);
+      }
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+export async function readVariants(): Promise<CartVariants> {
+  const store = await cookies();
+  return parseVariants(store.get(CART_VARIANTS_COOKIE)?.value);
+}
+
+export async function writeVariants(map: CartVariants): Promise<void> {
+  const store = await cookies();
+  const entries = Object.entries(map).filter(([, v]) => Boolean(v));
+  if (entries.length === 0) {
+    store.delete(CART_VARIANTS_COOKIE);
+    return;
+  }
+  store.set(CART_VARIANTS_COOKIE, JSON.stringify(Object.fromEntries(entries)), {
+    httpOnly: false,
+    sameSite: "lax",
+    path: "/",
+    maxAge: MAX_AGE,
+  });
+}
+
 /** Применить операцию add|remove|set к корзине и вернуть новую. */
 export function applyOp(
   cart: Cart,

@@ -5,7 +5,7 @@ import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
-import { buildCartLines, cartTotal, readCart } from "@/components/shop/cart-cookie";
+import { buildCartLines, cartTotal, readCart, readVariants } from "@/components/shop/cart-cookie";
 import { CartLine } from "@/components/shop/CartLine";
 import { CheckoutForm } from "@/components/shop/CheckoutForm";
 
@@ -14,6 +14,7 @@ export const metadata = { title: "Корзина" };
 
 export default async function CartPage() {
   const cart = await readCart();
+  const variants = await readVariants();
   const ids = Object.keys(cart);
 
   const products = ids.length
@@ -63,6 +64,7 @@ export default async function CartPage() {
                 image={l.product.image}
                 priceRub={l.product.priceRub}
                 qty={l.qty}
+                variant={variants[l.product.id]}
               />
             ))}
           </div>

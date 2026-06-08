@@ -1,17 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PawPrint, ChevronLeft, ScanLine } from "lucide-react";
+import { ChevronLeft, ScanLine } from "lucide-react";
 import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
-import { AddToCart } from "@/components/shop/AddToCart";
+import { ProductGallery } from "@/components/shop/ProductGallery";
+import { ProductPurchase } from "@/components/shop/ProductPurchase";
 import { categoryLabel, categoryTone } from "@/components/shop/categories";
 
 export const dynamic = "force-dynamic";
 
 async function getProduct(slug: string) {
-  return db.product.findUnique({ where: { slug } });
+  return db.product.findUnique({
+    where: { slug },
+    include: {
+      images: { orderBy: { order: "asc" } },
+      variants: { orderBy: [{ name: "asc" }, { order: "asc" }] },
+    },
+  });
 }
 
 export async function generateMetadata({
@@ -47,20 +54,13 @@ export default async function ProductPage({
 
       <div className="grid gap-8 lg:grid-cols-2">
         {/* Фото */}
-        <div className="relative aspect-square overflow-hidden rounded-3xl border border-blush bg-blush-soft shadow-card">
-          {product.image ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
-              src={product.image}
-              alt={product.name}
-              className="size-full object-cover"
-            />
-          ) : (
-            <div className="flex size-full items-center justify-center text-petal">
-              <PawPrint className="size-20" aria-hidden />
-            </div>
-          )}
-        </div>
+        <ProductGallery
+          images={[
+            ...(product.image ? [{ url: product.image }] : []),
+            ...product.images.map((im) => ({ url: im.url })),
+          ]}
+          alt={product.name}
+        />
 
         {/* Информация */}
         <div className="flex flex-col gap-5">
@@ -70,8 +70,6 @@ export default async function ProductPage({
             </Badge>
             <h1 className="mt-3 text-3xl font-bold sm:text-4xl">{product.name}</h1>
           </div>
-
-          <p className="text-3xl font-extrabold text-ink">{product.priceRub} ₽</p>
 
           {product.description ? (
             <p className="leading-relaxed text-ink-soft">{product.description}</p>
@@ -88,7 +86,16 @@ export default async function ProductPage({
           ) : null}
 
           <div className="pt-2">
-            <AddToCart productId={product.id} />
+            <ProductPurchase
+              productId={product.id}
+              basePrice={product.priceRub}
+              variants={product.variants.map((v) => ({
+                id: v.id,
+                name: v.name,
+                value: v.value,
+                priceDelta: v.priceDelta,
+              }))}
+            />
           </div>
 
           <p className="text-sm text-ink-soft">

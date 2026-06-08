@@ -6,6 +6,8 @@ import {
   cartTotal,
   readCart,
   writeCart,
+  readVariants,
+  writeVariants,
 } from "@/components/shop/cart-cookie";
 
 export const dynamic = "force-dynamic";
@@ -54,6 +56,7 @@ export async function POST(req: Request) {
   }
 
   const totalRub = cartTotal(lines);
+  const variants = await readVariants();
   const user = await getCurrentUser();
 
   const order = await db.order.create({
@@ -68,13 +71,15 @@ export async function POST(req: Request) {
           productId: l.product.id,
           qty: l.qty,
           priceRub: l.product.priceRub,
+          variant: variants[l.product.id] ?? null,
         })),
       },
     },
   });
 
-  // Корзина оформлена — очищаем cookie.
+  // Корзина оформлена — очищаем cookie (и qty, и варианты).
   await writeCart({});
+  await writeVariants({});
 
   return NextResponse.json({ orderId: order.id }, { status: 201 });
 }

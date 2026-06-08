@@ -12,10 +12,11 @@ type Props = {
   image: string | null;
   priceRub: number;
   qty: number;
+  variant?: string;
 };
 
 /** Строка корзины: фото, имя, цена и счётчик qty (+/−) → /api/shop/cart. */
-export function CartLine({ productId, slug, name, image, priceRub, qty }: Props) {
+export function CartLine({ productId, slug, name, image, priceRub, qty, variant }: Props) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
 
@@ -57,6 +58,9 @@ export function CartLine({ productId, slug, name, image, priceRub, qty }: Props)
         >
           {name}
         </Link>
+        {variant ? (
+          <p className="truncate text-xs font-semibold text-petal-deep">{variant}</p>
+        ) : null}
         <p className="text-sm text-ink-soft">{priceRub} ₽ за шт.</p>
       </div>
 
