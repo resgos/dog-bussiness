@@ -48,9 +48,26 @@ model Pet {
   ownerId     String?
   user        User?    @relation(fields: [userId], references: [id])
   userId      String?
+  healthRecords HealthRecord[]
 
   @@index([ownerId])
   @@index([userId])
+}
+
+/// Запись в дневнике здоровья питомца (прививки, вес, обработки) — «Лапка+».
+model HealthRecord {
+  id        String    @id @default(cuid())
+  petId     String
+  pet       Pet       @relation(fields: [petId], references: [id])
+  type      String // vaccine | deworming | weight | treatment | other
+  title     String
+  date      DateTime
+  nextDue   DateTime?
+  value     String?
+  note      String?
+  createdAt DateTime  @default(now())
+
+  @@index([petId])
 }
 
 model FoundEvent {

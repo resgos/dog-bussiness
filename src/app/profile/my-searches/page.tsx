@@ -1,4 +1,5 @@
-import { Clock, Eye, Gift, LogIn, MapPin, PawPrint, Printer } from "lucide-react";
+import Link from "next/link";
+import { Clock, Eye, Gift, LogIn, MapPin, PawPrint, Printer, Search } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
@@ -6,7 +7,12 @@ import { getCurrentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { findDistrict } from "@/lib/districts";
 import { timeAgo, plural } from "@/lib/format";
+import { rankFoundForLost } from "@/lib/match";
 import { SearchControls } from "@/components/profile/SearchControls";
+
+// Порог совпадения — держим синхронно со страницей matches, иначе бейдж
+// «N возможных находок» соврёт про число карточек. См. комментарий там же.
+const MIN_MATCH_SCORE = 25;
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Мои поиски" };
@@ -53,6 +59,9 @@ export default async function MySearchesPage() {
     orderBy: { createdAt: "desc" },
   });
 
+  // Открытые находки грузим один раз — матчим против каждой активной пропажи.
+  const founds = await db.foundReport.findMany({ where: { status: "open" } });
+
   return (
     <Container className="py-12 sm:py-16">
       <Badge tone="petal">🐾 Мои поиски</Badge>
@@ -87,6 +96,11 @@ export default async function MySearchesPage() {
             const info = statusInfo[report.status] ?? statusInfo.active;
             const sCount = report.sightings.length;
             const when = report.lostAt ?? report.createdAt;
+            // Похожие находки ищем только для активных пропаж.
+            const matchCount =
+              report.status === "active"
+                ? rankFoundForLost(report, founds, MIN_MATCH_SCORE).length
+                : 0;
 
             return (
               <article
@@ -131,6 +145,23 @@ export default async function MySearchesPage() {
                     </span>
                   ) : null}
                 </div>
+
+                {matchCount > 0 ? (
+                  <Link
+                    href={`/profile/my-searches/${report.id}/matches`}
+                    className="inline-flex items-center gap-1.5 rounded-2xl bg-blush-soft px-3 py-2 text-sm font-bold text-petal-deep transition hover:bg-blush"
+                  >
+                    <Search className="size-4" aria-hidden />
+                    🔎 {matchCount}{" "}
+                    {plural(
+                      matchCount,
+                      "возможная находка",
+                      "возможные находки",
+                      "возможных находок",
+                    )}{" "}
+                    →
+                  </Link>
+                ) : null}
 
                 <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
                   <SearchControls id={report.id} status={report.status} />

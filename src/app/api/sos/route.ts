@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { notifyMany } from "@/lib/notify";
+import { sendTelegramChannel } from "@/lib/telegram";
 import { rateLimit, ipKey } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
@@ -79,6 +80,22 @@ export async function POST(req: Request) {
     } catch {
       /* рассылка не критична — игнорируем */
     }
+  }
+
+  // Бродкаст в районный Telegram-канал (no-op без настроенного бота/канала).
+  {
+    const base = process.env.NEXT_PUBLIC_SITE_URL || "";
+    const line = [report.breed, report.district].filter(Boolean).join(" · ");
+    const text = [
+      `🆘 Пропал: ${report.petName}`,
+      line,
+      report.comment || "",
+      report.reward ? `🎁 Награда: ${report.reward} ₽` : "",
+      base ? `Плакат и контакты: ${base}/poster/${report.id}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+    await sendTelegramChannel(text);
   }
 
   return NextResponse.json({ id: report.id }, { status: 201 });

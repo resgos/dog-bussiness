@@ -31,6 +31,7 @@ async function main() {
   await db.lostReport.deleteMany();
   await db.foundEvent.deleteMany();
   await db.foundReport.deleteMany();
+  await db.healthRecord.deleteMany();
   await db.pet.deleteMany();
   await db.owner.deleteMany();
   await db.user.deleteMany();
@@ -159,6 +160,19 @@ async function main() {
       { userId: anyaUser.id, type: "system", title: "Достижение «Сосед»", body: "Ты добавил первого питомца в стаю.", link: "/profile", read: false },
     ],
   });
+
+  // Дневник здоровья демо-питомца «Шуня» (Лапка+).
+  const shunyaPet = await db.pet.findFirst({ where: { name: "Шуня" } });
+  if (shunyaPet) {
+    const day = 86_400_000;
+    await db.healthRecord.createMany({
+      data: [
+        { petId: shunyaPet.id, type: "vaccine", title: "Комплексная вакцина (DHPPi+L)", date: new Date(Date.now() - 200 * day), nextDue: new Date(Date.now() + 165 * day), note: "Клиника «Айболит»" },
+        { petId: shunyaPet.id, type: "deworming", title: "Глистогонное (Мильбемакс)", date: new Date(Date.now() - 40 * day), nextDue: new Date(Date.now() - 5 * day) },
+        { petId: shunyaPet.id, type: "weight", title: "Взвешивание", date: new Date(Date.now() - 10 * day), value: "9.8 кг" },
+      ],
+    });
+  }
 
   const [pets, lost, found, products, posts, notifs] = await Promise.all([
     db.pet.count(), db.lostReport.count(), db.foundReport.count(), db.product.count(), db.post.count(), db.notification.count(),

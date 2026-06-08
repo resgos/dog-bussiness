@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Camera, Pencil, Plus, QrCode } from "lucide-react";
+import { ArrowRight, Camera, Pencil, Plus, QrCode, Stethoscope } from "lucide-react";
 import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
@@ -94,20 +94,29 @@ export default async function PetsPage() {
                 <p className="text-sm text-ink-soft">
                   {pet.breed || "Порода не указана"}
                 </p>
-                <div className="mt-3 flex items-center justify-between gap-2">
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                   <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep">
                     <QrCode className="size-4" aria-hidden />
                     Паспорт
                     <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
                   </span>
-                  {/* Отдельная ссылка над оверлеем — возвращаем ей клики. */}
-                  <Link
-                    href={`/profile/pets/${pet.id}/edit`}
-                    className="pointer-events-auto relative z-10 inline-flex items-center gap-1.5 rounded-full border border-blush px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-petal hover:text-petal-deep"
-                  >
-                    <Pencil className="size-3.5" aria-hidden />
-                    Изменить
-                  </Link>
+                  {/* Отдельные ссылки над оверлеем — возвращаем им клики. */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                      href={`/profile/pets/${pet.id}/health`}
+                      className="pointer-events-auto relative z-10 inline-flex items-center gap-1.5 rounded-full border border-blush px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-petal hover:text-petal-deep"
+                    >
+                      <Stethoscope className="size-3.5" aria-hidden />
+                      Здоровье
+                    </Link>
+                    <Link
+                      href={`/profile/pets/${pet.id}/edit`}
+                      className="pointer-events-auto relative z-10 inline-flex items-center gap-1.5 rounded-full border border-blush px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-petal hover:text-petal-deep"
+                    >
+                      <Pencil className="size-3.5" aria-hidden />
+                      Изменить
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
