@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { savePhoto } from "@/lib/storage";
 import { notifyMany } from "@/lib/notify";
 import { rateLimit, ipKey } from "@/lib/ratelimit";
 
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
       finderName: str(b.finderName)?.slice(0, 80) ?? null,
       contactPhone: str(b.contactPhone)?.slice(0, 40) ?? null,
       contactTelegram: str(b.contactTelegram)?.slice(0, 80) ?? null,
-      photo: str(b.photo),
+      photo: await savePhoto(str(b.photo)),
       breed: str(b.breed)?.slice(0, 80) ?? null,
       color: str(b.color)?.slice(0, 80) ?? null,
       size: size && SIZES.includes(size) ? size : null,

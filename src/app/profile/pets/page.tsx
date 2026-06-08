@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Camera, Plus, QrCode } from "lucide-react";
+import { ArrowRight, Camera, Pencil, Plus, QrCode } from "lucide-react";
 import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
@@ -44,12 +44,18 @@ export default async function PetsPage() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {pets.map((pet) => (
-            <Link
+            <div
               key={pet.id}
-              href={`/p/${pet.id}`}
-              className="group flex flex-col overflow-hidden rounded-3xl border border-blush bg-card shadow-card transition-all hover:-translate-y-1 hover:shadow-soft"
+              className="group relative flex flex-col overflow-hidden rounded-3xl border border-blush bg-card shadow-card transition-all hover:-translate-y-1 hover:shadow-soft"
             >
-              <div className="relative aspect-[4/3] bg-blush-soft">
+              {/* Клик по карточке ведёт на паспорт. Оверлей-ссылка, чтобы внутри
+                  можно было держать отдельную ссылку «Изменить» без вложенных <a>. */}
+              <Link
+                href={`/p/${pet.id}`}
+                aria-label={`Паспорт питомца ${pet.name}`}
+                className="absolute inset-0 z-0 rounded-3xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blush"
+              />
+              <div className="pointer-events-none relative aspect-[4/3] bg-blush-soft">
                 {pet.photo ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img
@@ -83,18 +89,28 @@ export default async function PetsPage() {
                   </Badge>
                 </span>
               </div>
-              <div className="flex flex-1 flex-col gap-1 p-5">
+              <div className="pointer-events-none relative z-10 flex flex-1 flex-col gap-1 p-5">
                 <h2 className="text-lg font-bold">{pet.name}</h2>
                 <p className="text-sm text-ink-soft">
                   {pet.breed || "Порода не указана"}
                 </p>
-                <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep">
-                  <QrCode className="size-4" aria-hidden />
-                  Паспорт
-                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
-                </span>
+                <div className="mt-3 flex items-center justify-between gap-2">
+                  <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep">
+                    <QrCode className="size-4" aria-hidden />
+                    Паспорт
+                    <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
+                  </span>
+                  {/* Отдельная ссылка над оверлеем — возвращаем ей клики. */}
+                  <Link
+                    href={`/profile/pets/${pet.id}/edit`}
+                    className="pointer-events-auto relative z-10 inline-flex items-center gap-1.5 rounded-full border border-blush px-3 py-1.5 text-xs font-semibold text-ink-soft transition-colors hover:border-petal hover:text-petal-deep"
+                  >
+                    <Pencil className="size-3.5" aria-hidden />
+                    Изменить
+                  </Link>
+                </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}

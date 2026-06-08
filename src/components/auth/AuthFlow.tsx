@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowRight, LogIn, PawPrint } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Field, Input, Select } from "@/components/ui/Field";
@@ -177,7 +178,15 @@ function LoginForm() {
         />
       </Field>
 
-      <ModeToggle mode={mode} onChange={setMode} />
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <ModeToggle mode={mode} onChange={setMode} />
+        <Link
+          href="/auth/forgot"
+          className="text-sm font-semibold text-petal-deep hover:underline"
+        >
+          Забыли пароль?
+        </Link>
+      </div>
 
       <ErrorBox message={state.error} />
 

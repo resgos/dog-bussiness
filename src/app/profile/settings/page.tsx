@@ -4,6 +4,7 @@ import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
 import { SettingsForm } from "@/components/auth/SettingsForm";
+import { DeleteAccount } from "@/components/auth/DeleteAccount";
 import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -28,6 +29,18 @@ export default async function SettingsPage() {
             district={user.district}
             telegram={user.telegram}
           />
+        </div>
+
+        <div className="mt-10 rounded-3xl border border-status-lost/30 bg-card p-6 shadow-card sm:p-8">
+          <h2 className="text-lg font-bold text-status-lost-ink">
+            ⚠️ Опасная зона
+          </h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            Здесь живут необратимые действия. Будь осторожна.
+          </p>
+          <div className="mt-5">
+            <DeleteAccount />
+          </div>
         </div>
 
         <div className="mt-8">

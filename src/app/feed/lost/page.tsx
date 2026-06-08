@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
-import { ReportCard } from "@/components/feed/ReportCard";
+import { LostFilters } from "@/components/feed/LostFilters";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 
 export const dynamic = "force-dynamic";
@@ -33,11 +33,7 @@ export default async function FeedLostPage() {
           <ShunyaBubble message="Сейчас в районе никто не потерялся — и это здорово! Гуляйте спокойно." />
         </div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {reports.map((r) => (
-            <ReportCard key={r.id} report={r} />
-          ))}
-        </div>
+        <LostFilters reports={reports} />
       )}
     </Container>
   );

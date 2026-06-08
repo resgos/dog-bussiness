@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { savePhoto } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
 
@@ -46,7 +47,7 @@ export async function POST(req: Request) {
       extraPhone: str(body.extraPhone),
       telegram: str(body.telegram),
       showPhone: Boolean(body.showPhone),
-      photo: str(body.photo),
+      photo: await savePhoto(str(body.photo)),
     },
   });
 
