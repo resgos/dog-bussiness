@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<title>Лапка помощи — что готово</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFF9F5; --white:#fff; --ink:#3f3a44; --ink-soft:#8b8390;
+    --petal:#E6A4B4; --petal-deep:#C25F7C; --paw:#FACEA2; --paw-deep:#E0964F;
+    --blush:#FCD9E2; --blush-soft:#FFEFF4; --coral:#EF6461; --green:#5FB87A;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  html{font-family:'Nunito',-apple-system,'Segoe UI',sans-serif;color:var(--ink);}
+  @page{size:A4 landscape;margin:0;}
+  h1,h2,h3,.font-display{font-family:'Comfortaa','Nunito',sans-serif;}
+  .slide{
+    position:relative;width:297mm;height:210mm;overflow:hidden;
+    background:var(--cream);page-break-after:always;padding:17mm 18mm 14mm;
+    display:flex;flex-direction:column;
+  }
+  .slide:last-child{page-break-after:auto;}
+  /* header / footer */
+  .kicker{display:inline-flex;align-items:center;gap:7px;font-weight:800;font-size:12.5px;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--petal-deep);
+    background:var(--blush-soft);border:1px solid var(--blush);padding:6px 13px;border-radius:999px;}
+  .s-title{font-size:38px;font-weight:700;color:var(--ink);margin-top:14px;line-height:1.08;}
+  .s-sub{font-size:16.5px;color:var(--ink-soft);margin-top:8px;max-width:880px;line-height:1.5;}
+  .foot{position:absolute;left:18mm;right:18mm;bottom:8mm;display:flex;align-items:center;
+    justify-content:space-between;font-size:11.5px;color:var(--ink-soft);
+    border-top:1px solid var(--blush);padding-top:7px;}
+  .foot b{color:var(--petal-deep);font-family:'Comfortaa';font-weight:700;}
+  .pageno{font-weight:700;color:var(--petal-deep);}
+  /* cards grid */
+  .grid{display:grid;gap:14px;margin-top:22px;flex:1;align-content:start;}
+  .g3{grid-template-columns:repeat(3,1fr);} .g4{grid-template-columns:repeat(4,1fr);}
+  .g2{grid-template-columns:repeat(2,1fr);}
+  .card{background:var(--white);border:1px solid var(--blush);border-radius:20px;
+    padding:18px 18px;box-shadow:0 8px 22px -16px rgba(194,95,124,.45);}
+  .ic{width:46px;height:46px;border-radius:14px;background:var(--blush-soft);
+    display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:11px;}
+  .card h3{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:5px;}
+  .card p{font-size:13.5px;color:var(--ink-soft);line-height:1.45;}
+  .tag{display:inline-block;font-size:11px;font-weight:800;color:var(--green);
+    background:rgba(95,184,122,.13);padding:2px 9px;border-radius:999px;margin-top:9px;}
+  /* cover */
+  .cover{background:linear-gradient(135deg,#FFEFF4 0%,#FFF9F5 55%,#FFF4EA 100%);align-items:flex-start;justify-content:center;}
+  .cover .logo{height:74px;margin-bottom:26px;}
+  .cover h1{font-size:74px;font-weight:700;line-height:1.02;letter-spacing:-.01em;}
+  .cover h1 .pink{color:var(--petal-deep);}
+  .cover .slogan{font-size:25px;color:var(--ink);margin-top:14px;font-weight:700;}
+  .cover .desc{font-size:17px;color:var(--ink-soft);margin-top:16px;max-width:560px;line-height:1.55;}
+  .cover .pills{margin-top:26px;display:flex;gap:11px;flex-wrap:wrap;}
+  .pill{background:var(--white);border:1px solid var(--blush);border-radius:999px;
+    padding:9px 17px;font-weight:700;font-size:14px;color:var(--petal-deep);
+    box-shadow:0 8px 22px -16px rgba(194,95,124,.5);}
+  .shunya-cover{position:absolute;right:5mm;bottom:0;height:188mm;filter:drop-shadow(0 18px 30px rgba(194,95,124,.28));}
+  .shunya-corner{position:absolute;right:12mm;bottom:9mm;height:62mm;}
+  /* stats */
+  .stat{background:var(--white);border:1px solid var(--blush);border-radius:22px;padding:24px 22px;
+    box-shadow:0 10px 26px -18px rgba(194,95,124,.5);display:flex;flex-direction:column;gap:6px;}
+  .stat .num{font-family:'Comfortaa';font-weight:700;font-size:50px;color:var(--petal-deep);line-height:1;}
+  .stat .lbl{font-size:14.5px;color:var(--ink);font-weight:700;}
+  .stat .src{font-size:11px;color:var(--ink-soft);}
+  /* pillars */
+  .pillar{background:var(--white);border:1px solid var(--blush);border-radius:22px;padding:24px;
+    box-shadow:0 10px 26px -18px rgba(194,95,124,.5);}
+  .pillar .ic{width:56px;height:56px;font-size:30px;border-radius:18px;}
+  .pillar h3{font-size:21px;margin:6px 0;} .pillar p{font-size:14px;}
+  /* table */
+  table{width:100%;border-collapse:separate;border-spacing:0 9px;margin-top:18px;}
+  th,td{text-align:left;padding:14px 18px;font-size:15px;}
+  thead th{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);padding:4px 18px;}
+  tbody tr td{background:var(--white);border-top:1px solid var(--blush);border-bottom:1px solid var(--blush);}
+  tbody tr td:first-child{border-left:1px solid var(--blush);border-radius:16px 0 0 16px;font-weight:800;color:var(--ink);}
+  tbody tr td:last-child{border-right:1px solid var(--blush);border-radius:0 16px 16px 0;}
+  .col-them{color:var(--ink-soft);}
+  .col-us{background:linear-gradient(180deg,#FFF4F8,#FFFFFF)!important;color:var(--petal-deep);font-weight:800;}
+  .vshead .us{color:var(--petal-deep);}
+  /* journey */
+  .flow{display:flex;align-items:stretch;gap:0;margin-top:30px;flex:1;}
+  .step{flex:1;background:var(--white);border:1px solid var(--blush);border-radius:20px;padding:18px 15px;
+    box-shadow:0 8px 22px -16px rgba(194,95,124,.45);display:flex;flex-direction:column;gap:7px;position:relative;}
+  .step .n{width:34px;height:34px;border-radius:50%;background:var(--paw);color:#7a4a1c;font-weight:800;
+    display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .step h3{font-size:15.5px;} .step p{font-size:12px;color:var(--ink-soft);line-height:1.4;}
+  .arrow{display:flex;align-items:center;color:var(--petal);font-size:26px;font-weight:800;padding:0 4px;}
+  /* two-col lists */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px;flex:1;}
+  .panel{background:var(--white);border:1px solid var(--blush);border-radius:22px;padding:24px 26px;
+    box-shadow:0 10px 26px -18px rgba(194,95,124,.5);}
+  .panel h3{font-size:19px;margin-bottom:14px;display:flex;align-items:center;gap:9px;}
+  .li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;margin:9px 0;color:var(--ink);line-height:1.4;}
+  .li .b{color:var(--green);font-weight:800;flex-shrink:0;}
+  .li.soon .b{color:var(--paw-deep);}
+  /* perf */
+  .metric{background:var(--white);border:1px solid var(--blush);border-radius:22px;padding:26px 22px;
+    box-shadow:0 10px 26px -18px rgba(194,95,124,.5);text-align:center;}
+  .metric .big{font-family:'Comfortaa';font-weight:700;font-size:44px;color:var(--green);}
+  .metric .mt{font-size:15px;font-weight:800;color:var(--ink);margin:8px 0 4px;}
+  .metric .ms{font-size:12.5px;color:var(--ink-soft);}
+  .note{margin-top:16px;background:var(--blush-soft);border:1px solid var(--blush);border-radius:16px;
+    padding:13px 18px;font-size:13.5px;color:var(--petal-deep);font-weight:700;}
+  /* finale */
+  .finale{background:linear-gradient(135deg,#FFEFF4,#FFF9F5 60%,#FFF4EA);align-items:center;justify-content:center;text-align:center;}
+  .finale h1{font-size:60px;color:var(--petal-deep);font-weight:700;}
+  .finale p{font-size:20px;color:var(--ink);margin-top:14px;}
+  .finale .repo{margin-top:22px;font-size:15px;color:var(--ink-soft);font-weight:700;
+    background:var(--white);border:1px solid var(--blush);padding:11px 22px;border-radius:999px;}
+  .finale .sh{height:150mm;position:absolute;left:6mm;bottom:0;filter:drop-shadow(0 18px 30px rgba(194,95,124,.28));}
+</style>
+</head>
+<body>
+
+<!-- 1. COVER -->
+<section class="slide cover">
+  <img class="logo" src="__LOGO__" alt="Лапка помощи"/>
+  <h1>Лапка <span class="pink">помощи</span></h1>
+  <div class="slogan">Каждый хвост на учёт 🐾</div>
+  <div class="desc">Городское сообщество поиска потерявшихся собак Москвы. Поднимаем район за 60 секунд, чтобы ни одна собака не оставалась потерянной дольше одного дня.</div>
+  <div class="pills">
+    <span class="pill">✅ MVP готов</span>
+    <span class="pill">🌐 Веб + PWA</span>
+    <span class="pill">⚙️ Next.js 15 · PostgreSQL</span>
+    <span class="pill">📍 Москва, район за районом</span>
+  </div>
+  <img class="shunya-corner" src="__SHUNYA_WAVE__" alt="Шуня"/>
+</section>
+
+<!-- 2. PROBLEM -->
+<section class="slide">
+  <span class="kicker">🐾 Зачем это нужно</span>
+  <div class="s-title">Каждая минута на счету</div>
+  <div class="s-sub">Собаки теряются часто и массово, а спасают их прежде всего неравнодушные соседи. Мы превращаем это в систему.</div>
+  <div class="grid g4" style="grid-template-columns:repeat(4,1fr);">
+    <div class="stat"><span class="num">41%</span><span class="lbl">владельцев в России хотя бы раз теряли питомца</span><span class="src">Kaspersky, 2023</span></div>
+    <div class="stat"><span class="num">×3</span><span class="lbl">всплеск пропаж собак в январе — салюты и петарды</span><span class="src">Pet911</span></div>
+    <div class="stat"><span class="num">168k</span><span class="lbl">объявлений о пропаже/находке за 2024 (+17%)</span><span class="src">ТАСС, 2024</span></div>
+    <div class="stat"><span class="num">91%</span><span class="lbl">найденных собак обнаружены волонтёрами</span><span class="src">Pet911</span></div>
+  </div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">02</span></div>
+</section>
+
+<!-- 3. SOLUTION -->
+<section class="slide">
+  <span class="kicker">💡 Решение</span>
+  <div class="s-title">Районная стая + технологии + забота</div>
+  <div class="s-sub">Миссия: «ни одна собака в Москве не остаётся потерянной дольше одного дня». Три опоры продукта:</div>
+  <div class="grid g3">
+    <div class="pillar"><div class="ic">🚨</div><h3>Скорость</h3><p>SOS поднимает соседей в выбранном радиусе за 60 секунд — push, районная лента и Telegram-чаты одновременно.</p><span class="tag">готово</span></div>
+    <div class="pillar"><div class="ic">🤝</div><h3>Комьюнити</h3><p>Собачники района — это стая. Районные ленты, рейтинг волонтёров, «моя стая» и рефералы держат людей вовлечёнными.</p><span class="tag">готово</span></div>
+    <div class="pillar"><div class="ic">💛</div><h3>Забота 365</h3><p>Не только про кризис: цифровой паспорт с QR, дневник здоровья, адресники — культура ответственного владения.</p><span class="tag">готово</span></div>
+  </div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">03</span></div>
+</section>
+
+<!-- 4. VS COMPETITORS -->
+<section class="slide">
+  <span class="kicker">⚡ Отличия</span>
+  <div class="s-title">Не доска объявлений, а живая стая района</div>
+  <table>
+    <thead class="vshead"><tr><th>Параметр</th><th>Pet911 / mos.ru</th><th class="us">Лапка помощи</th></tr></thead>
+    <tbody>
+      <tr><td>Фокус</td><td class="col-them">Вся Россия / весь мир</td><td class="col-us">Москва, район за районом</td></tr>
+      <tr><td>Скорость оповещения</td><td class="col-them">Доска объявлений</td><td class="col-us">Push соседям за 60 секунд</td></tr>
+      <tr><td>Комьюнити</td><td class="col-them">Нет</td><td class="col-us">Районные ленты, рейтинг волонтёров</td></tr>
+      <tr><td>Мерч и адресники</td><td class="col-them">Нет</td><td class="col-us">Встроенный магазин с QR-паспортом</td></tr>
+      <tr><td>Telegram</td><td class="col-them">Минимальная</td><td class="col-us">Бот-канал района, привязка аккаунта</td></tr>
+      <tr><td>Маскот и эмоция</td><td class="col-them">Нет</td><td class="col-us">Шуня — узнаваемый персонаж 🐶</td></tr>
+    </tbody>
+  </table>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">04</span></div>
+</section>
+
+<!-- 5. USER JOURNEY -->
+<section class="slide">
+  <span class="kicker">🧭 Как это работает</span>
+  <div class="s-title">Путь от тревоги до «дома» 🎉</div>
+  <div class="flow">
+    <div class="step"><div class="n">1</div><h3>Онбординг</h3><p>Шуня знакомит и заводит карточку питомца за пару минут.</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="n">2</div><h3>Паспорт + QR</h3><p>Цифровой паспорт с QR для гравировки на адреснике.</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="n">3</div><h3>SOS за 60 сек</h3><p>Точка на карте, радиус, награда — и публикация.</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="n">4</div><h3>Район поднят</h3><p>Push соседям, районная лента, Telegram-чаты.</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="n">5</div><h3>Карта + «видел»</h3><p>Соседи ставят наблюдения с фото и геометкой.</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="n">6</div><h3>Дома 🎉</h3><p>Статус «найдена», счётчик и достижения.</p></div>
+  </div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">05</span></div>
+</section>
+
+<!-- 6. MODULES READY -->
+<section class="slide">
+  <span class="kicker">✅ Готовый функционал</span>
+  <div class="s-title">Полная карта возможностей</div>
+  <div class="grid g3">
+    <div class="card"><div class="ic">👋</div><h3>Онбординг с Шуней</h3><p>3 экрана знакомства и мастер питомца на 6 шагов.</p></div>
+    <div class="card"><div class="ic">🪪</div><h3>Паспорт питомца + QR</h3><p>Публичная страница с фото, приметами и контактами по согласию.</p></div>
+    <div class="card"><div class="ic">🚨</div><h3>Режим SOS</h3><p>Объявление о пропаже, радиус 1–10 км, награда.</p></div>
+    <div class="card"><div class="ic">🗺️</div><h3>Карта поиска</h3><p>Метки пропаж/находок/наблюдений, фильтры, «рядом со мной».</p></div>
+    <div class="card"><div class="ic">📰</div><h3>Лента «Потерялись / Найдены»</h3><p>Карточки, поиск, фильтры, розыскной плакат.</p></div>
+    <div class="card"><div class="ic">🏘️</div><h3>Комьюнити</h3><p>Районные ленты, посты, лайки, комментарии, волонтёры.</p></div>
+    <div class="card"><div class="ic">🛍️</div><h3>Магазин</h3><p>Адресники, браслеты, корзина и заказы.</p></div>
+    <div class="card"><div class="ic">👤</div><h3>Личный кабинет</h3><p>Профиль, питомцы, поиски, заказы, настройки, согласия.</p></div>
+    <div class="card"><div class="ic">🏆</div><h3>Достижения и «моя стая»</h3><p>Бейджи за заботу и помощь, соседи рядом.</p></div>
+  </div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">06</span></div>
+</section>
+
+<!-- 7. SEARCH & RECOVERY -->
+<section class="slide">
+  <span class="kicker">🔎 Поиск и возврат</span>
+  <div class="s-title">Всё для возвращения собаки домой</div>
+  <div class="s-sub">Полный инструментарий восстановления — от мгновенного оповещения до национальных реестров чипов.</div>
+  <div class="grid g4">
+    <div class="card"><div class="ic">🚨</div><h3>SOS-оповещение</h3><p>Push соседям, лента и Telegram за 60 сек.</p></div>
+    <div class="card"><div class="ic">📍</div><h3>Наблюдения на карте</h3><p>«Я видел эту собаку» с фото и геометкой.</p></div>
+    <div class="card"><div class="ic">🔖</div><h3>Поиск по чипу</h3><p>Номер чипа → владелец; ссылки в Animal-ID.RU.</p></div>
+    <div class="card"><div class="ic">🆘</div><h3>Гайд первых 24 часов</h3><p>Пошаговый плейбук «потерялась / нашёл».</p></div>
+    <div class="card"><div class="ic">📋</div><h3>Чек-лист поиска</h3><p>Трекаемые шаги по конкретному розыску.</p></div>
+    <div class="card"><div class="ic">🖨️</div><h3>Розыскной плакат</h3><p>Готовый к печати плакат с QR.</p></div>
+    <div class="card"><div class="ic">🔔</div><h3>Подписка на розыск</h3><p>Уведомления о наблюдениях и смене статуса.</p></div>
+    <div class="card"><div class="ic">🎁</div><h3>Вознаграждение</h3><p>Мотивирует соседей искать активнее.</p></div>
+  </div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">07</span></div>
+</section>
+
+<!-- 8. CARE 365 -->
+<section class="slide">
+  <span class="kicker">💛 Забота 365 дней</span>
+  <div class="s-title">Не только про кризис</div>
+  <div class="s-sub">Сервис открывают каждый день — это и есть отличие от досок объявлений.</div>
+  <div class="grid g3">
+    <div class="card"><div class="ic">🏥</div><h3>Дневник здоровья</h3><p>Прививки, обработки, вес, напоминания о следующей дате.</p></div>
+    <div class="card"><div class="ic">📸</div><h3>Фотогалерея до 10</h3><p>Разные ракурсы — собаку узнают быстрее.</p></div>
+    <div class="card"><div class="ic">🏆</div><h3>Достижения</h3><p>«Сосед», «Первый хвост», «Нюх как у Шуни» и др.</p></div>
+    <div class="card"><div class="ic">🐶</div><h3>Приюты и пристройство</h3><p>«Забрать друга» — собаки в добрые руки.</p></div>
+    <div class="card"><div class="ic">🛠️</div><h3>Сервисы рядом</h3><p>Ветклиники, груминг, гостиницы, кинологи района.</p></div>
+    <div class="card"><div class="ic">🚶</div><h3>Прогулки-чекины</h3><p>«Гуляю сейчас» — живые глаза района на карте.</p></div>
+  </div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">08</span></div>
+</section>
+
+<!-- 9. COMMUNITY & GROWTH -->
+<section class="slide">
+  <span class="kicker">📣 Комьюнити и рост</span>
+  <div class="s-title">Каналы вовлечения и виральности</div>
+  <div class="grid g3">
+    <div class="card"><div class="ic">🏘️</div><h3>Районные ленты</h3><p>Посты с типами: пропажа, находка, наблюдение, совет, событие.</p></div>
+    <div class="card"><div class="ic">🥇</div><h3>Рейтинг волонтёров</h3><p>Баллы за помощь и активность, таблица лидеров по районам.</p></div>
+    <div class="card"><div class="ic">🎉</div><h3>Рефералы</h3><p>«Пригласи соседа» — рост стаи района.</p></div>
+    <div class="card"><div class="ic">✈️</div><h3>Telegram-бот</h3><p>Дублирование SOS в районные чаты, привязка аккаунта.</p></div>
+    <div class="card"><div class="ic">🔔</div><h3>Web-push (PWA)</h3><p>Уведомления на устройство без нативки.</p></div>
+    <div class="card"><div class="ic">🛡️</div><h3>Модерация</h3><p>Жалобы на контент и админ-разбор.</p></div>
+  </div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">09</span></div>
+</section>
+
+<!-- 10. TECH & RELIABILITY -->
+<section class="slide">
+  <span class="kicker">⚙️ Технологии и надёжность</span>
+  <div class="s-title">Современный стек, готовый к проду</div>
+  <div class="cols">
+    <div class="panel">
+      <h3>🧱 Технологии</h3>
+      <div class="li"><span class="b">▹</span><span><b>Next.js 15</b> (App Router, Server Actions) + TypeScript</span></div>
+      <div class="li"><span class="b">▹</span><span><b>Tailwind CSS v4</b> + Framer Motion, дизайн-система бренда</span></div>
+      <div class="li"><span class="b">▹</span><span><b>Prisma + PostgreSQL</b> (Docker), выверенные миграции</span></div>
+      <div class="li"><span class="b">▹</span><span><b>Leaflet + OpenStreetMap</b> — карта без платных ключей</span></div>
+      <div class="li"><span class="b">▹</span><span><b>web-push (VAPID)</b>, nodemailer, Telegram-бот</span></div>
+      <div class="li"><span class="b">▹</span><span><b>PWA</b> — устанавливается как приложение; Docker-деплой</span></div>
+    </div>
+    <div class="panel">
+      <h3>🛡️ Надёжность и безопасность</h3>
+      <div class="li"><span class="b">▹</span><span>Удаление аккаунта по <b>152-ФЗ</b> (право на забвение)</span></div>
+      <div class="li"><span class="b">▹</span><span>Пароли на <b>scrypt</b>, сессии в БД, верификация e-mail</span></div>
+      <div class="li"><span class="b">▹</span><span><b>Rate-limiting</b> чувствительных эндпоинтов</span></div>
+      <div class="li"><span class="b">▹</span><span>Контакты — только с согласия владельца</span></div>
+      <div class="li"><span class="b">▹</span><span><b>26 автотестов</b> + детерминированные verify-скрипты</span></div>
+      <div class="li"><span class="b">▹</span><span>Юридические страницы: политика и оферта</span></div>
+    </div>
+  </div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">10</span></div>
+</section>
+
+<!-- 11. PERFORMANCE -->
+<section class="slide">
+  <span class="kicker">⚡ Производительность</span>
+  <div class="s-title">Оптимизировано и измерено</div>
+  <div class="s-sub">Реальные бенчмарки OLD vs NEW на синтетической нагрузке — не на словах.</div>
+  <div class="grid g3">
+    <div class="metric"><div class="big">−75%</div><div class="mt">Лента «Потерялись»</div><div class="ms">payload 23 → 5.8 МБ · 228 → 61 мс</div></div>
+    <div class="metric"><div class="big">−95%</div><div class="mt">Матчинг находок</div><div class="ms">5.8 → 0.03 МБ · 66 → 3 мс</div></div>
+    <div class="metric"><div class="big">×2</div><div class="mt">Поиск по чипу</div><div class="ms">индекс БД: Seq Scan → Index Scan</div></div>
+  </div>
+  <div class="note">Плюс React cache() против дублей запросов, тримминг тяжёлых полей и optimizePackageImports — без регрессий, сборка и тесты зелёные.</div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">11</span></div>
+</section>
+
+<!-- 12. ТЗ COMPLIANCE -->
+<section class="slide">
+  <span class="kicker">📋 Соответствие ТЗ</span>
+  <div class="s-title">Сверено с техническим заданием</div>
+  <div class="cols">
+    <div class="panel">
+      <h3>✅ Реализовано</h3>
+      <div class="li"><span class="b">✓</span><span>Вся структура сайта и разделы ТЗ</span></div>
+      <div class="li"><span class="b">✓</span><span>Онбординг, паспорт+QR, SOS, карта, лента</span></div>
+      <div class="li"><span class="b">✓</span><span>Комьюнити, рейтинг волонтёров, магазин</span></div>
+      <div class="li"><span class="b">✓</span><span>Авторизация (e-mail+пароль), роли, согласия</span></div>
+      <div class="li"><span class="b">✓</span><span>Достижения, подписка на розыск, фото до 10</span></div>
+      <div class="li"><span class="b">✓</span><span>Push / Telegram-оповещения, PWA</span></div>
+    </div>
+    <div class="panel">
+      <h3>🔜 В работе / next</h3>
+      <div class="li soon"><span class="b">▹</span><span>«Кто помог» → авто-инкремент рейтинга</span></div>
+      <div class="li soon"><span class="b">▹</span><span>Фильтры ленты по породе / размеру / окрасу</span></div>
+      <div class="li soon"><span class="b">▹</span><span>Магазин: галерея товара и варианты</span></div>
+      <div class="li soon"><span class="b">▹</span><span>SMS-регистрация (нужен внешний шлюз)</span></div>
+      <div class="li soon"><span class="b">▹</span><span>Нативное приложение (iOS / Android)</span></div>
+    </div>
+  </div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">12</span></div>
+</section>
+
+<!-- 13. FINALE -->
+<section class="slide finale">
+  <img class="sh" src="__SHUNYA_HAPPY__" alt="Шуня"/>
+  <div style="margin-left:120mm;">
+    <h1>Готовы поднимать<br/>район 🐾</h1>
+    <p>MVP «Лапки помощи» собран, проверен и задеплоен.</p>
+    <div class="repo">github.com/resgos/dog-bussiness · ветка main</div>
+  </div>
+</section>
+
+</body>
+</html>

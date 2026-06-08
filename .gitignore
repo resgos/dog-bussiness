@@ -41,6 +41,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# presentation — исходник index.html коммитим, собранный PDF — нет (тяжёлый)
+/presentation/*.pdf
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
