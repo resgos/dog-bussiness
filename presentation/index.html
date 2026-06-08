@@ -103,6 +103,17 @@
   .metric .ms{font-size:12.5px;color:var(--ink-soft);}
   .note{margin-top:16px;background:var(--blush-soft);border:1px solid var(--blush);border-radius:16px;
     padding:13px 18px;font-size:13.5px;color:var(--petal-deep);font-weight:700;}
+  /* screenshots */
+  .shots{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;flex:1;}
+  .frame{background:var(--white);border:1px solid var(--blush);border-radius:16px;overflow:hidden;
+    box-shadow:0 12px 28px -18px rgba(194,95,124,.55);display:flex;flex-direction:column;min-height:0;}
+  .frame .bar{display:flex;align-items:center;gap:6px;padding:9px 13px;background:var(--blush-soft);border-bottom:1px solid var(--blush);}
+  .frame .bar i{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  .frame .bar .u{margin-left:10px;font-size:11px;color:var(--ink-soft);font-weight:700;}
+  .frame .shot{flex:1;position:relative;background:var(--cream);min-height:0;overflow:hidden;}
+  .frame .shot img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;}
+  .frame .cap{padding:9px 14px;font-size:13px;font-weight:800;color:var(--ink);border-top:1px solid var(--blush);}
+  .frame .cap span{color:var(--ink-soft);font-weight:600;}
   /* finale */
   .finale{background:linear-gradient(135deg,#FFEFF4,#FFF9F5 60%,#FFF4EA);align-items:center;justify-content:center;text-align:center;}
   .finale h1{font-size:60px;color:var(--petal-deep);font-weight:700;}
@@ -302,7 +313,65 @@
   <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">11</span></div>
 </section>
 
-<!-- 12. ТЗ COMPLIANCE -->
+<!-- 12. SCREENS · MAIN -->
+<section class="slide">
+  <span class="kicker">🖥️ Продукт в деле</span>
+  <div class="s-title">Так это выглядит — главное</div>
+  <div class="shots">
+    <div class="frame">
+      <div class="bar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app /</span></div>
+      <div class="shot"><img src="__SHOT_HOME__" alt="Главная"/></div>
+      <div class="cap">Главная <span>· район за 60 секунд, живой счётчик</span></div>
+    </div>
+    <div class="frame">
+      <div class="bar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / map</span></div>
+      <div class="shot"><img src="__SHOT_MAP__" alt="Карта поиска"/></div>
+      <div class="cap">Карта поиска <span>· метки, фильтры, наблюдения</span></div>
+    </div>
+    <div class="frame">
+      <div class="bar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / feed / lost</span></div>
+      <div class="shot"><img src="__SHOT_FEED__" alt="Лента Потерялись"/></div>
+      <div class="cap">Лента «Потерялись» <span>· поиск, фильтры, награды</span></div>
+    </div>
+    <div class="frame">
+      <div class="bar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / p / …</span></div>
+      <div class="shot"><img src="__SHOT_PASSPORT__" alt="Паспорт питомца"/></div>
+      <div class="cap">Цифровой паспорт <span>· фото, приметы, чип, QR</span></div>
+    </div>
+  </div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">12</span></div>
+</section>
+
+<!-- 13. SCREENS · SEARCH & SERVICES -->
+<section class="slide">
+  <span class="kicker">🖥️ Продукт в деле</span>
+  <div class="s-title">Поиск, гайды и сервисы</div>
+  <div class="shots">
+    <div class="frame">
+      <div class="bar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / chip</span></div>
+      <div class="shot"><img src="__SHOT_CHIP__" alt="Поиск по чипу"/></div>
+      <div class="cap">Поиск по чипу <span>· владелец по номеру + реестры</span></div>
+    </div>
+    <div class="frame">
+      <div class="bar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / guide / lost</span></div>
+      <div class="shot"><img src="__SHOT_GUIDE__" alt="Гайд первых 24 часов"/></div>
+      <div class="cap">Гайд первых 24 часов <span>· пошаговый плейбук</span></div>
+    </div>
+    <div class="frame">
+      <div class="bar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / shop</span></div>
+      <div class="shot"><img src="__SHOT_SHOP__" alt="Магазин адресников"/></div>
+      <div class="cap">Магазин адресников <span>· QR-жетоны, мерч</span></div>
+    </div>
+    <div class="frame">
+      <div class="bar"><i style="background:#EF6461"></i><i style="background:#FACEA2"></i><i style="background:#5FB87A"></i><span class="u">lapka.app / adoption</span></div>
+      <div class="shot"><img src="__SHOT_ADOPTION__" alt="Приюты"/></div>
+      <div class="cap">Приюты — забрать друга <span>· пристройство</span></div>
+    </div>
+  </div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">13</span></div>
+</section>
+
+<!-- 14. ТЗ COMPLIANCE -->
 <section class="slide">
   <span class="kicker">📋 Соответствие ТЗ</span>
   <div class="s-title">Сверено с техническим заданием</div>
@@ -325,7 +394,7 @@
       <div class="li soon"><span class="b">▹</span><span>Нативное приложение (iOS / Android)</span></div>
     </div>
   </div>
-  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">12</span></div>
+  <div class="foot"><span><b>Лапка помощи</b> · что готово</span><span>Каждый хвост на учёт</span><span class="pageno">14</span></div>
 </section>
 
 <!-- 13. FINALE -->
