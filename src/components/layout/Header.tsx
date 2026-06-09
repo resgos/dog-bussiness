@@ -19,16 +19,32 @@ function useIsActive() {
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 }
 
-export function Header({
-  user = null,
-  unread = 0,
-}: {
-  user?: HeaderUser;
-  unread?: number;
-}) {
+export function Header() {
   const [open, setOpen] = useState(false);
+  const [me, setMe] = useState<{ user: HeaderUser; unread: number }>({
+    user: null,
+    unread: 0,
+  });
   const pathname = usePathname();
   const isActive = useIsActive();
+
+  // Пользователя грузим на клиенте — чтобы корневой layout не читал cookies()
+  // и статичные страницы (гайды, о проекте, юр.документы) могли кэшироваться.
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/me")
+      .then((r) => r.json())
+      .then((d) => {
+        if (alive) setMe({ user: d?.user ?? null, unread: d?.unread ?? 0 });
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const user = me.user;
+  const unread = me.unread;
 
   // Закрываем мобильное меню при переходе.
   useEffect(() => {

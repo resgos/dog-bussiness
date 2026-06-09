@@ -5,8 +5,6 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ShunyaCompanion } from "@/components/brand/ShunyaCompanion";
 import { PushRegister } from "@/components/notifications/PushRegister";
-import { getCurrentUser } from "@/lib/auth";
-import { db } from "@/lib/db";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -65,18 +63,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await getCurrentUser();
-  const unread = user
-    ? await db.notification.count({ where: { userId: user.id, read: false } })
-    : 0;
-
   return (
     <html
       lang="ru"
       className={`${nunito.variable} ${comfortaa.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <Header user={user ? { name: user.name } : null} unread={unread} />
+        <Header />
         <main className="flex-1">{children}</main>
         <Footer />
         <ShunyaCompanion />
