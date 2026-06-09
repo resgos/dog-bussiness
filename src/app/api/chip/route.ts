@@ -16,7 +16,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ found: false });
   }
 
-  if (!rateLimit(ipKey(req, "chip"), 20, 60_000)) {
+  if (!(await rateLimit(ipKey(req, "chip"), 20, 60_000))) {
     return NextResponse.json({ found: false }, { status: 429 });
   }
 

@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   if (!me) {
     return NextResponse.json({ error: "Нужно войти" }, { status: 401 });
   }
-  if (!rateLimit(ipKey(req, "walk"), 6, 60_000)) {
+  if (!(await rateLimit(ipKey(req, "walk"), 6, 60_000))) {
     return NextResponse.json({ error: "Слишком часто." }, { status: 429 });
   }
 

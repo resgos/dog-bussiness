@@ -15,7 +15,7 @@ const str = (v: unknown) =>
 // Пожаловаться на контент. Доступно всем (в т.ч. гостям) — личность жалующегося
 // фиксируем, только если он залогинен. Жалобы попадают в очередь модерации.
 export async function POST(req: Request) {
-  if (!rateLimit(ipKey(req, "report"), 10, 60_000)) {
+  if (!(await rateLimit(ipKey(req, "report"), 10, 60_000))) {
     return NextResponse.json(
       { error: "Слишком часто — попробуйте через минуту." },
       { status: 429 },

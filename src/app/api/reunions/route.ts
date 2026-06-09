@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { savePhoto } from "@/lib/storage";
 import { rateLimit, ipKey } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +19,7 @@ export async function GET() {
 
 /** Публикация истории: только авторизованный владелец, с рейт-лимитом. */
 export async function POST(req: Request) {
-  if (!rateLimit(ipKey(req, "reunion"), 5, 60_000)) {
+  if (!(await rateLimit(ipKey(req, "reunion"), 5, 60_000))) {
     return NextResponse.json(
       { error: "Слишком часто — попробуйте через минуту." },
       { status: 429 },
@@ -65,7 +66,7 @@ export async function POST(req: Request) {
         { status: 400 },
       );
     }
-    photo = b.photo;
+    photo = await savePhoto(b.photo);
   }
 
   const district =

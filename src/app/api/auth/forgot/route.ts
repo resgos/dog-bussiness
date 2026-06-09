@@ -16,7 +16,7 @@ const TTL_MS = 60 * 60 * 1000; // 1 час
  */
 export async function POST(req: Request) {
   // Защита от mail-bombing и накопления токенов сброса (ответ не меняем — не палим лимит).
-  if (!rateLimit(ipKey(req, "forgot"), 3, 60_000)) {
+  if (!(await rateLimit(ipKey(req, "forgot"), 3, 60_000))) {
     return NextResponse.json({ ok: true });
   }
   const body = (await req.json().catch(() => ({}))) as { email?: unknown };

@@ -13,7 +13,7 @@ export async function POST(
 ) {
   const { id } = await params;
 
-  if (!rateLimit(ipKey(req, "subscribe"), 30, 60_000)) {
+  if (!(await rateLimit(ipKey(req, "subscribe"), 30, 60_000))) {
     return NextResponse.json({ error: "Слишком часто." }, { status: 429 });
   }
 

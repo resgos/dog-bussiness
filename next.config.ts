@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: process.cwd(),
   // Не светим заголовок X-Powered-By.
   poweredByHeader: false,
+  // ioredis грузим как нативный модуль (его динамические require ломаются при
+  // бандлинге webpack'ом — иначе rate-limit тихо падает в in-memory фолбэк).
+  serverExternalPackages: ["ioredis"],
   // Tree-shake барель-импорты тяжёлых пакетов (framer-motion живёт в layout-бандле
   // через ShunyaCompanion, иконки — на каждой странице).
   experimental: {

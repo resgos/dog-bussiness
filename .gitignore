@@ -44,6 +44,9 @@ yarn-error.log*
 # presentation — исходник index.html коммитим, собранный PDF — нет (тяжёлый)
 /presentation/*.pdf
 
+# self-hosted хранилище загруженных фото (на КТС заменится объектным хранилищем)
+/uploads
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

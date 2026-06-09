@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 // POST /api/checklist — сохранить отмеченные шаги поиска. Только владелец пропажи.
 export async function POST(req: Request) {
-  if (!rateLimit(ipKey(req, "checklist"), 30, 60_000)) {
+  if (!(await rateLimit(ipKey(req, "checklist"), 30, 60_000))) {
     return NextResponse.json({ ok: false }, { status: 429 });
   }
 

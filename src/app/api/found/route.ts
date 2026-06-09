@@ -20,7 +20,7 @@ export async function POST(req: Request) {
   if (!b || typeof b !== "object") {
     return NextResponse.json({ error: "Некорректные данные" }, { status: 400 });
   }
-  if (!rateLimit(ipKey(req, "found"), 5, 60_000)) {
+  if (!(await rateLimit(ipKey(req, "found"), 5, 60_000))) {
     return NextResponse.json(
       { error: "Слишком часто — попробуйте через минуту." },
       { status: 429 },

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { savePhoto } from "@/lib/storage";
 import { notifyUser, notifyMany } from "@/lib/notify";
 import { rateLimit, ipKey } from "@/lib/ratelimit";
 
@@ -11,7 +12,7 @@ const num = (v: unknown) =>
   typeof v === "number" && Number.isFinite(v) ? v : null;
 
 export async function POST(req: Request) {
-  if (!rateLimit(ipKey(req, "sighting"), 10, 60_000)) {
+  if (!(await rateLimit(ipKey(req, "sighting"), 10, 60_000))) {
     return NextResponse.json({ error: "Слишком часто." }, { status: 429 });
   }
   const user = await getCurrentUser();
@@ -22,7 +23,7 @@ export async function POST(req: Request) {
       lat: num(b?.lat),
       lng: num(b?.lng),
       comment: str(b?.comment)?.slice(0, 500) ?? null,
-      photo: str(b?.photo),
+      photo: await savePhoto(str(b?.photo)),
       userId: user?.id ?? null,
     },
   });

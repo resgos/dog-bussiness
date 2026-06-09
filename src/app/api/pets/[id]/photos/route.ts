@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { savePhoto } from "@/lib/storage";
 import { rateLimit, ipKey } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +19,7 @@ export async function POST(
   const { id } = await params;
 
   // Защита от заливки: не больше 20 фото в минуту с одного IP.
-  if (!rateLimit(ipKey(req, "petphoto"), 20, 60_000)) {
+  if (!(await rateLimit(ipKey(req, "petphoto"), 20, 60_000))) {
     return NextResponse.json(
       { error: "Слишком часто. Подождите немного." },
       { status: 429 },
@@ -53,8 +54,12 @@ export async function POST(
     return NextResponse.json({ error: "Максимум 10 фото" }, { status: 400 });
   }
 
+  // url уже провалидирован как непустой data URL → savePhoto не вернёт null,
+  // но подстрахуемся фолбэком, чтобы тип остался string.
+  const storedUrl = (await savePhoto(url)) ?? url;
+
   const photo = await db.petPhoto.create({
-    data: { petId: id, url, order: count },
+    data: { petId: id, url: storedUrl, order: count },
   });
 
   return NextResponse.json({ id: photo.id, url: photo.url });

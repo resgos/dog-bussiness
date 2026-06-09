@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { savePhoto } from "@/lib/storage";
 import { notifyMany } from "@/lib/notify";
 import { sendTelegramChannel } from "@/lib/telegram";
 import { rateLimit, ipKey } from "@/lib/ratelimit";
@@ -17,7 +18,7 @@ export async function POST(req: Request) {
   if (!petName) {
     return NextResponse.json({ error: "Выбери питомца" }, { status: 400 });
   }
-  if (!rateLimit(ipKey(req, "sos"), 5, 60_000)) {
+  if (!(await rateLimit(ipKey(req, "sos"), 5, 60_000))) {
     return NextResponse.json(
       { error: "Слишком часто — попробуйте через минуту." },
       { status: 429 },
@@ -45,7 +46,7 @@ export async function POST(req: Request) {
       breed: str(b.breed),
       size: pet?.size ?? null,
       color: pet?.color ?? null,
-      photo: str(b.photo),
+      photo: await savePhoto(str(b.photo)),
       photoHash: pet?.photoHash ?? str(b.photoHash),
       district: str(b.district),
       lat: num(b.lat),
