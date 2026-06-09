@@ -227,6 +227,10 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
             onChange={(e) => setReward(e.target.value)}
             placeholder="Например, 5000"
           />
+          <p className="mt-1.5 text-xs text-status-lost">
+            ⚠️ Не переводите предоплату за «возврат» — это частая схема
+            мошенников. Награду отдавайте лично после встречи с собакой.
+          </p>
         </Field>
 
         <div className="flex flex-col items-stretch gap-2">
