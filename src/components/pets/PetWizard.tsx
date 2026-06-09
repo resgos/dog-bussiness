@@ -16,6 +16,7 @@ import { Button, ButtonLink } from "@/components/ui/Button";
 import { Field, Input, Select, Textarea, Checkbox } from "@/components/ui/Field";
 import { SuccessNote } from "@/components/ui/SuccessNote";
 import { postJson } from "@/lib/http";
+import { dHash } from "@/lib/imghash";
 import { TagToggle } from "@/components/ui/TagToggle";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { districtsByOkrug } from "@/lib/districts";
@@ -104,7 +105,11 @@ export function PetWizard() {
     setSubmitting(true);
     setError(null);
     try {
-      const json = await postJson<{ id: string }>("/api/pets", data);
+      const photoHash = data.photo ? await dHash(data.photo) : null;
+      const json = await postJson<{ id: string }>("/api/pets", {
+        ...data,
+        photoHash,
+      });
       setPassportId(json.id);
       setDone(true);
     } catch {

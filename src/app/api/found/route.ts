@@ -37,6 +37,7 @@ export async function POST(req: Request) {
       contactPhone: str(b.contactPhone)?.slice(0, 40) ?? null,
       contactTelegram: str(b.contactTelegram)?.slice(0, 80) ?? null,
       photo: await savePhoto(str(b.photo)),
+      photoHash: str(b.photoHash),
       breed: str(b.breed)?.slice(0, 80) ?? null,
       color: str(b.color)?.slice(0, 80) ?? null,
       size: size && SIZES.includes(size) ? size : null,

@@ -39,6 +39,8 @@ type LeafletMapProps = {
   pickedRadiusKm?: number;
   /** Рисовать круги радиусов вокруг активных пропаж. */
   showRadii?: boolean;
+  /** Пунктирные траектории «пропажа → наблюдения по времени». */
+  trails?: { points: [number, number][] }[];
   /** id метки, на которую навести карту и открыть попап. */
   focusId?: string | null;
   /** Меняется при каждом запросе фокуса — чтобы повторный клик тоже сработал. */
@@ -111,6 +113,7 @@ export function LeafletMap({
   picked = null,
   pickedRadiusKm,
   showRadii = false,
+  trails = [],
   focusId = null,
   focusNonce = 0,
   fitToMarkers = false,
@@ -204,6 +207,24 @@ export function LeafletMap({
     layer.clearLayers();
     markerByIdRef.current.clear();
 
+    // Пунктирные траектории движения (под маркерами, в той же группе слоёв).
+    for (const t of trails) {
+      if (t.points.length < 2) continue;
+      L.polyline(t.points, {
+        color: "#C25F7C",
+        weight: 2.5,
+        opacity: 0.7,
+        dashArray: "6 8",
+      }).addTo(layer);
+      const last = t.points[t.points.length - 1];
+      L.circleMarker(last, {
+        radius: 5,
+        color: "#C25F7C",
+        fillColor: "#C25F7C",
+        fillOpacity: 0.9,
+      }).addTo(layer);
+    }
+
     for (const m of markers) {
       const kind = m.kind ?? "lost";
       const marker = L.marker([m.lat, m.lng], {
@@ -287,7 +308,7 @@ export function LeafletMap({
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [markers, showRadii]);
+  }, [markers, showRadii, trails]);
 
   // Re-paint the picked point (+radius preview) and recenter on it.
   useEffect(() => {

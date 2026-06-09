@@ -42,6 +42,7 @@ model Pet {
   telegram    String?
   showPhone   Boolean  @default(false)
   photo       String?  // data URL (уменьшенный)
+  photoHash   String?  // perceptual dHash — поиск похожих по фото
   status      String   @default("home") // home | lost | found
   createdAt   DateTime @default(now())
   owner       Owner?   @relation(fields: [ownerId], references: [id])
@@ -99,6 +100,7 @@ model LostReport {
   petName   String
   breed     String?
   photo     String?
+  photoHash String?
   district  String?
   lat       Float?
   lng       Float?
@@ -143,6 +145,7 @@ model FoundReport {
   contactPhone    String?
   contactTelegram String?
   photo           String?
+  photoHash       String?
   breed           String?
   color           String?
   size            String? // small | medium | large

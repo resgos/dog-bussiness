@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, MapPin, Crosshair, Navigation, Circle, ArrowDownNarrowWide } from "lucide-react";
+import { Eye, MapPin, Crosshair, Navigation, Circle, ArrowDownNarrowWide, Spline } from "lucide-react";
 import { findDistrict } from "@/lib/districts";
 import { timeAgo, plural } from "@/lib/format";
 import { distanceKm, formatDistance } from "@/lib/geo";
@@ -77,6 +77,7 @@ export function SearchMap({
   const [locating, setLocating] = useState(false);
   const [nearestFirst, setNearestFirst] = useState(false);
   const [showRadii, setShowRadii] = useState(false);
+  const [showTrails, setShowTrails] = useState(false);
   const [focusId, setFocusId] = useState<string | null>(null);
   const [focusNonce, setFocusNonce] = useState(0);
 
@@ -173,6 +174,19 @@ export function SearchMap({
     }
   }
 
+  // Траектории движения: точка пропажи → наблюдения по времени (для активных пропаж).
+  const trails = visible
+    .filter((r) => r.lat != null && r.lng != null && r.status !== "found")
+    .map((r) => {
+      const pts: [number, number][] = [[r.lat as number, r.lng as number]];
+      [...r.sightings]
+        .filter((s) => s.lat != null && s.lng != null)
+        .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+        .forEach((s) => pts.push([s.lat as number, s.lng as number]));
+      return { points: pts };
+    })
+    .filter((t) => t.points.length >= 2);
+
   const focusCard = (id: string) => {
     focusMarker(id);
     if (typeof document !== "undefined") {
@@ -248,6 +262,9 @@ export function SearchMap({
         <TagToggle active={showRadii} onClick={() => setShowRadii((v) => !v)}>
           <Circle className="size-3.5" aria-hidden /> Радиусы
         </TagToggle>
+        <TagToggle active={showTrails} onClick={() => setShowTrails((v) => !v)}>
+          <Spline className="size-3.5" aria-hidden /> Траектории
+        </TagToggle>
         {userLoc ? (
           <TagToggle active={nearestFirst} onClick={() => setNearestFirst((v) => !v)}>
             <ArrowDownNarrowWide className="size-3.5" aria-hidden /> Сначала ближайшие
@@ -262,6 +279,7 @@ export function SearchMap({
           markers={mapMarkers}
           height={440}
           showRadii={showRadii}
+          trails={showTrails ? trails : []}
           focusId={focusId}
           focusNonce={focusNonce}
           fitToMarkers

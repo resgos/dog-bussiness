@@ -34,7 +34,7 @@ export async function POST(req: Request) {
   const pet = petId
     ? await db.pet.findUnique({
         where: { id: petId },
-        select: { size: true, color: true },
+        select: { size: true, color: true, photoHash: true },
       })
     : null;
   const report = await db.lostReport.create({
@@ -46,6 +46,7 @@ export async function POST(req: Request) {
       size: pet?.size ?? null,
       color: pet?.color ?? null,
       photo: str(b.photo),
+      photoHash: pet?.photoHash ?? str(b.photoHash),
       district: str(b.district),
       lat: num(b.lat),
       lng: num(b.lng),

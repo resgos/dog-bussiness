@@ -8,6 +8,7 @@ import { SuccessNote } from "@/components/ui/SuccessNote";
 import { ErrorBox } from "@/components/ui/ErrorBox";
 import { LeafletMap } from "@/components/map/LeafletMap";
 import { postJson } from "@/lib/http";
+import { dHash } from "@/lib/imghash";
 import { districtsByOkrug } from "@/lib/districts";
 import { sizeOptions } from "@/lib/petForm";
 
@@ -70,11 +71,13 @@ export function FoundForm({ defaults }: { defaults?: FoundDefaults }) {
     setSubmitting(true);
     setError(null);
     try {
+      const photoHash = photo ? await dHash(photo) : null;
       await postJson<{ id: string }>("/api/found", {
         finderName: finderName.trim() || null,
         contactPhone: contactPhone.trim() || null,
         contactTelegram: contactTelegram.trim() || null,
         photo,
+        photoHash,
         breed: breed.trim() || null,
         color: color.trim() || null,
         size: size || null,

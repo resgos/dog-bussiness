@@ -48,6 +48,7 @@ export async function POST(req: Request) {
       telegram: str(body.telegram),
       showPhone: Boolean(body.showPhone),
       photo: await savePhoto(str(body.photo)),
+      photoHash: str(body.photoHash),
     },
   });
 

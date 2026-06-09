@@ -7,6 +7,7 @@ type LostLike = {
   color?: string | null;
   size?: string | null;
   district?: string | null;
+  photoHash?: string | null;
   lostAt?: Date | string | null;
   createdAt?: Date | string | null;
 };
@@ -15,8 +16,27 @@ type FoundLike = {
   color?: string | null;
   size?: string | null;
   district?: string | null;
+  photoHash?: string | null;
   createdAt?: Date | string | null;
 };
+
+/**
+ * Расстояние Хэмминга между двумя perceptual-хэшами (16 hex = 64 бита).
+ * Чем меньше — тем похожее фото. Возвращает Infinity, если хэшей нет/разной длины.
+ */
+export function hamming(a?: string | null, b?: string | null): number {
+  if (!a || !b || a.length !== b.length) return Infinity;
+  let d = 0;
+  for (let i = 0; i < a.length; i++) {
+    let x = parseInt(a[i], 16) ^ parseInt(b[i], 16);
+    if (Number.isNaN(x)) return Infinity;
+    while (x) {
+      d += x & 1;
+      x >>= 1;
+    }
+  }
+  return d;
+}
 
 const norm = (s?: string | null) =>
   (s || "").toLowerCase().replace(/ё/g, "е").trim();
@@ -51,6 +71,12 @@ export function matchScore(lost: LostLike, found: FoundLike): number {
     const days =
       (new Date(ft).getTime() - new Date(lt).getTime()) / 86_400_000;
     if (days >= -1 && days <= 21) s += 10;
+  }
+  // Похожесть по фото (perceptual dHash) — сильный сигнал, если хэши близки.
+  if (lost.photoHash && found.photoHash) {
+    const dist = hamming(lost.photoHash, found.photoHash);
+    if (dist <= 8) s += 35;
+    else if (dist <= 14) s += 18;
   }
   return Math.min(100, s);
 }
