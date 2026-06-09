@@ -8,7 +8,10 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Сервисы рядом" };
 
 export default async function ServicesPage() {
-  const partners = await db.partner.findMany({ orderBy: { name: "asc" } });
+  const partners = await db.partner.findMany({
+    where: { status: "approved" },
+    orderBy: [{ featured: "desc" }, { name: "asc" }],
+  });
 
   const items: Partner[] = partners.map((p) => ({
     id: p.id,
@@ -19,6 +22,7 @@ export default async function ServicesPage() {
     phone: p.phone,
     url: p.url,
     description: p.description,
+    featured: p.featured,
   }));
 
   return (

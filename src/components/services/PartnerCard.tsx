@@ -7,6 +7,7 @@ import {
   Phone,
   Scissors,
   ShoppingBag,
+  Star,
   Stethoscope,
   type LucideProps,
 } from "lucide-react";
@@ -22,6 +23,8 @@ export type Partner = {
   phone: string | null;
   url: string | null;
   description: string | null;
+  /** Платное промо: карточка закрепляется в топе с бейджем «Рекомендуем». */
+  featured?: boolean;
 };
 
 type Tone = "neutral" | "petal" | "paw" | "found" | "seen";
@@ -57,12 +60,26 @@ export function PartnerCard({ partner }: { partner: Partner }) {
   const phone = partner.phone?.replace(/[^\d+]/g, "");
 
   return (
-    <article className="flex flex-col gap-3 rounded-3xl border border-blush bg-card p-5 shadow-card">
+    <article
+      className={
+        partner.featured
+          ? "flex flex-col gap-3 rounded-3xl border-2 border-paw bg-card p-5 shadow-card ring-1 ring-paw/40"
+          : "flex flex-col gap-3 rounded-3xl border border-blush bg-card p-5 shadow-card"
+      }
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-blush-soft text-petal-deep">
           <Icon className="size-6" aria-hidden />
         </div>
-        <Badge tone={meta.tone}>{meta.label}</Badge>
+        <div className="flex flex-col items-end gap-1.5">
+          {partner.featured ? (
+            <Badge tone="paw" className="font-bold">
+              <Star className="size-3.5 fill-current" aria-hidden />
+              Рекомендуем
+            </Badge>
+          ) : null}
+          <Badge tone={meta.tone}>{meta.label}</Badge>
+        </div>
       </div>
 
       <div>

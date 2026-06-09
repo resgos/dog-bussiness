@@ -36,6 +36,7 @@ export const primaryNav: NavItem[] = [
     children: [
       { label: "Адресники", href: "/shop/addressniki" },
       { label: "Браслеты и аксессуары", href: "/shop/bracelets" },
+      { label: "Лапка+ подписка", href: "/plus" },
       { label: "Корзина", href: "/shop/cart" },
     ],
   },

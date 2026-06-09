@@ -19,6 +19,7 @@ type ReportLite = {
   reward: number | null;
   status: string;
   createdAt: Date | string;
+  boostedUntil?: Date | string | null;
   sightings: { id: string }[];
 };
 
@@ -27,6 +28,10 @@ export function ReportCard({ report }: { report: ReportLite }) {
   const when = report.lostAt ?? report.createdAt;
   const isFound = report.status === "found";
   const sCount = report.sightings.length;
+  // Платное продвижение активно, пока boostedUntil в будущем.
+  const isBoosted = report.boostedUntil
+    ? new Date(report.boostedUntil).getTime() > Date.now()
+    : false;
 
   return (
     <article className="flex flex-col overflow-hidden rounded-3xl border border-blush bg-card shadow-card">
@@ -56,9 +61,14 @@ export function ReportCard({ report }: { report: ReportLite }) {
             {isFound ? "Найдена" : "Активный поиск"}
           </Badge>
         </span>
-        {report.reward ? (
-          <span className="absolute right-3 top-3">
-            <Badge tone="paw">🎁 {report.reward.toLocaleString("ru-RU")} ₽</Badge>
+        {/* Бейдж продвижения и награда живут в одной колонке справа — складываем
+            их стопкой, чтобы не наезжали друг на друга. */}
+        {isBoosted || report.reward ? (
+          <span className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
+            {isBoosted ? <Badge tone="paw">🚀 Продвигается</Badge> : null}
+            {report.reward ? (
+              <Badge tone="paw">🎁 {report.reward.toLocaleString("ru-RU")} ₽</Badge>
+            ) : null}
           </span>
         ) : null}
       </div>

@@ -12,6 +12,8 @@ import {
   Send,
   Settings,
   ShoppingBag,
+  Sparkles,
+  Star,
   Trophy,
   Users,
 } from "lucide-react";
@@ -134,6 +136,12 @@ export default async function ProfilePage() {
                 <Award className="size-3.5" aria-hidden />
                 {roleInfo(user.role).label}
               </Badge>
+              {user.plan === "plus" ? (
+                <Badge tone="paw">
+                  <Star className="size-3.5 fill-current" aria-hidden />
+                  ⭐ Лапка+
+                </Badge>
+              ) : null}
             </div>
             <dl className="mt-4 grid gap-3 sm:grid-cols-2">
               <div className="flex items-center gap-2.5 text-ink">
@@ -178,6 +186,20 @@ export default async function ProfilePage() {
         </span>
         <span aria-hidden>→</span>
       </Link>
+
+      {/* CTA подписки — только для тех, у кого ещё нет «Лапка+» */}
+      {user.plan !== "plus" ? (
+        <Link
+          href="/plus"
+          className="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-blush-soft px-4 py-3 text-sm font-semibold text-petal-deep transition hover:bg-blush"
+        >
+          <span className="inline-flex items-center gap-2">
+            <Sparkles className="size-4" aria-hidden />
+            ⭐ Оформи Лапка+ — больше заботы
+          </span>
+          <span aria-hidden>→</span>
+        </Link>
+      ) : null}
 
       <div className="mt-8">
         <PushToggle />

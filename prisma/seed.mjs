@@ -20,6 +20,7 @@ const hoursAgo = (h) => new Date(Date.now() - h * 3600 * 1000);
 async function main() {
   // Чистим в порядке внешних ключей.
   await db.notification.deleteMany();
+  await db.purchase.deleteMany();
   await db.walkCheckin.deleteMany();
   await db.partner.deleteMany();
   await db.adoptionListing.deleteMany();

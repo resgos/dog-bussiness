@@ -10,6 +10,7 @@ import { timeAgo, plural } from "@/lib/format";
 import { rankFoundForLost } from "@/lib/match";
 import { parseChecklist, SEARCH_STEPS } from "@/lib/searchSteps";
 import { SearchControls } from "@/components/profile/SearchControls";
+import { BoostButton } from "@/components/boost/BoostButton";
 
 // Порог совпадения — держим синхронно со страницей matches, иначе бейдж
 // «N возможных находок» соврёт про число карточек. См. комментарий там же.
@@ -194,6 +195,12 @@ export default async function MySearchesPage() {
                       Чек-лист {parseChecklist(report.checklist).length}/
                       {SEARCH_STEPS.length}
                     </ButtonLink>
+                  ) : null}
+                  {report.status === "active" ? (
+                    <BoostButton
+                      reportId={report.id}
+                      boostedUntil={report.boostedUntil}
+                    />
                   ) : null}
                 </div>
               </article>

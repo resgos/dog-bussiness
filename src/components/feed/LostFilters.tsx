@@ -24,6 +24,7 @@ type LostReport = {
   reward: number | null;
   status: string;
   createdAt: Date | string;
+  boostedUntil: Date | string | null;
   sightings: { id: string }[];
 };
 
@@ -72,7 +73,7 @@ export function LostFilters({ reports }: { reports: LostReport[] }) {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return reports.filter((r) => {
+    const matched = reports.filter((r) => {
       if (district && r.district !== district) return false;
       if (breed && r.breed !== breed) return false;
       if (size && r.size !== size) return false;
@@ -87,6 +88,18 @@ export function LostFilters({ reports }: { reports: LostReport[] }) {
       }
       return true;
     });
+
+    // Платное продвижение: «забустенные» (boostedUntil в будущем) пиннятся
+    // в топ ленты. Сортировка стабильная (Array.sort в совр. движках) —
+    // внутри каждой группы сохраняется исходный порядок, остальные фильтры
+    // не ломаются. Среди boosted — кто продвинут «дольше», тот выше.
+    const now = Date.now();
+    const boostTs = (r: LostReport) => {
+      if (!r.boostedUntil) return 0;
+      const t = new Date(r.boostedUntil).getTime();
+      return t > now ? t : 0;
+    };
+    return [...matched].sort((a, b) => boostTs(b) - boostTs(a));
   }, [reports, query, district, breed, size, color, withSightings]);
 
   const hasFilters = Boolean(

@@ -108,6 +108,7 @@ model LostReport {
   comment   String?
   size      String? // снимок размера питомца — для матчинга и фильтров ленты
   color     String? // снимок окраса питомца — для матчинга и фильтров ленты
+  boostedUntil DateTime? // платное продвижение объявления («поднять в топ»)
   radiusKm  Int        @default(3)
   reward    Int? // вознаграждение нашедшему, ₽
   checklist String? // JSON-массив выполненных шагов плейбука поиска
@@ -219,6 +220,8 @@ model User {
   telegram     String?
   role         String     @default("user") // user | volunteer | ambassador | partner
   helpedCount  Int        @default(0)
+  plan         String     @default("free") // free | plus («Лапка+»)
+  planUntil    DateTime?
   createdAt    DateTime   @default(now())
   sessions     Session[]
   pets         Pet[]
@@ -226,6 +229,7 @@ model User {
   comments     Comment[]
   postLikes     PostLike[]
   orders        Order[]
+  purchases     Purchase[]
   notifications Notification[]
   lostReports   LostReport[]
   foundReports  FoundReport[]
@@ -462,9 +466,28 @@ model Partner {
   phone       String?
   url         String?
   description String?
+  contactEmail String? // e-mail заявителя (B2B-подача листинга)
+  featured    Boolean  @default(false) // платное промо — пиннится в топ «Сервисов»
+  promotedUntil DateTime?
+  status      String   @default("approved") // approved | pending (модерация заявок)
   createdAt   DateTime @default(now())
 
   @@index([type])
+  @@index([status])
+}
+
+/// Реестр покупок (монетизация): boost объявления, подписка «Лапка+», промо партнёра.
+model Purchase {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  kind      String // boost | plus | partner
+  refId     String? // id объявления/партнёра, если применимо
+  amountRub Int
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([kind])
 }
 
 // ——— Уведомления (in-app) ———
