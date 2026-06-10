@@ -22,10 +22,6 @@ const getPet = cache((id: string) =>
   }),
 );
 
-// Фото питомца часто приходит как data URL (base64) — краулеры соцсетей его не
-// показывают, поэтому в превью отдаём фирменную картинку Шуни.
-const OG_IMAGE = "/shunya/pose-surprised.png";
-
 export async function generateMetadata({
   params,
 }: {
@@ -56,9 +52,8 @@ export async function generateMetadata({
     : `${[pet.breed, districtName]
         .filter(Boolean)
         .join(", ")} · Цифровой паспорт питомца «Лапка помощи».`;
-  const alt = isLost ? `Разыскивается ${pet.name}` : `Паспорт ${pet.name}`;
-  const images = [{ url: OG_IMAGE, width: 1200, height: 630, alt }];
-
+  // og:image отдаётся динамической карточкой opengraph-image.tsx (Next подставит
+  // её автоматически в openGraph и twitter).
   return {
     metadataBase,
     title,
@@ -68,13 +63,11 @@ export async function generateMetadata({
       description,
       type: "website",
       url: `/p/${id}`,
-      images,
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images,
     },
   };
 }
