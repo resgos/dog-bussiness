@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Reunion } from "@prisma/client";
 import { Heart, ArrowRight, Sparkles } from "lucide-react";
 import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
@@ -19,10 +20,19 @@ function districtLabel(value: string | null): string | null {
  * Серверный компонент — читает БД напрямую. Если историй ещё нет — добрый призыв.
  */
 export async function ReunionsTeaser() {
-  const [count, recent] = await Promise.all([
-    db.reunion.count(),
-    db.reunion.findMany({ orderBy: { createdAt: "desc" }, take: 3 }),
-  ]);
+  // Главная — лицо продукта: даже при недоступности БД она должна отрисоваться
+  // целиком. При сбое запроса мягко деградируем до пустого тизера, не роняя страницу.
+  let count = 0;
+  let recent: Reunion[] = [];
+  try {
+    [count, recent] = await Promise.all([
+      db.reunion.count(),
+      db.reunion.findMany({ orderBy: { createdAt: "desc" }, take: 3 }),
+    ]);
+  } catch {
+    count = 0;
+    recent = [];
+  }
 
   // ——— Пусто: мягкий тизер вместо «достижения» с нулём ———
   if (count === 0) {
