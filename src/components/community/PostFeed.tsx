@@ -6,6 +6,7 @@ import { Select } from "@/components/ui/Field";
 import { findDistrict } from "@/lib/districts";
 import { plural } from "@/lib/format";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
+import { Reveal } from "@/components/ui/Reveal";
 import { PostCard, type PostLite } from "./PostCard";
 import { POST_TYPES, postTypeMeta, type PostType } from "./postMeta";
 
@@ -89,8 +90,10 @@ export function PostFeed({
         </div>
       ) : (
         <div className="space-y-4">
-          {filtered.map((p) => (
-            <PostCard key={p.id} post={p} canInteract={canInteract} />
+          {filtered.map((p, i) => (
+            <Reveal key={p.id} delay={Math.min(i, 6) * 0.05}>
+              <PostCard post={p} canInteract={canInteract} />
+            </Reveal>
           ))}
         </div>
       )}

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { X } from "lucide-react";
 import { TagToggle } from "@/components/ui/TagToggle";
+import { Reveal } from "@/components/ui/Reveal";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { districtsByOkrug } from "@/lib/districts";
 import { sizeOptions } from "@/lib/petForm";
@@ -109,8 +110,14 @@ export function AdoptionList({ items }: { items: AdoptionItem[] }) {
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((item) => (
-            <AdoptionCard key={item.id} item={item} />
+          {filtered.map((item, i) => (
+            <Reveal
+              key={item.id}
+              delay={Math.min(i, 8) * 0.05}
+              className="h-full"
+            >
+              <AdoptionCard item={item} />
+            </Reveal>
           ))}
         </div>
       )}

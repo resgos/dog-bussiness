@@ -63,8 +63,8 @@ export function PartnerCard({ partner }: { partner: Partner }) {
     <article
       className={
         partner.featured
-          ? "flex flex-col gap-3 rounded-3xl border-2 border-paw bg-card p-5 shadow-card ring-1 ring-paw/40"
-          : "flex flex-col gap-3 rounded-3xl border border-blush bg-card p-5 shadow-card"
+          ? "flex h-full flex-col gap-3 rounded-3xl border-2 border-paw bg-card p-5 shadow-card ring-1 ring-paw/40 transition-all duration-200 hover:-translate-y-1 hover:shadow-soft"
+          : "flex h-full flex-col gap-3 rounded-3xl border border-blush bg-card p-5 shadow-card transition-all duration-200 hover:-translate-y-1 hover:shadow-soft"
       }
     >
       <div className="flex items-start justify-between gap-3">

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { MapPin, PawPrint, Phone, Send } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { findDistrict } from "@/lib/districts";
@@ -30,7 +31,7 @@ export function AdoptionCard({ item }: { item: AdoptionItem }) {
   const telegram = item.contactTelegram?.replace(/^@/, "");
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-3xl border border-blush bg-card shadow-card">
+    <article className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-blush bg-card shadow-card transition-all duration-200 hover:-translate-y-1 hover:shadow-soft">
       <div className="relative aspect-[4/3] bg-blush-soft">
         {item.photo ? (
           /* eslint-disable-next-line @next/next/no-img-element */
@@ -94,7 +95,7 @@ export function AdoptionCard({ item }: { item: AdoptionItem }) {
               {phone ? (
                 <a
                   href={`tel:${phone}`}
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-petal-deep hover:underline"
+                  className="relative z-10 inline-flex items-center gap-2 text-sm font-semibold text-petal-deep hover:underline"
                 >
                   <Phone className="size-4" aria-hidden />
                   {item.contactPhone}
@@ -105,7 +106,7 @@ export function AdoptionCard({ item }: { item: AdoptionItem }) {
                   href={`https://t.me/${telegram}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-petal-deep hover:underline"
+                  className="relative z-10 inline-flex items-center gap-2 text-sm font-semibold text-petal-deep hover:underline"
                 >
                   <Send className="size-4" aria-hidden />
                   {item.contactTelegram}
@@ -120,6 +121,16 @@ export function AdoptionCard({ item }: { item: AdoptionItem }) {
           </p>
         )}
       </div>
+
+      {/* Вся карточка кликабельна — ссылка-растяжка последней, чтобы перекрыть
+          relative-обёртку фото; контактам выше задан z-10. */}
+      <Link
+        href={`/adoption/${item.id}`}
+        className="absolute inset-0 z-0"
+        aria-label={`Подробнее: ${item.name} ищет дом`}
+      >
+        <span className="sr-only">Подробнее</span>
+      </Link>
     </article>
   );
 }

@@ -94,7 +94,7 @@ export function PostCard({ post, canInteract }: { post: PostLite; canInteract: b
   };
 
   return (
-    <article className="flex flex-col gap-3 rounded-3xl border border-blush bg-card p-5 shadow-card">
+    <article className="flex flex-col gap-3 rounded-3xl border border-blush bg-card p-5 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-soft">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
         <Badge tone={meta.tone}>
           <span aria-hidden>{meta.emoji}</span>

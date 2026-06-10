@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { X } from "lucide-react";
 import { TagToggle } from "@/components/ui/TagToggle";
+import { Reveal } from "@/components/ui/Reveal";
 import { districtsByOkrug } from "@/lib/districts";
 import { PartnerCard, partnerTypes, type Partner } from "./PartnerCard";
 
@@ -115,8 +116,10 @@ export function ServicesList({ items }: { items: Partner[] }) {
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((partner) => (
-            <PartnerCard key={partner.id} partner={partner} />
+          {filtered.map((partner, i) => (
+            <Reveal key={partner.id} delay={Math.min(i, 8) * 0.05} className="h-full">
+              <PartnerCard partner={partner} />
+            </Reveal>
           ))}
         </div>
       )}

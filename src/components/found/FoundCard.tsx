@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Camera, MapPin, Phone, Send } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { ReportButton } from "@/components/moderation/ReportButton";
@@ -30,7 +31,7 @@ export function FoundCard({ item }: { item: FoundItem }) {
   const telegram = item.contactTelegram?.replace(/^@/, "");
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-3xl border border-blush bg-card shadow-card">
+    <article className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-blush bg-card shadow-card transition-all duration-200 hover:-translate-y-1 hover:shadow-soft">
       <div className="relative aspect-[4/3] bg-blush-soft">
         {item.photo ? (
           /* eslint-disable-next-line @next/next/no-img-element */
@@ -56,7 +57,7 @@ export function FoundCard({ item }: { item: FoundItem }) {
             </p>
           </div>
         )}
-        <div className="absolute left-3 top-3">
+        <div className="absolute left-3 top-3 z-10">
           <Badge tone="found">🔎 Ищем хозяина</Badge>
         </div>
       </div>
@@ -91,7 +92,7 @@ export function FoundCard({ item }: { item: FoundItem }) {
               {phone ? (
                 <a
                   href={`tel:${phone}`}
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-petal-deep hover:underline"
+                  className="relative z-10 inline-flex items-center gap-2 text-sm font-semibold text-petal-deep hover:underline"
                 >
                   <Phone className="size-4" aria-hidden />
                   {item.contactPhone}
@@ -102,7 +103,7 @@ export function FoundCard({ item }: { item: FoundItem }) {
                   href={`https://t.me/${telegram}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-petal-deep hover:underline"
+                  className="relative z-10 inline-flex items-center gap-2 text-sm font-semibold text-petal-deep hover:underline"
                 >
                   <Send className="size-4" aria-hidden />
                   {item.contactTelegram}
@@ -117,10 +118,26 @@ export function FoundCard({ item }: { item: FoundItem }) {
         )}
 
         <div className="flex items-center justify-between gap-2 border-t border-blush pt-2">
-          <FoundSubscribeButton foundId={item.id} />
-          <ReportButton targetType="found" targetId={item.id} />
+          <span className="relative z-10">
+            <FoundSubscribeButton foundId={item.id} />
+          </span>
+          <span className="relative z-10">
+            <ReportButton targetType="found" targetId={item.id} />
+          </span>
         </div>
       </div>
+
+      {/* Stretched link: вся карточка кликабельна и ведёт на детальную страницу.
+          Идёт последним ребёнком, чтобы перекрывать positioned-блок фото
+          (одинаковый stack level — побеждает порядок в DOM); интерактивные
+          потомки подняты на z-10 и кликаются как раньше. */}
+      <Link
+        href={`/found/${item.id}`}
+        className="absolute inset-0 z-0"
+        aria-label={`Подробнее: ${facts.length ? facts.join(", ") : "найденная собака"}`}
+      >
+        <span className="sr-only">Подробнее</span>
+      </Link>
     </article>
   );
 }

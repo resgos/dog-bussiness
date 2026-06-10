@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/Field";
 import { TagToggle } from "@/components/ui/TagToggle";
+import { Reveal } from "@/components/ui/Reveal";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { districtsByOkrug } from "@/lib/districts";
 import { sizeOptions } from "@/lib/petForm";
@@ -199,8 +200,12 @@ export function FoundList({ items }: { items: FoundItem[] }) {
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((item) => (
-            <FoundCard key={item.id} item={item} />
+          {/* Лёгкий stagger появления: задержка растёт с индексом, но капится,
+              чтобы хвост длинного списка не ждал слишком долго. */}
+          {filtered.map((item, i) => (
+            <Reveal key={item.id} delay={Math.min(i, 8) * 0.05}>
+              <FoundCard item={item} />
+            </Reveal>
           ))}
         </div>
       )}

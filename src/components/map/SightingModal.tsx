@@ -95,6 +95,7 @@ export function SightingModal({ reportId, petName, onClose, onDone }: SightingMo
     >
       <div
         className="w-full max-w-md rounded-3xl border border-blush bg-card p-6 shadow-card"
+        style={{ animation: "fade-up 0.25s ease-out both" }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3">

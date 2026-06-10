@@ -34,7 +34,7 @@ export function ReportCard({ report }: { report: ReportLite }) {
     : false;
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-3xl border border-blush bg-card shadow-card">
+    <article className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-blush bg-card shadow-card transition-all duration-200 hover:-translate-y-1 hover:shadow-soft">
       <div className="relative aspect-[4/3] bg-blush-soft">
         {report.photo ? (
           /* eslint-disable-next-line @next/next/no-img-element */
@@ -56,7 +56,7 @@ export function ReportCard({ report }: { report: ReportLite }) {
             </p>
           </div>
         )}
-        <span className="absolute left-3 top-3">
+        <span className="absolute left-3 top-3 z-10">
           <Badge tone={isFound ? "found" : "lost"}>
             {isFound ? "Найдена" : "Активный поиск"}
           </Badge>
@@ -64,7 +64,7 @@ export function ReportCard({ report }: { report: ReportLite }) {
         {/* Бейдж продвижения и награда живут в одной колонке справа — складываем
             их стопкой, чтобы не наезжали друг на друга. */}
         {isBoosted || report.reward ? (
-          <span className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
+          <span className="absolute right-3 top-3 z-10 flex flex-col items-end gap-1.5">
             {isBoosted ? <Badge tone="paw">🚀 Продвигается</Badge> : null}
             {report.reward ? (
               <Badge tone="paw">🎁 {report.reward.toLocaleString("ru-RU")} ₽</Badge>
@@ -104,22 +104,40 @@ export function ReportCard({ report }: { report: ReportLite }) {
           ) : (
             <span className="text-sm text-ink-soft">Пока без наблюдений</span>
           )}
-          {!isFound ? <FoundButton id={report.id} /> : null}
+          {!isFound ? (
+            <span className="relative z-10">
+              <FoundButton id={report.id} />
+            </span>
+          ) : null}
         </div>
 
         {!isFound ? (
           <div className="flex flex-wrap items-center gap-3 pt-1">
             <Link
               href={`/poster/${report.id}`}
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
+              className="relative z-10 inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
             >
               <Printer className="size-4" aria-hidden />
               Розыскной плакат
             </Link>
-            <SubscribeButton reportId={report.id} />
+            <span className="relative z-10">
+              <SubscribeButton reportId={report.id} />
+            </span>
           </div>
         ) : null}
       </div>
+
+      {/* Stretched link: вся карточка кликабельна и ведёт на детальную страницу.
+          Идёт последним ребёнком, чтобы перекрывать positioned-блок фото
+          (одинаковый stack level — побеждает порядок в DOM); интерактивные
+          потомки подняты на z-10 и кликаются как раньше. */}
+      <Link
+        href={`/lost/${report.id}`}
+        className="absolute inset-0 z-0"
+        aria-label={`Подробнее: ${report.petName}`}
+      >
+        <span className="sr-only">Подробнее</span>
+      </Link>
     </article>
   );
 }

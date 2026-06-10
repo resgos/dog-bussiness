@@ -10,6 +10,7 @@ import { findDistrict } from "@/lib/districts";
 import { ageOptions, sizeOptions } from "@/lib/petForm";
 import { ShareButton } from "@/components/share/ShareButton";
 import { PetGallery } from "@/components/pets/PetGallery";
+import { PhotoLightbox } from "@/components/ui/PhotoLightbox";
 
 export const dynamic = "force-dynamic";
 
@@ -125,11 +126,11 @@ export default async function PassportPage({
           <div className="grid gap-0 sm:grid-cols-[minmax(0,20rem)_1fr]">
             <div className="relative aspect-square bg-blush-soft sm:aspect-auto sm:min-h-[20rem]">
               {pet.photo ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
+                <PhotoLightbox
                   src={pet.photo}
                   alt={`Фото питомца ${pet.name}`}
-                  className="size-full object-cover"
+                  className="relative block size-full"
+                  imgClassName="size-full object-cover"
                 />
               ) : (
                 <div className="flex size-full flex-col items-center justify-center gap-3 p-6 text-center">

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Search, X, Eye } from "lucide-react";
 import { Input } from "@/components/ui/Field";
 import { TagToggle } from "@/components/ui/TagToggle";
+import { Reveal } from "@/components/ui/Reveal";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { findDistrict } from "@/lib/districts";
 import { sizeOptions } from "@/lib/petForm";
@@ -240,8 +241,12 @@ export function LostFilters({ reports }: { reports: LostReport[] }) {
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((r) => (
-            <ReportCard key={r.id} report={r} />
+          {/* Лёгкий stagger появления: задержка растёт с индексом, но капится,
+              чтобы хвост длинного списка не ждал слишком долго. */}
+          {filtered.map((r, i) => (
+            <Reveal key={r.id} delay={Math.min(i, 8) * 0.05}>
+              <ReportCard report={r} />
+            </Reveal>
           ))}
         </div>
       )}
