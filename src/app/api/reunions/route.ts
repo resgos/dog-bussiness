@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { savePhoto } from "@/lib/storage";
+import { censorProfanity } from "@/lib/profanity";
 import { rateLimit, ipKey } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
@@ -81,7 +82,7 @@ export async function POST(req: Request) {
   const created = await db.reunion.create({
     data: {
       petName,
-      story,
+      story: censorProfanity(story),
       photo,
       district,
       userId: user.id,

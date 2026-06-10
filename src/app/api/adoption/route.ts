@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { savePhoto } from "@/lib/storage";
+import { censorProfanity } from "@/lib/profanity";
 import { rateLimit, ipKey } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
@@ -44,7 +45,7 @@ export async function POST(req: Request) {
       color: str(b.color)?.slice(0, 80) ?? null,
       photo: await savePhoto(str(b.photo)),
       district: str(b.district),
-      story: str(b.story)?.slice(0, 1500) ?? null,
+      story: censorProfanity(str(b.story)?.slice(0, 1500) ?? null),
       contactName:
         str(b.contactName)?.slice(0, 80) ?? user?.name?.slice(0, 80) ?? null,
       contactPhone: str(b.contactPhone)?.slice(0, 40) ?? null,

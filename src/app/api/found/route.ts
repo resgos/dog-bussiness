@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { savePhoto } from "@/lib/storage";
+import { censorProfanity } from "@/lib/profanity";
 import { notifyMany } from "@/lib/notify";
 import { rankLostForFound } from "@/lib/match";
 import { rateLimit, ipKey } from "@/lib/ratelimit";
@@ -44,7 +45,7 @@ export async function POST(req: Request) {
       district: str(b.district),
       lat: num(b.lat),
       lng: num(b.lng),
-      comment: str(b.comment)?.slice(0, 1000) ?? null,
+      comment: censorProfanity(str(b.comment)?.slice(0, 1000) ?? null),
       status: "open",
     },
   });

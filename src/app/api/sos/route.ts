@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { savePhoto } from "@/lib/storage";
+import { censorProfanity } from "@/lib/profanity";
 import { notifyMany } from "@/lib/notify";
 import { sendTelegramChannel } from "@/lib/telegram";
 import { rateLimit, ipKey } from "@/lib/ratelimit";
@@ -52,7 +53,7 @@ export async function POST(req: Request) {
       lat: num(b.lat),
       lng: num(b.lng),
       lostAt: b.lostAt ? new Date(b.lostAt) : new Date(),
-      comment: str(b.comment),
+      comment: censorProfanity(str(b.comment)),
       radiusKm: [1, 3, 5, 10].includes(radius) ? radius : 3,
       reward:
         typeof b.reward === "number" && b.reward > 0

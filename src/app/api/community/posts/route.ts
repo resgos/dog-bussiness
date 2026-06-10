@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { findDistrict } from "@/lib/districts";
+import { censorProfanity } from "@/lib/profanity";
 import { POST_TYPES } from "@/components/community/postMeta";
 
 export const dynamic = "force-dynamic";
@@ -21,8 +22,8 @@ export async function POST(req: Request) {
   if (!raw) {
     return NextResponse.json({ error: "Напишите текст поста" }, { status: 400 });
   }
-  // Серверный лимит длины (клиентский maxLength можно обойти).
-  const text = raw.slice(0, 4000);
+  // Серверный лимит длины (клиентский maxLength можно обойти) + фильтр брани.
+  const text = censorProfanity(raw.slice(0, 4000));
 
   const type = POST_TYPES.includes(body?.type) ? body.type : "обсуждение";
   // Район: либо из формы, либо район пользователя по умолчанию.

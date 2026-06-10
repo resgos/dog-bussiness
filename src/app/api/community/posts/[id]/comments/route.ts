@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { censorProfanity } from "@/lib/profanity";
 
 export const dynamic = "force-dynamic";
 
@@ -28,8 +29,8 @@ export async function POST(
   if (!raw) {
     return NextResponse.json({ error: "Напишите комментарий" }, { status: 400 });
   }
-  // Серверный лимит длины (клиентский maxLength можно обойти).
-  const text = raw.slice(0, 1000);
+  // Серверный лимит длины (клиентский maxLength можно обойти) + фильтр брани.
+  const text = censorProfanity(raw.slice(0, 1000));
 
   const comment = await db.comment.create({
     data: { postId: id, authorId: user.id, text },

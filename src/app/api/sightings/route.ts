@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { savePhoto } from "@/lib/storage";
 import { notifyUser, notifyMany } from "@/lib/notify";
+import { censorProfanity } from "@/lib/profanity";
 import { rateLimit, ipKey } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +23,7 @@ export async function POST(req: Request) {
       reportId: str(b?.reportId),
       lat: num(b?.lat),
       lng: num(b?.lng),
-      comment: str(b?.comment)?.slice(0, 500) ?? null,
+      comment: censorProfanity(str(b?.comment)?.slice(0, 500) ?? null),
       photo: await savePhoto(str(b?.photo)),
       userId: user?.id ?? null,
     },
