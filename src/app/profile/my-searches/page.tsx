@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Clock, Eye, Gift, ListChecks, LogIn, MapPin, PawPrint, Printer, Search } from "lucide-react";
+import { Clock, Eye, Gift, ListChecks, LogIn, MapPin, PawPrint, Pencil, Printer, Search } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
@@ -179,6 +179,12 @@ export default async function MySearchesPage() {
 
                 <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
                   <SearchControls id={report.id} status={report.status} />
+                  {report.status === "active" ? (
+                    <ButtonLink href={`/lost/${report.id}/edit`} variant="secondary" size="sm">
+                      <Pencil className="size-4" aria-hidden />
+                      Изменить
+                    </ButtonLink>
+                  ) : null}
                   {report.status === "active" ? (
                     <ButtonLink href={`/poster/${report.id}`} variant="secondary" size="sm">
                       <Printer className="size-4" aria-hidden />
