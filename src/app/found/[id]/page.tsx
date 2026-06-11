@@ -9,6 +9,7 @@ import {
   Clock,
   MapPin,
   PawPrint,
+  Pencil,
   Phone,
   Printer,
   Search,
@@ -242,6 +243,12 @@ export default async function FoundDetailPage({
           <div className="mt-2 flex flex-wrap items-center gap-3">
             {isOwner && !isReunited ? (
               <FoundStatusButton id={item.id} status={item.status} />
+            ) : null}
+            {isOwner ? (
+              <ButtonLink variant="secondary" href={`/found/${item.id}/edit`}>
+                <Pencil className="size-4" aria-hidden />
+                Изменить
+              </ButtonLink>
             ) : null}
             <FoundSubscribeButton foundId={item.id} />
             <ShareButton

@@ -16,6 +16,7 @@ const suites = [
   "verify-rss",
   "verify-foundstatus",
   "verify-lostedit",
+  "verify-foundedit",
 ];
 
 let failed = 0;

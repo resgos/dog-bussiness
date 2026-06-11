@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { censorProfanity } from "@/lib/profanity";
 
 export const dynamic = "force-dynamic";
 
@@ -39,4 +40,44 @@ export async function PATCH(
   });
 
   return NextResponse.json({ ok: true, status: updated.status });
+}
+
+const SIZES = ["small", "medium", "large"];
+
+// Редактирование своей находки: контакты нашедшего + приметы. Только владелец.
+// Статус не трогаем — это отдельная ответственность PATCH.
+export async function PUT(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Требуется вход" }, { status: 401 });
+  }
+  const report = await db.foundReport.findUnique({ where: { id } });
+  if (!report || report.userId !== user.id) {
+    return NextResponse.json({ error: "Не найдено" }, { status: 404 });
+  }
+
+  const b = await req.json().catch(() => ({}));
+  const str = (v: unknown) =>
+    typeof v === "string" && v.trim() ? v.trim() : null;
+  const size = str(b?.size);
+
+  await db.foundReport.update({
+    where: { id },
+    data: {
+      finderName: str(b?.finderName)?.slice(0, 80) ?? null,
+      contactPhone: str(b?.contactPhone)?.slice(0, 40) ?? null,
+      contactTelegram: str(b?.contactTelegram)?.slice(0, 80) ?? null,
+      breed: str(b?.breed)?.slice(0, 80) ?? null,
+      color: str(b?.color)?.slice(0, 80) ?? null,
+      size: size && SIZES.includes(size) ? size : null,
+      district: str(b?.district),
+      comment: censorProfanity(str(b?.comment)?.slice(0, 1000) ?? null),
+    },
+  });
+
+  return NextResponse.json({ ok: true });
 }
