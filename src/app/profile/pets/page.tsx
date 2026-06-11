@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Camera, Pencil, Plus, QrCode, Stethoscope } from "lucide-react";
+import { ArrowRight, Camera, LogIn, Pencil, Plus, QrCode, Stethoscope } from "lucide-react";
 import { db } from "@/lib/db";
+import { getCurrentUser } from "@/lib/auth";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
@@ -22,7 +23,37 @@ const statusLabel: Record<string, string> = {
 };
 
 export default async function PetsPage() {
-  const pets = await db.pet.findMany({ orderBy: { createdAt: "desc" } });
+  const user = await getCurrentUser();
+
+  // «Мои питомцы» — личная страница: гостю предлагаем войти и не раскрываем
+  // чужие карточки (раньше findMany без where отдавал питомцев всех владельцев).
+  if (!user) {
+    return (
+      <Container className="py-14 sm:py-20">
+        <div className="mx-auto max-w-2xl">
+          <Badge tone="petal">🐶 Мои питомцы</Badge>
+          <h1 className="mt-3 text-3xl font-bold sm:text-4xl">Войди в стаю</h1>
+          <div className="mt-8 rounded-3xl border border-blush bg-card p-6 shadow-card sm:p-8">
+            <p className="text-ink-soft">
+              Здесь живут карточки твоих питомцев с QR-паспортами. Войди, чтобы
+              добавить питомца и управлять его профилем.
+            </p>
+            <div className="mt-6">
+              <ButtonLink href="/auth" size="lg">
+                <LogIn className="size-5" aria-hidden />
+                Войти или зарегистрироваться
+              </ButtonLink>
+            </div>
+          </div>
+        </div>
+      </Container>
+    );
+  }
+
+  const pets = await db.pet.findMany({
+    where: { userId: user.id },
+    orderBy: { createdAt: "desc" },
+  });
 
   return (
     <Container className="py-12 sm:py-16">

@@ -28,7 +28,7 @@ import { SubscribeButton } from "@/components/feed/SubscribeButton";
 import { ShareButton } from "@/components/share/ShareButton";
 import { findDistrict } from "@/lib/districts";
 import { timeAgo } from "@/lib/format";
-import { rankFoundForLost } from "@/lib/match";
+import { rankFoundForLost, ONPAGE_MATCH_MIN } from "@/lib/match";
 import { sizeOptions } from "@/lib/petForm";
 
 // Статус и наблюдения меняются в реальном времени — всегда свежие данные.
@@ -142,7 +142,7 @@ export default async function LostDetailPage({
         createdAt: true,
       },
     });
-    const top = rankFoundForLost(report, founds, 25).slice(0, 3);
+    const top = rankFoundForLost(report, founds, ONPAGE_MATCH_MIN).slice(0, 3);
     if (top.length) {
       const photos = await db.foundReport.findMany({
         where: { id: { in: top.map((m) => m.item.id) } },

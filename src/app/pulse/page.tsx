@@ -1,0 +1,278 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+import {
+  Activity,
+  ArrowRight,
+  Eye,
+  Heart,
+  MapPin,
+  PawPrint,
+  Search,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
+import { db } from "@/lib/db";
+import { Container } from "@/components/ui/Container";
+import { Badge } from "@/components/ui/Badge";
+import { ButtonLink } from "@/components/ui/Button";
+import { Reveal } from "@/components/ui/Reveal";
+import { findDistrict } from "@/lib/districts";
+import { plural } from "@/lib/format";
+import { rescueRate } from "@/lib/pulse";
+
+// Живые цифры — всегда свежие, без кэша.
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Пульс спасения — живая статистика «Лапки помощи»",
+  description:
+    "Сколько собак сейчас в розыске, сколько находок ждут хозяев и сколько уже вернулись домой. Живой пульс стаи по районам Москвы.",
+};
+
+type Pulse = {
+  activeLost: number;
+  openFound: number;
+  reunions: number;
+  sightingsWeek: number;
+  helped: number;
+  districts: { key: string; name: string; count: number }[];
+};
+
+// Читаем агрегаты одним заходом. Дашборд публичный — при сбое БД мягко
+// деградируем до нулей, а не роняем страницу 500-кой.
+async function loadPulse(): Promise<Pulse> {
+  const weekAgo = new Date(Date.now() - 7 * 86_400_000);
+  try {
+    const [activeLost, openFound, reunions, sightingsWeek, helpedAgg, grouped] =
+      await Promise.all([
+        db.lostReport.count({ where: { status: "active" } }),
+        db.foundReport.count({ where: { status: "open" } }),
+        db.reunion.count(),
+        db.sighting.count({ where: { createdAt: { gte: weekAgo } } }),
+        db.user.aggregate({ _sum: { helpedCount: true } }),
+        db.lostReport.groupBy({
+          by: ["district"],
+          where: { status: "active", district: { not: null } },
+          _count: { district: true },
+          orderBy: { _count: { district: "desc" } },
+          take: 6,
+        }),
+      ]);
+    const districts = grouped
+      .map((g) => ({
+        key: g.district as string,
+        name: findDistrict(g.district as string)?.name ?? (g.district as string),
+        count: g._count.district,
+      }))
+      .filter((d) => d.count > 0);
+    return {
+      activeLost,
+      openFound,
+      reunions,
+      sightingsWeek,
+      helped: helpedAgg._sum.helpedCount ?? 0,
+      districts,
+    };
+  } catch {
+    return {
+      activeLost: 0,
+      openFound: 0,
+      reunions: 0,
+      sightingsWeek: 0,
+      helped: 0,
+      districts: [],
+    };
+  }
+}
+
+const fmt = (n: number) => n.toLocaleString("ru-RU");
+
+export default async function PulsePage() {
+  const p = await loadPulse();
+  const rate = rescueRate(p.reunions, p.activeLost);
+  const maxDistrict = Math.max(1, ...p.districts.map((d) => d.count));
+
+  const stats = [
+    {
+      label: "Сейчас в розыске",
+      value: p.activeLost,
+      caption: "активных объявлений о пропаже",
+      Icon: Search,
+      tone: "text-coral",
+    },
+    {
+      label: "Находок ждут хозяев",
+      value: p.openFound,
+      caption: "кто-то уже нашёл — ищем владельца",
+      Icon: PawPrint,
+      tone: "text-petal-deep",
+    },
+    {
+      label: "Уже дома",
+      value: p.reunions,
+      caption: "историй счастливых возвращений",
+      Icon: Heart,
+      tone: "text-status-found",
+    },
+    {
+      label: "Наблюдений за неделю",
+      value: p.sightingsWeek,
+      caption: "отметок «видели собаку» на карте",
+      Icon: Eye,
+      tone: "text-petal",
+    },
+  ];
+
+  return (
+    <Container className="py-12 sm:py-16">
+      {/* Заголовок */}
+      <div className="mx-auto max-w-2xl text-center">
+        <Badge tone="petal">
+          <Activity className="mr-1 inline size-4" aria-hidden /> Пульс спасения
+        </Badge>
+        <h1 className="mt-3 text-3xl font-bold sm:text-4xl">Пульс спасения</h1>
+        <p className="mt-3 text-lg text-ink-soft">
+          Живая картина стаи прямо сейчас: кого ищут, кого нашли и сколько собак
+          уже вернулись домой.
+        </p>
+      </div>
+
+      {/* Четыре ключевые метрики */}
+      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {stats.map((s, i) => (
+          <Reveal key={s.label} delay={i * 0.06}>
+            <div className="flex h-full flex-col gap-2 rounded-3xl border border-blush bg-card p-6 shadow-card transition-all duration-200 hover:-translate-y-1 hover:shadow-soft">
+              <s.Icon className={`size-7 ${s.tone}`} aria-hidden />
+              <span className="font-display text-4xl font-bold leading-none sm:text-5xl">
+                {fmt(s.value)}
+              </span>
+              <span className="font-semibold text-ink">{s.label}</span>
+              <span className="text-sm leading-snug text-ink-soft">
+                {s.caption}
+              </span>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+
+      {/* Доля возвращений домой */}
+      <Reveal>
+        <div className="mt-6 grid items-center gap-6 rounded-[2.5rem] border border-blush bg-gradient-to-br from-blush-soft to-card p-8 shadow-card sm:p-10 lg:grid-cols-[auto_1fr_auto]">
+          <div className="relative mx-auto size-28 shrink-0 sm:size-32">
+            <Image
+              src="/shunya/pose-happy-cut.png"
+              alt="Шуня радуется возвращениям"
+              fill
+              sizes="128px"
+              className="object-contain"
+            />
+          </div>
+          <div className="text-center lg:text-left">
+            <span className="inline-flex items-center gap-2 rounded-full bg-blush px-4 py-1.5 text-sm font-bold text-petal-deep">
+              <ShieldCheck className="size-4" aria-hidden /> Возвращаются домой
+            </span>
+            <p className="mt-3 flex flex-wrap items-baseline justify-center gap-x-3 lg:justify-start">
+              <span className="font-display text-5xl font-bold leading-none text-status-found-ink sm:text-6xl">
+                {rate}%
+              </span>
+              <span className="text-base text-ink-soft sm:text-lg">
+                собак из тех, чья судьба известна, уже вернулись домой по историям
+                стаи
+              </span>
+            </p>
+          </div>
+          <ButtonLink
+            href="/reunited"
+            variant="secondary"
+            size="lg"
+            className="mx-auto lg:mx-0"
+          >
+            Истории <ArrowRight className="size-5" aria-hidden />
+          </ButtonLink>
+        </div>
+      </Reveal>
+
+      {/* Где сейчас нужнее помощь */}
+      <section className="mt-10">
+        <div className="flex items-center gap-2">
+          <MapPin className="size-6 text-petal" aria-hidden />
+          <h2 className="text-2xl font-bold">Где сейчас нужнее помощь</h2>
+        </div>
+        <p className="mt-1 text-sm text-ink-soft">
+          Районы Москвы с наибольшим числом активных розысков.
+        </p>
+
+        {p.districts.length === 0 ? (
+          <div className="mt-5 rounded-3xl border border-blush bg-card p-6 shadow-card">
+            <p className="text-ink-soft">
+              Сейчас активных розысков нет — и пусть так и будет. Если собака
+              потеряется, стая поднимется на помощь.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-5 flex flex-col gap-3">
+            {p.districts.map((d, i) => (
+              <Reveal key={d.key} delay={i * 0.05}>
+                <div className="flex items-center gap-4 rounded-2xl border border-blush bg-card p-4 shadow-card">
+                  <span className="w-8 shrink-0 text-center font-display text-xl font-bold text-petal-deep">
+                    {i + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="truncate font-bold text-ink">
+                        {d.name}
+                      </span>
+                      <span className="shrink-0 text-sm font-semibold text-petal-deep">
+                        {d.count}{" "}
+                        {plural(d.count, "розыск", "розыска", "розысков")}
+                      </span>
+                    </div>
+                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-blush-soft">
+                      <div
+                        className="h-full rounded-full bg-petal"
+                        style={{
+                          width: `${Math.round((d.count / maxDistrict) * 100)}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+            <div className="mt-2 flex flex-wrap gap-3">
+              <ButtonLink href="/feed/lost" size="md">
+                <Search className="size-4" aria-hidden /> Лента розыска
+              </ButtonLink>
+              <ButtonLink href="/map" variant="secondary" size="md">
+                <MapPin className="size-4" aria-hidden /> Карта
+              </ButtonLink>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Сила стаи + финальный призыв */}
+      <Reveal>
+        <div className="mt-10 flex flex-col items-center gap-5 rounded-[2.5rem] border border-blush bg-card p-8 text-center shadow-card sm:p-10">
+          <span className="inline-flex items-center gap-2 rounded-full bg-blush px-4 py-1.5 text-sm font-bold text-petal-deep">
+            <Sparkles className="size-4" aria-hidden /> Сила стаи
+          </span>
+          <p className="max-w-2xl text-lg text-ink-soft">
+            Вместе соседи уже {fmt(p.helped)}{" "}
+            {plural(p.helped, "раз помогли", "раза помогли", "раз помогли")}{" "}
+            вернуть собаку домой. Присоединяйся — даже одно наблюдение приближает
+            встречу.
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <ButtonLink href="/sos" variant="sos" size="lg">
+              Подать SOS
+            </ButtonLink>
+            <ButtonLink href="/map" variant="secondary" size="lg">
+              Помочь на карте
+            </ButtonLink>
+          </div>
+        </div>
+      </Reveal>
+    </Container>
+  );
+}

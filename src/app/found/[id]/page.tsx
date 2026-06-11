@@ -24,7 +24,7 @@ import { ShareButton } from "@/components/share/ShareButton";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { findDistrict } from "@/lib/districts";
 import { timeAgo } from "@/lib/format";
-import { rankLostForFound } from "@/lib/match";
+import { rankLostForFound, ONPAGE_MATCH_MIN } from "@/lib/match";
 import { sizeOptions } from "@/lib/petForm";
 
 // Статус и контакты нашедшего могут меняться — всегда свежие данные.
@@ -102,7 +102,7 @@ export default async function FoundDetailPage({
         createdAt: true,
       },
     });
-    const top = rankLostForFound(item, losts, 25).slice(0, 3);
+    const top = rankLostForFound(item, losts, ONPAGE_MATCH_MIN).slice(0, 3);
     if (top.length) {
       const photos = await db.lostReport.findMany({
         where: { id: { in: top.map((m) => m.item.id) } },
