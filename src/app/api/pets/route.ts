@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getCurrentUser } from "@/lib/auth";
 import { savePhoto } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
@@ -28,8 +29,14 @@ export async function POST(req: Request) {
 
   const str = (v: unknown) => (typeof v === "string" && v ? v : null);
 
+  // Привязываем карточку к владельцу, если он залогинен: иначе питомец
+  // остаётся «бесхозным» (userId=null) и владелец не может его править/удалять
+  // — PATCH/DELETE /api/pets/[id] проверяют pet.userId === user.id.
+  const owner = await getCurrentUser().catch(() => null);
+
   const pet = await db.pet.create({
     data: {
+      userId: owner?.id ?? null,
       name: name.slice(0, 80),
       breed: str(body.breed),
       sex: str(body.sex),
