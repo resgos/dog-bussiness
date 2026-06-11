@@ -10,6 +10,7 @@ import {
   MapPin,
   PawPrint,
   Phone,
+  Printer,
   Search,
   Send,
   Sparkles,
@@ -244,6 +245,12 @@ export default async function FoundDetailPage({
                 districtName ? ` · район ${districtName}` : ""
               }. Узнали? Помогите вернуть её домой!`}
             />
+            {!isReunited ? (
+              <ButtonLink variant="secondary" href={`/found/${item.id}/poster`}>
+                <Printer className="size-4" aria-hidden />
+                Плакат «Найдена»
+              </ButtonLink>
+            ) : null}
             <ButtonLink variant="secondary" href="/feed/lost">
               <Search className="size-4" aria-hidden />
               Активные поиски рядом
