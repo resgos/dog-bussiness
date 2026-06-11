@@ -57,7 +57,13 @@ export async function generateMetadata({
       .filter(Boolean)
       .join(" · ") || "Узнали собаку? Помогите вернуть её домой.";
 
-  return { title, description };
+  // og:image отдаётся динамической карточкой opengraph-image.tsx.
+  return {
+    title,
+    description,
+    openGraph: { title, description, type: "article" },
+    twitter: { card: "summary_large_image", title, description },
+  };
 }
 
 export default async function FoundDetailPage({

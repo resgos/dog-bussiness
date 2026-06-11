@@ -63,7 +63,14 @@ export async function generateMetadata({
       .filter(Boolean)
       .join(", ") || "Помогите вернуть собаку домой — Лапка помощи.";
 
-  return { title, description };
+  // og:image отдаётся динамической карточкой opengraph-image.tsx (Next сам
+  // подставит её в openGraph.images и twitter.images).
+  return {
+    title,
+    description,
+    openGraph: { title, description, type: "article" },
+    twitter: { card: "summary_large_image", title, description },
+  };
 }
 
 const statusMap: Record<

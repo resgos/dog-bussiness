@@ -47,6 +47,9 @@ yarn-error.log*
 # self-hosted хранилище загруженных фото (на КТС заменится объектным хранилищем)
 /uploads
 
+# временные выводы verify-скриптов (OG-превью и т.п.)
+/tools/_*.png
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
