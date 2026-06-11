@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import type { Reunion } from "@prisma/client";
 import { Heart, ArrowRight, Sparkles } from "lucide-react";
 import { db } from "@/lib/db";
