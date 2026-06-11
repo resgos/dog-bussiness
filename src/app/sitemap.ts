@@ -36,6 +36,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: p.status === "lost" ? 0.9 : 0.5,
   }));
 
+  // Объявления о пропаже/находке (в т.ч. без аккаунта-питомца) — в индекс:
+  // органический поиск приводит тех, кто ищет или нашёл собаку. Активные пропажи —
+  // наивысший приоритет и hourly, как самый «горящий» контент.
+  const losts = await db.lostReport
+    .findMany({
+      where: { status: "active" },
+      select: { id: true, createdAt: true },
+      orderBy: { createdAt: "desc" },
+      take: 2000,
+    })
+    .catch(() => []);
+  const lostRoutes: MetadataRoute.Sitemap = losts.map((r) => ({
+    url: `${BASE}/lost/${r.id}`,
+    lastModified: r.createdAt,
+    changeFrequency: "hourly" as const,
+    priority: 0.9,
+  }));
+
+  const founds = await db.foundReport
+    .findMany({
+      where: { status: "open" },
+      select: { id: true, createdAt: true },
+      orderBy: { createdAt: "desc" },
+      take: 2000,
+    })
+    .catch(() => []);
+  const foundRoutes: MetadataRoute.Sitemap = founds.map((r) => ({
+    url: `${BASE}/found/${r.id}`,
+    lastModified: r.createdAt,
+    changeFrequency: "hourly" as const,
+    priority: 0.7,
+  }));
+
   const products = await db.product
     .findMany({ select: { slug: true } })
     .catch(() => []);
@@ -45,5 +78,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.4,
   }));
 
-  return [...staticRoutes, ...petRoutes, ...productRoutes];
+  return [
+    ...staticRoutes,
+    ...petRoutes,
+    ...lostRoutes,
+    ...foundRoutes,
+    ...productRoutes,
+  ];
 }
