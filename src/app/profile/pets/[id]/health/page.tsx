@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
-import { ArrowLeft, HeartPulse } from "lucide-react";
+import { ArrowLeft, CalendarPlus, HeartPulse } from "lucide-react";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
-import { ButtonLink } from "@/components/ui/Button";
+import { ButtonLink, buttonStyles } from "@/components/ui/Button";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { HealthForm } from "@/components/pets/HealthForm";
 import { HealthList } from "@/components/pets/HealthList";
@@ -69,6 +69,8 @@ export default async function PetHealthPage({
     if (d < 0) overdue += 1;
     else if (d <= 30) soon += 1;
   }
+  // Есть что выгружать в календарь — показываем кнопку «.ics».
+  const hasDue = records.some((r) => r.nextDue);
 
   // Сериализуем для client-компонента (Date → ISO-строки).
   const view: HealthRecordView[] = records.map((r) => ({
@@ -101,6 +103,20 @@ export default async function PetHealthPage({
             Прививки, обработки от паразитов, вес и визиты к ветеринару — с
             напоминанием о сроках.
           </p>
+          {hasDue ? (
+            <a
+              href={`/api/pets/${id}/health/calendar`}
+              download
+              className={buttonStyles({
+                variant: "secondary",
+                size: "sm",
+                className: "mt-4",
+              })}
+            >
+              <CalendarPlus className="size-4" aria-hidden />
+              Напоминания в календарь
+            </a>
+          ) : null}
         </div>
 
         {/* Баннер напоминаний — показываем, только если есть что напомнить. */}
