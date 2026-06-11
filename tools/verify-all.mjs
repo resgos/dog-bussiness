@@ -13,6 +13,7 @@ const suites = [
   "verify-calendar",
   "verify-foundposter",
   "verify-sitemap",
+  "verify-rss",
 ];
 
 let failed = 0;
