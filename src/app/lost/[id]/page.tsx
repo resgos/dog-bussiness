@@ -17,6 +17,7 @@ import {
   PawPrint,
   Printer,
   Ruler,
+  Sparkles,
 } from "lucide-react";
 import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
@@ -27,6 +28,7 @@ import { SubscribeButton } from "@/components/feed/SubscribeButton";
 import { ShareButton } from "@/components/share/ShareButton";
 import { findDistrict } from "@/lib/districts";
 import { timeAgo } from "@/lib/format";
+import { rankFoundForLost } from "@/lib/match";
 import { sizeOptions } from "@/lib/petForm";
 
 // Статус и наблюдения меняются в реальном времени — всегда свежие данные.
@@ -115,6 +117,49 @@ export default async function LostDetailPage({
     ? new Date(report.boostedUntil).getTime() > Date.now()
     : false;
   const sightings = report.sightings;
+
+  // «Похожие находки»: матчим активную пропажу против открытых находок
+  // (приметы + photoHash, без тяжёлых фото), фото дотягиваем только для топ-3.
+  let matches: {
+    id: string;
+    score: number;
+    photo: string | null;
+    breed: string | null;
+    color: string | null;
+    district: string | null;
+    createdAt: Date;
+  }[] = [];
+  if (report.status === "active") {
+    const founds = await db.foundReport.findMany({
+      where: { status: "open" },
+      select: {
+        id: true,
+        breed: true,
+        color: true,
+        size: true,
+        district: true,
+        photoHash: true,
+        createdAt: true,
+      },
+    });
+    const top = rankFoundForLost(report, founds, 25).slice(0, 3);
+    if (top.length) {
+      const photos = await db.foundReport.findMany({
+        where: { id: { in: top.map((m) => m.item.id) } },
+        select: { id: true, photo: true },
+      });
+      const photoById = new Map(photos.map((p) => [p.id, p.photo]));
+      matches = top.map(({ item, score }) => ({
+        id: item.id,
+        score,
+        photo: photoById.get(item.id) ?? null,
+        breed: item.breed,
+        color: item.color,
+        district: item.district,
+        createdAt: item.createdAt,
+      }));
+    }
+  }
 
   return (
     <Container className="py-12 sm:py-16">
@@ -238,6 +283,63 @@ export default async function LostDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Похожие находки: движок матчинга прямо на странице розыска */}
+      {matches.length > 0 ? (
+        <section className="mt-10 sm:mt-12">
+          <h2 className="inline-flex items-center gap-2 text-2xl font-bold">
+            <Sparkles className="size-6 text-petal" aria-hidden />
+            Похожие находки
+          </h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            Открытые находки, совпадающие по приметам. Узнали {report.petName}?
+            Откройте и свяжитесь с нашедшим.
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {matches.map((m) => {
+              const place = m.district ? findDistrict(m.district)?.name : null;
+              const facts =
+                [m.breed, m.color].filter(Boolean).join(" · ") ||
+                "Найдена собака";
+              return (
+                <Link
+                  key={m.id}
+                  href={`/found/${m.id}`}
+                  className="group flex items-center gap-4 rounded-3xl border border-blush bg-card p-4 shadow-card transition-all duration-200 hover:-translate-y-1 hover:shadow-soft"
+                >
+                  <span className="relative block size-20 shrink-0 overflow-hidden rounded-2xl bg-blush-soft">
+                    {m.photo ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={m.photo}
+                        alt={facts}
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <span className="flex size-full items-center justify-center text-petal">
+                        <PawPrint className="size-8" aria-hidden />
+                      </span>
+                    )}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-blush-soft px-2 py-0.5 text-xs font-bold text-petal-deep">
+                      <Sparkles className="size-3" aria-hidden />
+                      {m.score}% совпадение
+                    </span>
+                    <span className="mt-1 block truncate font-bold text-ink group-hover:text-petal-deep">
+                      {facts}
+                    </span>
+                    <span className="block text-xs text-ink-soft">
+                      {place ? `${place} · ` : ""}
+                      {timeAgo(m.createdAt)}
+                    </span>
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
 
       {/* Наблюдения соседей: свежие сверху */}
       <section className="mt-10 sm:mt-12">
