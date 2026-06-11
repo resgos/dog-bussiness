@@ -14,6 +14,7 @@ const suites = [
   "verify-foundposter",
   "verify-sitemap",
   "verify-rss",
+  "verify-foundstatus",
 ];
 
 let failed = 0;

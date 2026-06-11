@@ -16,11 +16,13 @@ import {
   Sparkles,
 } from "lucide-react";
 import { db } from "@/lib/db";
+import { getCurrentUser } from "@/lib/auth";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
 import { PhotoLightbox } from "@/components/ui/PhotoLightbox";
 import { FoundSubscribeButton } from "@/components/found/FoundSubscribeButton";
+import { FoundStatusButton } from "@/components/found/FoundStatusButton";
 import { ShareButton } from "@/components/share/ShareButton";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { findDistrict } from "@/lib/districts";
@@ -75,6 +77,9 @@ export default async function FoundDetailPage({
   const { id } = await params;
   const item = await getFound(id);
   if (!item) notFound();
+
+  const me = await getCurrentUser().catch(() => null);
+  const isOwner = Boolean(item.userId && me?.id === item.userId);
 
   const districtName = item.district ? findDistrict(item.district)?.name : null;
   const sizeLabel = sizeOptions.find((o) => o.value === item.size)?.label ?? null;
@@ -233,6 +238,9 @@ export default async function FoundDetailPage({
           )}
 
           <div className="mt-2 flex flex-wrap items-center gap-3">
+            {isOwner && !isReunited ? (
+              <FoundStatusButton id={item.id} status={item.status} />
+            ) : null}
             <FoundSubscribeButton foundId={item.id} />
             <ShareButton
               path={`/found/${item.id}`}
