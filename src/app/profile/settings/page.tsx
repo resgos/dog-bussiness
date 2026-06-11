@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
-import { ButtonLink } from "@/components/ui/Button";
+import { ButtonLink, buttonStyles } from "@/components/ui/Button";
 import { SettingsForm } from "@/components/auth/SettingsForm";
 import { DeleteAccount } from "@/components/auth/DeleteAccount";
 import { getCurrentUser } from "@/lib/auth";
@@ -29,6 +29,23 @@ export default async function SettingsPage() {
             district={user.district}
             telegram={user.telegram}
           />
+        </div>
+
+        <div className="mt-8 rounded-3xl border border-blush bg-card p-6 shadow-card sm:p-8">
+          <h2 className="text-lg font-bold">Мои данные</h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            Скачайте копию всех своих данных в «Лапке» — профиль, питомцы,
+            объявления, посты и заказы — одним JSON-файлом. Это ваше право на
+            доступ к персональным данным.
+          </p>
+          <a
+            href="/api/account/export"
+            download
+            className={buttonStyles({ variant: "secondary", className: "mt-5" })}
+          >
+            <Download className="size-4" aria-hidden />
+            Скачать мои данные
+          </a>
         </div>
 
         <div className="mt-10 rounded-3xl border border-status-lost/30 bg-card p-6 shadow-card sm:p-8">
