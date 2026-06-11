@@ -139,6 +139,8 @@ export default async function LostDetailPage({
   if (report.status === "active") {
     const founds = await db.foundReport.findMany({
       where: { status: "open" },
+      orderBy: { createdAt: "desc" },
+      take: 500,
       select: {
         id: true,
         breed: true,

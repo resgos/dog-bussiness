@@ -19,7 +19,7 @@ const other = await mkSession("Чужой");
 const pet = await db.pet.create({ data: { userId: owner.user.id, name: "Тест-Барбос-Кал" } });
 const due = new Date(Date.now() + 14 * 86400000); // через 2 недели
 await db.healthRecord.create({
-  data: { petId: pet.id, type: "vaccine", title: "Бешенство", date: new Date(), nextDue: due },
+  data: { petId: pet.id, type: "vaccine", title: "Бешенство" + String.fromCharCode(11), date: new Date(), nextDue: due },
 });
 
 // Без сессии → 401.
@@ -42,6 +42,7 @@ const unfolded = ics.replace(/\r\n[ \t]/g, "");
 ok(ics.includes("BEGIN:VCALENDAR") && ics.includes("END:VCALENDAR"), "валидная обёртка VCALENDAR");
 ok((ics.match(/BEGIN:VEVENT/g) || []).length === 1, "одно событие VEVENT");
 ok(unfolded.includes("Тест-Барбос-Кал") && unfolded.includes("Бешенство"), "питомец и запись в SUMMARY (после разворота фолдинга)");
+ok(![...ics].some((c) => { const n = c.codePointAt(0); return n < 32 && n !== 9 && n !== 10 && n !== 13; }), "управляющие символы вычищены из .ics");
 const y = due.getUTCFullYear(), m = String(due.getUTCMonth() + 1).padStart(2, "0"), d = String(due.getUTCDate()).padStart(2, "0");
 ok(ics.includes(`DTSTART;VALUE=DATE:${y}${m}${d}`), "дата следующего срока в DTSTART");
 

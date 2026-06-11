@@ -26,6 +26,15 @@ ok(!xml2.includes(`/lost/${lost.id}`), "снятая с публикации —
 const feed = await (await fetch(`${BASE}/feed/lost`)).text();
 ok(feed.includes("/feed/lost/rss"), "на /feed/lost есть ссылка на RSS");
 
+// Управляющие символы из ввода не должны ломать весь XML у подписчиков.
+const hasCtl = (t) => [...t].some((c) => { const n = c.codePointAt(0); return n < 32 && n !== 9 && n !== 10 && n !== 13; });
+const bad = await db.lostReport.create({
+  data: { petName: `Тест${String.fromCharCode(11)}Контрол${String.fromCharCode(1)}`, status: "active", district: "khamovniki" },
+});
+const xmlBad = await (await fetch(`${BASE}/feed/lost/rss`)).text();
+ok(!hasCtl(xmlBad), "недопустимые контрол-символы вычищены из RSS");
+await db.lostReport.delete({ where: { id: bad.id } }).catch(() => {});
+
 await db.lostReport.delete({ where: { id: lost.id } }).catch(() => {});
 await db.$disconnect();
 console.log(`\nИтог: ${pass} ✓ / ${fail} ✗`);

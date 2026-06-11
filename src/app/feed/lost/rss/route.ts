@@ -6,8 +6,20 @@ export const dynamic = "force-dynamic";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lapka-pomoshchi.ru";
 
+// Удаляет символы, недопустимые в XML 1.0 (всё < 0x20, кроме \t \n \r). Один
+// такой символ в пользовательском поле сломал бы парсинг ленты у всех подписчиков.
+function stripCtl(s: string): string {
+  let out = "";
+  for (const ch of s) {
+    const c = ch.codePointAt(0) ?? 0;
+    if (c < 32 && c !== 9 && c !== 10 && c !== 13) continue;
+    out += ch;
+  }
+  return out;
+}
+
 function esc(s: string): string {
-  return s
+  return stripCtl(s)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")

@@ -102,6 +102,8 @@ export default async function FoundDetailPage({
   if (!isReunited) {
     const losts = await db.lostReport.findMany({
       where: { status: "active" },
+      orderBy: { createdAt: "desc" },
+      take: 500,
       select: {
         id: true,
         petName: true,

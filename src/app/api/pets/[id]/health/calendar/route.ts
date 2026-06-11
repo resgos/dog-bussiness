@@ -12,13 +12,26 @@ const TYPE_LABEL: Record<string, string> = {
   other: "Здоровье",
 };
 
-// Экранирование текстовых значений iCalendar (RFC 5545 §3.3.11).
+// Удаляет управляющие символы (всё < 0x20, кроме \t \n \r): они недопустимы и
+// ломают импорт .ics в Google/Apple Calendar.
+function stripCtl(s: string): string {
+  let out = "";
+  for (const ch of s) {
+    const c = ch.codePointAt(0) ?? 0;
+    if (c < 32 && c !== 9 && c !== 10 && c !== 13) continue;
+    out += ch;
+  }
+  return out;
+}
+
+// Экранирование текстовых значений iCalendar (RFC 5545 §3.3.11). Нормализуем ВСЕ
+// переводы строк, включая одиночный \r, иначе он остаётся в строке и рвёт CRLF.
 function esc(s: string): string {
-  return s
+  return stripCtl(s)
     .replace(/\\/g, "\\\\")
     .replace(/;/g, "\\;")
     .replace(/,/g, "\\,")
-    .replace(/\r?\n/g, "\\n");
+    .replace(/\r\n|\r|\n/g, "\\n");
 }
 
 // Складывание длинных строк по 75 октетов (продолжение — строка с ведущим
@@ -30,7 +43,7 @@ function fold(line: string): string {
   let curBytes = 0;
   for (const ch of line) {
     const chBytes = Buffer.byteLength(ch, "utf8");
-    const limit = chunks.length === 0 ? 75 : 74; // продолжение «съедает» 1 октет пробелом
+    const limit = chunks.length === 0 ? 75 : 74;
     if (curBytes + chBytes > limit) {
       chunks.push(cur);
       cur = "";

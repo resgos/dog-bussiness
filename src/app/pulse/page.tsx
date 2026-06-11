@@ -32,6 +32,7 @@ export const metadata: Metadata = {
 
 type Pulse = {
   activeLost: number;
+  foundLost: number;
   openFound: number;
   reunions: number;
   sightingsWeek: number;
@@ -44,9 +45,10 @@ type Pulse = {
 async function loadPulse(): Promise<Pulse> {
   const weekAgo = new Date(Date.now() - 7 * 86_400_000);
   try {
-    const [activeLost, openFound, reunions, sightingsWeek, helpedAgg, grouped] =
+    const [activeLost, foundLost, openFound, reunions, sightingsWeek, helpedAgg, grouped] =
       await Promise.all([
         db.lostReport.count({ where: { status: "active" } }),
+        db.lostReport.count({ where: { status: "found" } }),
         db.foundReport.count({ where: { status: "open" } }),
         db.reunion.count(),
         db.sighting.count({ where: { createdAt: { gte: weekAgo } } }),
@@ -68,6 +70,7 @@ async function loadPulse(): Promise<Pulse> {
       .filter((d) => d.count > 0);
     return {
       activeLost,
+      foundLost,
       openFound,
       reunions,
       sightingsWeek,
@@ -77,6 +80,7 @@ async function loadPulse(): Promise<Pulse> {
   } catch {
     return {
       activeLost: 0,
+      foundLost: 0,
       openFound: 0,
       reunions: 0,
       sightingsWeek: 0,
@@ -90,7 +94,9 @@ const fmt = (n: number) => n.toLocaleString("ru-RU");
 
 export default async function PulsePage() {
   const p = await loadPulse();
-  const rate = rescueRate(p.reunions, p.activeLost);
+  // Доля найденных среди завершённых+активных розысков — честная одно-доменная
+  // метрика (не путать с числом добровольных историй «Уже дома»).
+  const rate = rescueRate(p.foundLost, p.activeLost);
   const maxDistrict = Math.max(1, ...p.districts.map((d) => d.count));
 
   const stats = [
@@ -177,8 +183,7 @@ export default async function PulsePage() {
                 {rate}%
               </span>
               <span className="text-base text-ink-soft sm:text-lg">
-                собак из тех, чья судьба известна, уже вернулись домой по историям
-                стаи
+                собак из ленты розыска уже нашлись и вернулись домой
               </span>
             </p>
           </div>
