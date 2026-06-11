@@ -8,7 +8,13 @@ import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Потерялись" };
 
-export default async function FeedLostPage() {
+export default async function FeedLostPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ district?: string }>;
+}) {
+  // Глубокая ссылка из «Пульса»/шеринга: ?district=… предвыбирает фильтр района.
+  const { district: initialDistrict } = await searchParams;
   // Ленте нужно лишь ЧИСЛО наблюдений (ReportCard: sightings.length), поэтому
   // тянем только их id — не таскаем тяжёлые photo/comment наблюдений.
   const reports = await db.lostReport.findMany({
@@ -35,7 +41,7 @@ export default async function FeedLostPage() {
           <ShunyaBubble message="Сейчас в районе никто не потерялся — и это здорово! Гуляйте спокойно." />
         </div>
       ) : (
-        <LostFilters reports={reports} />
+        <LostFilters reports={reports} initialDistrict={initialDistrict ?? null} />
       )}
     </Container>
   );

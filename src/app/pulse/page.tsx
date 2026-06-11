@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Activity,
   ArrowRight,
@@ -199,7 +200,7 @@ export default async function PulsePage() {
           <h2 className="text-2xl font-bold">Где сейчас нужнее помощь</h2>
         </div>
         <p className="mt-1 text-sm text-ink-soft">
-          Районы Москвы с наибольшим числом активных розысков.
+          Районы Москвы с наибольшим числом активных розысков — нажмите, чтобы открыть ленту района.
         </p>
 
         {p.districts.length === 0 ? (
@@ -213,13 +214,16 @@ export default async function PulsePage() {
           <div className="mt-5 flex flex-col gap-3">
             {p.districts.map((d, i) => (
               <Reveal key={d.key} delay={i * 0.05}>
-                <div className="flex items-center gap-4 rounded-2xl border border-blush bg-card p-4 shadow-card">
+                <Link
+                  href={`/feed/lost?district=${encodeURIComponent(d.key)}`}
+                  className="group flex items-center gap-4 rounded-2xl border border-blush bg-card p-4 shadow-card transition-all duration-200 hover:-translate-y-1 hover:shadow-soft"
+                >
                   <span className="w-8 shrink-0 text-center font-display text-xl font-bold text-petal-deep">
                     {i + 1}
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-3">
-                      <span className="truncate font-bold text-ink">
+                      <span className="truncate font-bold text-ink group-hover:text-petal-deep">
                         {d.name}
                       </span>
                       <span className="shrink-0 text-sm font-semibold text-petal-deep">
@@ -236,7 +240,11 @@ export default async function PulsePage() {
                       />
                     </div>
                   </div>
-                </div>
+                  <ArrowRight
+                    className="size-5 shrink-0 text-petal transition-transform group-hover:translate-x-0.5"
+                    aria-hidden
+                  />
+                </Link>
               </Reveal>
             ))}
             <div className="mt-2 flex flex-wrap gap-3">

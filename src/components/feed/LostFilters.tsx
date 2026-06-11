@@ -30,9 +30,16 @@ type LostReport = {
 };
 
 /** Лента активных пропаж с поиском по кличке/породе и фильтром по району (клиент). */
-export function LostFilters({ reports }: { reports: LostReport[] }) {
+export function LostFilters({
+  reports,
+  initialDistrict = null,
+}: {
+  reports: LostReport[];
+  initialDistrict?: string | null;
+}) {
   const [query, setQuery] = useState("");
-  const [district, setDistrict] = useState<string | null>(null);
+  // Стартовый район можно задать ссылкой (?district=…), например из «Пульса».
+  const [district, setDistrict] = useState<string | null>(initialDistrict);
   const [breed, setBreed] = useState<string | null>(null);
   const [size, setSize] = useState<string | null>(null);
   const [color, setColor] = useState<string | null>(null);
