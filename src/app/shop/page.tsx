@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { ScanLine } from "lucide-react";
 import { getCatalog } from "@/lib/catalog";
 import { Container } from "@/components/ui/Container";
@@ -9,9 +10,32 @@ import { CatalogGrid } from "@/components/shop/CatalogGrid";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Магазин" };
 
-export default async function ShopPage() {
+// Загрузку каталога выносим в дочерний async-компонент под inline <Suspense>, а
+// НЕ в segment loading.tsx: иначе Suspense-граница сегмента отдаёт shell со
+// статусом 200 раньше, чем дочерняя /shop/product/[slug] вызовет notFound() →
+// soft-404. Витрина и товары — в sitemap, поэтому корректный 404 важен.
+async function Catalog() {
   const products = await getCatalog();
+  return <CatalogGrid products={products} />;
+}
 
+function CatalogSkeleton() {
+  return (
+    <div
+      className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      aria-hidden
+    >
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div
+          key={i}
+          className="h-80 animate-pulse rounded-3xl border border-blush bg-blush-soft/60"
+        />
+      ))}
+    </div>
+  );
+}
+
+export default function ShopPage() {
   return (
     <Container className="py-12 sm:py-16">
       {/* Тёплый hero с Шуней */}
@@ -37,7 +61,9 @@ export default async function ShopPage() {
         <CategoryNav active="all" />
       </div>
 
-      <CatalogGrid products={products} />
+      <Suspense fallback={<CatalogSkeleton />}>
+        <Catalog />
+      </Suspense>
     </Container>
   );
 }

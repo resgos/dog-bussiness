@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { PlusCircle } from "lucide-react";
 import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
@@ -9,7 +10,9 @@ import type { AdoptionItem } from "@/components/adoption/AdoptionCard";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Забрать друга" };
 
-export default async function AdoptionPage() {
+// Загрузку — в дочерний async-компонент под inline <Suspense>, а не segment
+// loading.tsx: иначе soft-404 (HTTP 200) на дочерней /adoption/[id] при notFound().
+async function AdoptionFeed() {
   const listings = await db.adoptionListing.findMany({
     where: { status: "open" },
     orderBy: { createdAt: "desc" },
@@ -31,6 +34,23 @@ export default async function AdoptionPage() {
     createdAt: l.createdAt,
   }));
 
+  return <AdoptionList items={items} />;
+}
+
+function AdoptionSkeleton() {
+  return (
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" aria-hidden>
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div
+          key={i}
+          className="h-72 animate-pulse rounded-3xl border border-blush bg-blush-soft/60"
+        />
+      ))}
+    </div>
+  );
+}
+
+export default function AdoptionPage() {
   return (
     <Container className="py-12 sm:py-16">
       <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
@@ -51,7 +71,9 @@ export default async function AdoptionPage() {
         </ButtonLink>
       </div>
 
-      <AdoptionList items={items} />
+      <Suspense fallback={<AdoptionSkeleton />}>
+        <AdoptionFeed />
+      </Suspense>
     </Container>
   );
 }
