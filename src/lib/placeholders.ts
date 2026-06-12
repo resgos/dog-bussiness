@@ -71,12 +71,6 @@ export const placeholders: Record<string, Placeholder> = {
       "Контакты и согласия на публикацию",
     ],
   },
-  "/profile/orders": {
-    eyebrow: "📦 Заказы",
-    title: "Мои заказы",
-    description:
-      "История заказов адресников, браслетов и мерча: статусы доставки и повтор заказа в один клик.",
-  },
   "/profile/settings": {
     eyebrow: "⚙️ Настройки",
     title: "Настройки",

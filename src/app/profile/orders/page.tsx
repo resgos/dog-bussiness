@@ -1,4 +1,5 @@
-import { PawPrint, PackageCheck, LogIn } from "lucide-react";
+import Link from "next/link";
+import { PawPrint, PackageCheck, LogIn, ArrowRight } from "lucide-react";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { timeAgo } from "@/lib/format";
@@ -79,9 +80,15 @@ export default async function OrdersPage() {
               >
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blush pb-4">
                   <div>
-                    <p className="font-mono text-sm font-semibold text-ink">
-                      Заказ #{order.id.slice(0, 8)}
-                    </p>
+                    {/* Карточка ведёт на страницу заказа — там же приземляется
+                        покупатель сразу после чекаута (/shop/order/[id]). */}
+                    <Link
+                      href={`/shop/order/${order.id}`}
+                      className="inline-flex items-center gap-1.5 font-mono text-sm font-semibold text-ink hover:text-petal-deep hover:underline"
+                    >
+                      {`Заказ #${order.id.slice(0, 8)}`}
+                      <ArrowRight className="size-3.5" aria-hidden />
+                    </Link>
                     <p className="text-sm text-ink-soft">
                       {timeAgo(order.createdAt)}
                     </p>
