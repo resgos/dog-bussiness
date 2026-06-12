@@ -12,6 +12,20 @@ const PARTNER_TYPES = ["vet", "groomer", "hotel", "trainer", "shop"] as const;
 const str = (v: unknown, max: number) =>
   typeof v === "string" && v.trim() ? v.trim().slice(0, max) : null;
 
+/** URL сайта: допускаем только http/https (иначе javascript:/data: → stored XSS
+ *  при рендере href). Без схемы — дописываем https://. Иначе null. */
+const safeUrl = (v: unknown): string | null => {
+  const s = str(v, 200);
+  if (!s) return null;
+  const withScheme = /^[a-z][a-z0-9+.-]*:/i.test(s) ? s : `https://${s}`;
+  try {
+    const u = new URL(withScheme);
+    return u.protocol === "http:" || u.protocol === "https:" ? u.toString() : null;
+  } catch {
+    return null;
+  }
+};
+
 // POST — приём B2B-заявки на размещение сервиса. Гость может подать (вход не нужен).
 export async function POST(req: Request) {
   if (!(await rateLimit(ipKey(req, "partner"), 5, 60_000))) {
@@ -52,7 +66,7 @@ export async function POST(req: Request) {
       district: str(b.district, 80),
       address: str(b.address, 200),
       phone: str(b.phone, 40),
-      url: str(b.url, 200),
+      url: safeUrl(b.url),
       description: str(b.description, 1000),
       contactEmail: str(b.contactEmail, 120) ?? user?.email ?? null,
       status: "pending",

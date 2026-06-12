@@ -74,10 +74,19 @@ export async function POST(req: Request) {
     typeof b.district === "string" && b.district.trim()
       ? b.district.trim()
       : null;
-  const reportId =
+  let reportId =
     typeof b.reportId === "string" && b.reportId.trim()
       ? b.reportId.trim()
       : null;
+  // Привязка к розыску — только к СВОЕМУ (иначе IDOR: чужую историю на чужой
+  // розыск). Чужой/несуществующий просто отвязываем — история всё равно публикуется.
+  if (reportId) {
+    const owned = await db.lostReport.findFirst({
+      where: { id: reportId, userId: user.id },
+      select: { id: true },
+    });
+    if (!owned) reportId = null;
+  }
 
   const created = await db.reunion.create({
     data: {

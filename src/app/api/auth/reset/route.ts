@@ -49,6 +49,14 @@ export async function POST(req: Request) {
     where: { id: record.id },
     data: { usedAt: new Date() },
   });
+  // Безопасность: гасим ВСЕ активные сессии пользователя (вдруг ими завладел
+  // злоумышленник — ради этого пароль и сбрасывают) и прочие неиспользованные
+  // токены сброса, чтобы валиден остался только что использованный.
+  await db.session.deleteMany({ where: { userId: record.userId } });
+  await db.passwordResetToken.updateMany({
+    where: { userId: record.userId, usedAt: null },
+    data: { usedAt: new Date() },
+  });
 
   return NextResponse.json({ ok: true });
 }

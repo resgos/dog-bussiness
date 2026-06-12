@@ -28,6 +28,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Требуется вход" }, { status: 401 });
   }
 
+  // Идемпотентность: уже активная подписка не списывается повторно и не теряет
+  // остаток дней (защита от двойного клика/повтора).
+  if (
+    user.plan === "plus" &&
+    user.planUntil &&
+    new Date(user.planUntil).getTime() > Date.now()
+  ) {
+    return NextResponse.json({ ok: true, planUntil: user.planUntil, already: true });
+  }
+
   const planUntil = new Date(Date.now() + PLAN_DAYS * 24 * 3600 * 1000);
 
   await db.user.update({

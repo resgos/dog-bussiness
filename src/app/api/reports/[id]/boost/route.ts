@@ -36,6 +36,19 @@ export async function POST(
     );
   }
 
+  // Идемпотентность: пока буст активен — не списываем повторно и не продлеваем
+  // (защита от двойного клика/повтора; критично, когда подключат реальный шлюз).
+  if (
+    report.boostedUntil &&
+    new Date(report.boostedUntil).getTime() > Date.now()
+  ) {
+    return NextResponse.json({
+      ok: true,
+      boostedUntil: report.boostedUntil,
+      already: true,
+    });
+  }
+
   const boostedUntil = new Date(Date.now() + BOOST_DURATION_MS);
 
   await db.lostReport.update({ where: { id }, data: { boostedUntil } });

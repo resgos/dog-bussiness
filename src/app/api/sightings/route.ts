@@ -18,13 +18,35 @@ export async function POST(req: Request) {
   }
   const user = await getCurrentUser();
   const b = await req.json().catch(() => null);
+  if (!b || typeof b !== "object") {
+    return NextResponse.json({ error: "Некорректные данные" }, { status: 400 });
+  }
+
+  // Фото опционально, но если есть — это data:image и не больше лимита (как в reunions).
+  const rawPhoto = str(b.photo);
+  if (rawPhoto && (rawPhoto.length > 3_000_000 || !rawPhoto.startsWith("data:image"))) {
+    return NextResponse.json({ error: "Некорректное фото." }, { status: 400 });
+  }
+
+  // Привязка к розыску — только к существующему (иначе orphan-наблюдения и спам).
+  const reportId = str(b.reportId);
+  if (reportId) {
+    const exists = await db.lostReport.findUnique({
+      where: { id: reportId },
+      select: { id: true },
+    });
+    if (!exists) {
+      return NextResponse.json({ error: "Розыск не найден" }, { status: 404 });
+    }
+  }
+
   const sighting = await db.sighting.create({
     data: {
-      reportId: str(b?.reportId),
-      lat: num(b?.lat),
-      lng: num(b?.lng),
-      comment: censorProfanity(str(b?.comment)?.slice(0, 500) ?? null),
-      photo: await savePhoto(str(b?.photo)),
+      reportId,
+      lat: num(b.lat),
+      lng: num(b.lng),
+      comment: censorProfanity(str(b.comment)?.slice(0, 500) ?? null),
+      photo: await savePhoto(rawPhoto),
       userId: user?.id ?? null,
     },
   });

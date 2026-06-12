@@ -26,6 +26,7 @@ const suites = [
   "verify-foundrss",
   "verify-ratelimit",
   "verify-mapfounds",
+  "verify-reviewfixes",
 ];
 
 let failed = 0;
