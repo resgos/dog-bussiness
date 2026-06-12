@@ -33,6 +33,10 @@ const suites = [
   "verify-photoguard",
   "verify-authz",
   "verify-guestsos",
+  "verify-tz-features",
+  "verify-ux",
+  "verify-photohash",
+  "verify-wave1",
 ];
 
 // Шаг 0: смести сирот от прерванных прошлых прогонов (демо-лента должна быть

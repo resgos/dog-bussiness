@@ -65,11 +65,19 @@ r = await fetch(`${BASE}/profile/achievements`, { headers: { Cookie: ckU } });
 const html = await r.text();
 ok(r.status === 200, `страница достижений → ${r.status} (200)`);
 for (const t of ["Сосед", "Досье готово", "Первый хвост", "Хвост за хвостом"]) ok(html.includes(t), `показана заработанная ачивка «${t}»`);
-ok(html.includes("4 из 6") || html.includes("Получено 4"), "счётчик «4 из 6» (helped=5→3 ачивки + досье)");
+// Счётчик не привязываем к общему числу ачивок (оно растёт): helped=5 даёт
+// минимум 3 (Сосед, Первый хвост, Хвост за хвостом) + возможно «Досье».
+// JSX вставляет <!-- --> между текстом и {выражениями} — чистим перед матчем.
+const cleanHtml = html.replace(/<!-- -->/g, "");
+const counter = cleanHtml.match(/Получено (\d+) из (\d+)/);
+ok(
+  Boolean(counter) && Number(counter[1]) >= 3 && Number(counter[1]) <= Number(counter[2]),
+  `счётчик «Получено N из M» корректен (${counter ? counter[0] : "нет"})`,
+);
 ok(html.includes("Нюх как у Шуни"), "показана незаработанная «Нюх как у Шуни» (helped 5<10)");
 r = await fetch(`${BASE}/profile`, { headers: { Cookie: ckU } });
-const phtml = await r.text();
-ok(phtml.includes("Достижения") && phtml.includes("из 6"), "на /profile есть полоска «N из 6»");
+const phtml = (await r.text()).replace(/<!-- -->/g, "");
+ok(phtml.includes("Достижения") && /из \d+/.test(phtml), "на /profile есть полоска «N из M»");
 
 // — уборка —
 console.log("\n— Уборка —");

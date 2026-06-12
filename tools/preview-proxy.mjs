@@ -16,7 +16,10 @@ const server = http.createServer((req, res) => {
       port: UP_PORT,
       path: req.url,
       method: req.method,
-      headers: { ...req.headers, host: `${UP_HOST}:${UP_PORT}` },
+      // Host НЕ переписываем: Next Server Actions сверяет Origin с Host
+      // (CSRF) — при rewrite получали «Invalid Server Actions request» на
+      // формах action={…} (регистрация). Dev-серверу чужой Host безразличен.
+      headers: req.headers,
     },
     (ur) => {
       res.writeHead(ur.statusCode ?? 502, ur.headers);
@@ -35,10 +38,7 @@ server.on("upgrade", (req, socket, head) => {
   const up = net.connect(UP_PORT, UP_HOST, () => {
     const lines = [`${req.method} ${req.url} HTTP/1.1`];
     for (let i = 0; i < req.rawHeaders.length; i += 2) {
-      const name = req.rawHeaders[i];
-      const value =
-        name.toLowerCase() === "host" ? `${UP_HOST}:${UP_PORT}` : req.rawHeaders[i + 1];
-      lines.push(`${name}: ${value}`);
+      lines.push(`${req.rawHeaders[i]}: ${req.rawHeaders[i + 1]}`);
     }
     up.write(lines.join("\r\n") + "\r\n\r\n");
     if (head?.length) up.write(head);

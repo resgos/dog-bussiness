@@ -73,9 +73,10 @@ r = await fetch(`${BASE}/`);
 const home = await r.text();
 ok(r.status === 200 && (home.includes("вернул") || home.includes("истори")), "главная показывает тизер историй (count>0)");
 await db.reunion.deleteMany({ where: { id: reu.id } });
-for (const [p, needle] of [["/feed/lost", "Активные"], ["/feed/found", "Наход"]]) {
+// /feed/found давно стал «Счастливые финалы» (бейдж «Найдены») — маркер обновлён.
+for (const [p, needle] of [["/feed/lost", "Активные"], ["/feed/found", "Найдены"]]) {
   const res = await fetch(`${BASE}${p}`);
-  ok(res.status === 200 && (await res.text()).includes(needle), `${p} рендерится (фильтры)`);
+  ok(res.status === 200 && (await res.text()).includes(needle), `${p} рендерится (${needle})`);
 }
 
 console.log("\n— Уборка —");
