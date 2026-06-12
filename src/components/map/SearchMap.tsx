@@ -44,6 +44,17 @@ type Walker = {
   user: { name: string };
   createdAt: Date | string;
 };
+/** Объявление о находке с координатами — отдельная зелёная метка на карте. */
+type FoundMark = {
+  id: string;
+  lat: number | null;
+  lng: number | null;
+  breed: string | null;
+  color: string | null;
+  district: string | null;
+  photo: string | null;
+  createdAt: Date | string;
+};
 
 const FILTERS = [
   { id: "all", label: "Все" },
@@ -63,10 +74,12 @@ type Recency = (typeof RECENCY)[number]["id"];
 export function SearchMap({
   reports,
   walkers = [],
+  founds = [],
   walking = false,
 }: {
   reports: Report[];
   walkers?: Walker[];
+  founds?: FoundMark[];
   walking?: boolean;
 }) {
   const router = useRouter();
@@ -170,6 +183,36 @@ export function SearchMap({
         kind: "walk",
         title: `🐾 ${w.user.name} на прогулке`,
         meta: timeAgo(w.createdAt),
+      });
+    }
+  }
+
+  // Объявления о находках (отдельная таблица foundReport) — зелёные метки.
+  // Additive: показываем под фильтрами «Все»/«Найдены», учитываем свежесть.
+  if (filter === "all" || filter === "found") {
+    const days = RECENCY.find((x) => x.id === recency)?.days ?? 0;
+    for (const f of founds) {
+      if (f.lat == null || f.lng == null) continue;
+      if (days > 0 && Date.now() - new Date(f.createdAt).getTime() > days * 86_400_000)
+        continue;
+      const sub = [
+        f.breed,
+        f.color,
+        f.district ? findDistrict(f.district)?.name : null,
+      ]
+        .filter(Boolean)
+        .join(" · ");
+      mapMarkers.push({
+        id: `f-${f.id}`,
+        lat: f.lat,
+        lng: f.lng,
+        kind: "found",
+        title: "Найдена собака",
+        subtitle: sub || undefined,
+        meta: timeAgo(f.createdAt),
+        photo: f.photo,
+        href: `/found/${f.id}`,
+        canReport: false,
       });
     }
   }

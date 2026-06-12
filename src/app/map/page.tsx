@@ -10,7 +10,7 @@ export const metadata = { title: "Карта поиска" };
 export default async function MapPage() {
   const me = await getCurrentUser();
 
-  const [reports, walkers] = await Promise.all([
+  const [reports, walkers, founds] = await Promise.all([
     db.lostReport.findMany({
       orderBy: { createdAt: "desc" },
       include: { sightings: true },
@@ -20,6 +20,22 @@ export default async function MapPage() {
       where: { createdAt: { gte: new Date(Date.now() - 2 * 3600 * 1000) } },
       include: { user: { select: { name: true } } },
       orderBy: { createdAt: "desc" },
+    }),
+    // Открытые находки с координатами — зелёные метки «найдена собака» на карте.
+    db.foundReport.findMany({
+      where: { status: "open", lat: { not: null }, lng: { not: null } },
+      orderBy: { createdAt: "desc" },
+      take: 300,
+      select: {
+        id: true,
+        lat: true,
+        lng: true,
+        breed: true,
+        color: true,
+        district: true,
+        photo: true,
+        createdAt: true,
+      },
     }),
   ]);
 
@@ -36,7 +52,12 @@ export default async function MapPage() {
           поставь метку!
         </p>
       </div>
-      <SearchMap reports={reports} walkers={walkers} walking={walking} />
+      <SearchMap
+        reports={reports}
+        walkers={walkers}
+        founds={founds}
+        walking={walking}
+      />
     </Container>
   );
 }

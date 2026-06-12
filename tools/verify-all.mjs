@@ -25,6 +25,7 @@ const suites = [
   "verify-claim",
   "verify-foundrss",
   "verify-ratelimit",
+  "verify-mapfounds",
 ];
 
 let failed = 0;
