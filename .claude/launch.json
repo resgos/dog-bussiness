@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "lapka-proxy",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["tools/preview-proxy.mjs"],
+      "port": 3006
+    }
+  ]
+}
