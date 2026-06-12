@@ -22,6 +22,7 @@ const suites = [
   "verify-districtflyer",
   "verify-reunionudge",
   "verify-foundrace",
+  "verify-claim",
 ];
 
 let failed = 0;

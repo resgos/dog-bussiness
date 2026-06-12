@@ -24,6 +24,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { PhotoLightbox } from "@/components/ui/PhotoLightbox";
 import { FoundSubscribeButton } from "@/components/found/FoundSubscribeButton";
 import { FoundStatusButton } from "@/components/found/FoundStatusButton";
+import { ClaimButton } from "@/components/found/ClaimButton";
 import { ShareButton } from "@/components/share/ShareButton";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { findDistrict } from "@/lib/districts";
@@ -239,6 +240,12 @@ export default async function FoundDetailPage({
               обновлениями.
             </p>
           )}
+
+          {/* «Это моя собака» — прямой путь к нашедшему (особенно без публичных
+              контактов). Только для зарегистрированной находки и не своей. */}
+          {item.userId && !isReunited && !isOwner ? (
+            <ClaimButton foundId={item.id} />
+          ) : null}
 
           <div className="mt-2 flex flex-wrap items-center gap-3">
             {isOwner && !isReunited ? (
