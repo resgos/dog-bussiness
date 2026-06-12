@@ -58,6 +58,7 @@ const suites = [
   "verify-ux",
   "verify-photohash",
   "verify-wave1",
+  "verify-jsonld",
 ];
 
 // Шаг 0: смести сирот от прерванных прошлых прогонов (демо-лента должна быть

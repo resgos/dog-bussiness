@@ -31,6 +31,8 @@ import { findDistrict } from "@/lib/districts";
 import { timeAgo } from "@/lib/format";
 import { rankLostForFound, ONPAGE_MATCH_MIN } from "@/lib/match";
 import { sizeOptions } from "@/lib/petForm";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { absoluteUrl } from "@/lib/seo";
 
 // Статус и контакты нашедшего могут меняться — всегда свежие данные.
 export const dynamic = "force-dynamic";
@@ -66,6 +68,7 @@ export async function generateMetadata({
   return {
     title,
     description,
+    alternates: { canonical: `/found/${id}` },
     openGraph: { title, description, type: "article" },
     twitter: { card: "summary_large_image", title, description },
   };
@@ -136,8 +139,30 @@ export default async function FoundDetailPage({
     }
   }
 
+  // Структурированные данные для богатых результатов Google (org-поиск находок).
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: isReunited
+      ? "Собака вернулась домой — воссоединились"
+      : `Найдена собака: ${headline}`,
+    description:
+      [facts.join(", "), districtName ? `район ${districtName}` : null]
+        .filter(Boolean)
+        .join(". ") || "Узнали собаку? Помогите вернуть её домой.",
+    image: [absoluteUrl(`/found/${item.id}/opengraph-image`)],
+    datePublished: new Date(item.createdAt).toISOString(),
+    dateModified: new Date(item.createdAt).toISOString(),
+    url: absoluteUrl(`/found/${item.id}`),
+    ...(districtName
+      ? { contentLocation: { "@type": "Place", name: `${districtName}, Москва` } }
+      : {}),
+    publisher: { "@type": "Organization", name: "Лапка помощи" },
+  };
+
   return (
     <Container className="py-12 sm:py-16">
+      <JsonLd data={jsonLd} />
       <Link
         href="/found"
         className="inline-flex items-center gap-2 text-sm font-semibold text-petal-deep transition hover:text-petal"
