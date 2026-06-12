@@ -34,6 +34,13 @@ export async function POST(req: Request) {
   }
 
   const size = str(b.size);
+
+  // Фото опционально, но если есть — это data:image и не больше лимита (как в reunions).
+  const photo = str(b.photo);
+  if (photo && (photo.length > 3_000_000 || !photo.startsWith("data:image"))) {
+    return NextResponse.json({ error: "Некорректное фото." }, { status: 400 });
+  }
+
   const user = await getCurrentUser().catch(() => null);
 
   const listing = await db.adoptionListing.create({
@@ -43,7 +50,7 @@ export async function POST(req: Request) {
       age: str(b.age)?.slice(0, 40) ?? null,
       size: size && SIZES.includes(size) ? size : null,
       color: str(b.color)?.slice(0, 80) ?? null,
-      photo: await savePhoto(str(b.photo)),
+      photo: await savePhoto(photo),
       district: str(b.district),
       story: censorProfanity(str(b.story)?.slice(0, 1500) ?? null),
       contactName:

@@ -3,7 +3,6 @@ import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import {
   buildCartLines,
-  cartTotal,
   readCart,
   writeCart,
   readVariants,
@@ -55,9 +54,37 @@ export async function POST(req: Request) {
     );
   }
 
-  const totalRub = cartTotal(lines);
   const variants = await readVariants();
   const user = await getCurrentUser();
+
+  // Надбавки выбранных вариантов (priceDelta): без них платные опции
+  // (размер/цвет) недосчитываются. Метку «Группа: Значение · …» из cookie
+  // сопоставляем с ProductVariant по (productId, name, value) — цену считаем на
+  // сервере, не доверяя клиенту.
+  const variantRows = await db.productVariant.findMany({
+    where: { productId: { in: ids } },
+  });
+  const deltaByKey = new Map<string, number>();
+  for (const v of variantRows) {
+    deltaByKey.set(`${v.productId}|${v.name}|${v.value}`, v.priceDelta);
+  }
+  const variantDelta = (productId: string, label: string | undefined): number => {
+    if (!label) return 0;
+    let sum = 0;
+    for (const part of label.split(" · ")) {
+      const i = part.indexOf(": ");
+      if (i < 0) continue;
+      sum +=
+        deltaByKey.get(`${productId}|${part.slice(0, i)}|${part.slice(i + 2)}`) ??
+        0;
+    }
+    return sum;
+  };
+
+  const linePrice = lines.map(
+    (l) => l.product.priceRub + variantDelta(l.product.id, variants[l.product.id]),
+  );
+  const totalRub = linePrice.reduce((sum, p, i) => sum + p * lines[i].qty, 0);
 
   const order = await db.order.create({
     data: {
@@ -67,10 +94,10 @@ export async function POST(req: Request) {
       address: str(body.address, 400),
       totalRub,
       items: {
-        create: lines.map((l) => ({
+        create: lines.map((l, i) => ({
           productId: l.product.id,
           qty: l.qty,
-          priceRub: l.product.priceRub,
+          priceRub: linePrice[i],
           variant: variants[l.product.id] ?? null,
         })),
       },

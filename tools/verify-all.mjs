@@ -27,6 +27,7 @@ const suites = [
   "verify-ratelimit",
   "verify-mapfounds",
   "verify-reviewfixes",
+  "verify-checkout-variant",
 ];
 
 let failed = 0;
