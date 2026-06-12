@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Crosshair, ArrowRight, Map, List, BookOpen } from "lucide-react";
+import { Crosshair, Map, List, BookOpen } from "lucide-react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
 import { TagToggle } from "@/components/ui/TagToggle";
@@ -9,6 +9,8 @@ import { SuccessNote } from "@/components/ui/SuccessNote";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { LeafletMap } from "@/components/map/LeafletMap";
 import { postJson } from "@/lib/http";
+import { dHash } from "@/lib/imghash";
+import { districtsByOkrug } from "@/lib/districts";
 
 type PetLite = {
   id: string;
@@ -26,6 +28,13 @@ function toLocalInput(d: Date) {
 
 export function SosForm({ pets }: { pets: PetLite[] }) {
   const [petId, setPetId] = useState(pets[0]?.id ?? "");
+  // Быстрая заявка (гость / без карточек питомца): кличка и приметы свободным
+  // текстом — паникующий владелец не должен сперва проходить мастер питомца.
+  const quick = pets.length === 0;
+  const [qName, setQName] = useState("");
+  const [qBreed, setQBreed] = useState("");
+  const [qDistrict, setQDistrict] = useState("");
+  const [qPhoto, setQPhoto] = useState<string | null>(null);
   const [comment, setComment] = useState("");
   const [radius, setRadius] = useState(3);
   const [reward, setReward] = useState("");
@@ -41,6 +50,36 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
   }, []);
 
   const pet = pets.find((p) => p.id === petId);
+
+  // Фото с уменьшением (идиома FoundForm/PetWizard) — не храним мегабайты.
+  const onPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const src = reader.result as string;
+      const img = new Image();
+      img.onload = () => {
+        const max = 720;
+        const scale = Math.min(1, max / Math.max(img.width, img.height));
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, w, h);
+          setQPhoto(canvas.toDataURL("image/jpeg", 0.82));
+        } else {
+          setQPhoto(src);
+        }
+      };
+      img.onerror = () => setQPhoto(src);
+      img.src = src;
+    };
+    reader.readAsDataURL(file);
+  };
 
   const locate = () => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
@@ -59,15 +98,23 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
   };
 
   const submit = async () => {
-    if (!pet || submitting) return;
+    if (submitting) return;
+    if (!quick && !pet) return;
+    if (quick && !qName.trim()) {
+      setError("Укажи кличку — по ней соседи узнают собаку.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
+      const photoHash = quick && qPhoto ? await dHash(qPhoto) : null;
       const j = await postJson<{ id: string }>("/api/sos", {
-        petId: pet.id,
-        petName: pet.name,
-        breed: pet.breed,
-        district: pet.district,
+        petId: quick ? null : pet!.id,
+        petName: quick ? qName.trim() : pet!.name,
+        breed: quick ? qBreed.trim() || null : pet!.breed,
+        district: quick ? qDistrict || null : pet!.district,
+        photo: quick ? qPhoto : null,
+        photoHash,
         lat: coords?.lat ?? null,
         lng: coords?.lng ?? null,
         lostAt: lostAt || null,
@@ -82,20 +129,6 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
       setSubmitting(false);
     }
   };
-
-  if (pets.length === 0) {
-    return (
-      <div className="rounded-3xl border border-blush bg-card p-8 shadow-card">
-        <ShunyaBubble message="Сначала добавь питомца — тогда я смогу мгновенно поднять район, если он потеряется." />
-        <div className="mt-6">
-          <ButtonLink href="/profile/pets/add" size="lg">
-            Добавить питомца
-            <ArrowRight className="size-5" aria-hidden />
-          </ButtonLink>
-        </div>
-      </div>
-    );
-  }
 
   if (doneId) {
     return (
@@ -135,16 +168,88 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
       />
 
       <div className="space-y-5 rounded-3xl border border-blush bg-card p-6 shadow-card sm:p-8">
-        <Field label="Кто потерялся?" required>
-          <Select value={petId} onChange={(e) => setPetId(e.target.value)}>
-            {pets.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-                {p.breed ? ` · ${p.breed}` : ""}
-              </option>
-            ))}
-          </Select>
-        </Field>
+        {quick ? (
+          <>
+            <Field
+              label="Кто потерялся?"
+              required
+              hint="Без аккаунта тоже можно — кличка и район, остальное потом"
+            >
+              <Input
+                value={qName}
+                onChange={(e) => setQName(e.target.value)}
+                placeholder="Кличка, например Рекс"
+                maxLength={80}
+              />
+            </Field>
+
+            <Field label="Порода">
+              <Input
+                value={qBreed}
+                onChange={(e) => setQBreed(e.target.value)}
+                placeholder="Корги, метис, не знаю…"
+                maxLength={80}
+              />
+            </Field>
+
+            <Field label="Район">
+              <Select
+                value={qDistrict}
+                onChange={(e) => setQDistrict(e.target.value)}
+              >
+                <option value="">Не выбран</option>
+                {Object.entries(districtsByOkrug()).map(([okrug, list]) => (
+                  <optgroup key={okrug} label={okrug}>
+                    {list.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </Select>
+            </Field>
+
+            <Field
+              label="Фото"
+              hint="По фото соседи узнают собаку быстрее всего"
+            >
+              {qPhoto ? (
+                <div className="flex items-center gap-3">
+                  <div className="relative size-20 overflow-hidden rounded-2xl border border-blush">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={qPhoto}
+                      alt="Фото потерявшейся собаки"
+                      className="size-full object-cover"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setQPhoto(null)}
+                  >
+                    Убрать фото
+                  </Button>
+                </div>
+              ) : (
+                <Input type="file" accept="image/*" onChange={onPhoto} />
+              )}
+            </Field>
+          </>
+        ) : (
+          <Field label="Кто потерялся?" required>
+            <Select value={petId} onChange={(e) => setPetId(e.target.value)}>
+              {pets.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                  {p.breed ? ` · ${p.breed}` : ""}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
 
         <Field
           label="Где пропал?"
