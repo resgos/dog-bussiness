@@ -82,6 +82,17 @@ export async function PATCH(
           link: "/profile/achievements",
         });
       }
+      // Нудж владельцу: поделиться историей воссоединения — растим «стену надежды»
+      // (большинство делятся, только если позвать; сами на /reunited/new доходят редко).
+      if (report.userId) {
+        await notifyUser(report.userId, {
+          type: "found",
+          title: "Поздравляем — нашлась! 💞",
+          body: `Расскажите, как вернулась «${report.petName}» — ваша история подарит надежду тем, кто ещё в поиске.`,
+          link: `/reunited/new?petName=${encodeURIComponent(report.petName)}`,
+        });
+      }
+
       await db.lostReport.update({
         where: { id },
         data: { helpersCreditedAt: new Date() },

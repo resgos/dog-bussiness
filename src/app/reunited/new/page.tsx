@@ -9,8 +9,14 @@ import { getCurrentUser } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Рассказать историю" };
 
-export default async function ReunitedNewPage() {
+export default async function ReunitedNewPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ petName?: string }>;
+}) {
   const user = await getCurrentUser();
+  // Префилл клички из нуджа «нашлась» (notify link /reunited/new?petName=…).
+  const { petName } = await searchParams;
 
   // —— Гость: призыв войти ——
   if (!user) {
@@ -62,7 +68,7 @@ export default async function ReunitedNewPage() {
           <Heart className="size-4 fill-current" aria-hidden />
           Спасибо, что делишься радостью со стаей
         </p>
-        <ReunionForm />
+        <ReunionForm initialPetName={petName ?? ""} />
       </div>
     </Container>
   );

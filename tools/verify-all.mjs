@@ -20,6 +20,7 @@ const suites = [
   "verify-soft404",
   "verify-sosmatch",
   "verify-districtflyer",
+  "verify-reunionudge",
 ];
 
 let failed = 0;

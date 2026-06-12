@@ -43,10 +43,11 @@ function compressToDataUrl(file: File): Promise<string> {
   });
 }
 
-export function ReunionForm() {
+export function ReunionForm({ initialPetName = "" }: { initialPetName?: string }) {
   const router = useRouter();
 
-  const [petName, setPetName] = useState("");
+  // Кличку можно предзаполнить из нуджа «нашлась» (?petName=…).
+  const [petName, setPetName] = useState(initialPetName);
   const [story, setStory] = useState("");
   const [district, setDistrict] = useState("");
   const [photo, setPhoto] = useState<string | null>(null);
