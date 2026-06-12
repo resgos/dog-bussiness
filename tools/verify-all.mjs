@@ -31,6 +31,7 @@ const suites = [
   "verify-districthub",
   "verify-foundfilter",
   "verify-photoguard",
+  "verify-authz",
 ];
 
 let failed = 0;
