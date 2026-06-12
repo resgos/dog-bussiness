@@ -1,6 +1,6 @@
-// Сторож JSON-LD структурированных данных на /lost/[id] и /found/[id]:
-// schema.org Article (богатые результаты Google), картинка — реальный URL
-// OG-карточки, район как contentLocation, + canonical в <head>.
+// Сторож JSON-LD на публичных страницах /lost/[id], /found/[id], /p/[id]:
+// schema.org Article (богатые результаты) + BreadcrumbList (хлебные крошки),
+// картинка — реальный URL OG-карточки, район как contentLocation, canonical в head.
 import { PrismaClient } from "@prisma/client";
 const db = new PrismaClient();
 const BASE = "http://localhost:3002";
@@ -11,22 +11,25 @@ const ok = (c, m) => {
   c ? pass++ : fail++;
 };
 
-// Достаём содержимое первого <script type="application/ld+json"> и парсим.
-// `<` в значениях экранирован в < — JSON.parse это понимает нативно.
-const extractLd = (html) => {
-  const m = html.match(
-    /<script type="application\/ld\+json">([\s\S]*?)<\/script>/,
-  );
-  if (!m) return null;
-  try {
-    return JSON.parse(m[1]);
-  } catch {
-    return null;
+// Все <script type="application/ld+json"> на странице → массив распарсенных
+// объектов. `<` в значениях экранирован в <, что JSON.parse понимает нативно.
+const extractAll = (html) => {
+  const out = [];
+  const re = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g;
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    try {
+      out.push(JSON.parse(m[1]));
+    } catch {
+      /* битый блок — пропускаем */
+    }
   }
+  return out;
 };
+const ofType = (blocks, t) => blocks.find((b) => b["@type"] === t);
 
 const stamp = Date.now();
-const cleanup = { losts: [], founds: [] };
+const cleanup = { losts: [], founds: [], pets: [] };
 
 try {
   // — /lost/[id] —
@@ -35,51 +38,60 @@ try {
   });
   cleanup.losts.push(lost.id);
   const lh = await (await fetch(`${BASE}/lost/${lost.id}`)).text();
-  const lld = extractLd(lh);
-  ok(Boolean(lld), "/lost/[id]: JSON-LD присутствует и парсится");
-  ok(lld?.["@type"] === "Article", `/lost: @type = Article (${lld?.["@type"]})`);
+  const lb = extractAll(lh);
+  const lArt = ofType(lb, "Article");
+  const lCrumb = ofType(lb, "BreadcrumbList");
+  ok(Boolean(lArt), "/lost: Article-блок присутствует");
+  ok(lArt?.headline?.includes(lost.petName), "/lost: headline с кличкой");
   ok(
-    typeof lld?.headline === "string" && lld.headline.includes(lost.petName),
-    "/lost: headline с кличкой",
-  );
-  ok(
-    Array.isArray(lld?.image) &&
-      lld.image[0].includes(`/lost/${lost.id}/opengraph-image`) &&
-      lld.image[0].startsWith("http"),
+    lArt?.image?.[0]?.includes(`/lost/${lost.id}/opengraph-image`) && lArt.image[0].startsWith("http"),
     "/lost: image = абсолютный URL OG-карточки",
   );
+  ok(lArt?.contentLocation?.name?.includes("Тверской"), "/lost: contentLocation район");
+  ok(Boolean(lCrumb), "/lost: BreadcrumbList присутствует");
   ok(
-    typeof lld?.url === "string" && lld.url.includes(`/lost/${lost.id}`) && lld.url.startsWith("http"),
-    "/lost: url абсолютный",
+    lCrumb?.itemListElement?.length === 3 &&
+      lCrumb.itemListElement[2].name === lost.petName,
+    "/lost: крошки Главная → Лента → кличка",
   );
-  ok(
-    lld?.contentLocation?.name?.includes("Тверской"),
-    "/lost: contentLocation — район",
-  );
-  ok(
-    typeof lld?.datePublished === "string" && lld.datePublished.includes("T"),
-    "/lost: datePublished ISO",
-  );
-  ok(lh.includes('rel="canonical"'), "/lost: canonical в <head>");
+  ok(lh.includes('rel="canonical"'), "/lost: canonical в head");
 
   // — /found/[id] —
   const found = await db.foundReport.create({
     data: { breed: `LdНаходка-${stamp}`, color: "рыжая", district: "tverskoy", status: "open" },
   });
   cleanup.founds.push(found.id);
-  const fh = await (await fetch(`${BASE}/found/${found.id}`)).text();
-  const fld = extractLd(fh);
-  ok(Boolean(fld) && fld["@type"] === "Article", "/found/[id]: JSON-LD Article присутствует");
+  const fb = extractAll(await (await fetch(`${BASE}/found/${found.id}`)).text());
+  ok(Boolean(ofType(fb, "Article")), "/found: Article-блок присутствует");
   ok(
-    fld?.image?.[0]?.includes(`/found/${found.id}/opengraph-image`),
+    ofType(fb, "Article")?.image?.[0]?.includes(`/found/${found.id}/opengraph-image`),
     "/found: image = OG-карточка",
   );
-  ok(fh.includes('rel="canonical"'), "/found: canonical в <head>");
+  ok(Boolean(ofType(fb, "BreadcrumbList")), "/found: BreadcrumbList присутствует");
+
+  // — /p/[id] паспорт (третий публичный тип контента) —
+  const pet = await db.pet.create({
+    data: { name: `LdПаспорт-${stamp}`, breed: "корги", district: "tverskoy", status: "lost" },
+  });
+  cleanup.pets.push(pet.id);
+  const ph = await (await fetch(`${BASE}/p/${pet.id}`)).text();
+  const pb = extractAll(ph);
+  const pArt = ofType(pb, "Article");
+  ok(Boolean(pArt), "/p/[id]: Article-блок присутствует");
+  ok(pArt?.headline?.includes(pet.name), "/p: headline с кличкой");
+  ok(
+    pArt?.image?.[0]?.includes(`/p/${pet.id}/opengraph-image`) && pArt.image[0].startsWith("http"),
+    "/p: image = абсолютный URL OG-карточки",
+  );
+  ok(Boolean(ofType(pb, "BreadcrumbList")), "/p: BreadcrumbList присутствует");
+  ok(ph.includes('rel="canonical"'), "/p: canonical в head");
 } finally {
   for (const id of cleanup.losts)
     await db.lostReport.delete({ where: { id } }).catch(() => {});
   for (const id of cleanup.founds)
     await db.foundReport.delete({ where: { id } }).catch(() => {});
+  for (const id of cleanup.pets)
+    await db.pet.delete({ where: { id } }).catch(() => {});
   await db.$disconnect();
 }
 

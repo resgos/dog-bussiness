@@ -11,6 +11,8 @@ import { ageOptions, sizeOptions } from "@/lib/petForm";
 import { ShareButton } from "@/components/share/ShareButton";
 import { PetGallery } from "@/components/pets/PetGallery";
 import { PhotoLightbox } from "@/components/ui/PhotoLightbox";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { absoluteUrl, breadcrumbLd } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +61,7 @@ export async function generateMetadata({
     metadataBase,
     title,
     description,
+    alternates: { canonical: `/p/${id}` },
     openGraph: {
       title,
       description,
@@ -105,8 +108,33 @@ export default async function PassportPage({
     pet.color,
   ].filter(Boolean) as string[];
 
+  // Структурированные данные паспорта (третий публичный тип контента после
+  // пропаж/находок) — богатые результаты Google. Картинка — реальный URL OG-карточки.
+  const passportLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline:
+      pet.status === "lost"
+        ? `🆘 Разыскивается: ${pet.name}`
+        : `Паспорт питомца: ${pet.name}`,
+    description: facts.join(", ") || "Цифровой паспорт питомца — Лапка помощи.",
+    image: [absoluteUrl(`/p/${pet.id}/opengraph-image`)],
+    datePublished: new Date(pet.createdAt).toISOString(),
+    url: absoluteUrl(`/p/${pet.id}`),
+    ...(district
+      ? { contentLocation: { "@type": "Place", name: `${district}, Москва` } }
+      : {}),
+    publisher: { "@type": "Organization", name: "Лапка помощи" },
+  };
+  const crumbs = breadcrumbLd([
+    { name: "Главная", path: "/" },
+    { name: pet.name, path: `/p/${pet.id}` },
+  ]);
+
   return (
     <Container className="py-12 sm:py-16">
+      <JsonLd data={passportLd} />
+      <JsonLd data={crumbs} />
       <div className="mx-auto max-w-2xl">
         <p className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-ink-soft">
           <PawPrint className="size-4 text-petal" aria-hidden />

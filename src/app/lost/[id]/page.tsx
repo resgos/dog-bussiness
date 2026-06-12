@@ -31,7 +31,7 @@ import { timeAgo } from "@/lib/format";
 import { rankFoundForLost, ONPAGE_MATCH_MIN } from "@/lib/match";
 import { sizeOptions } from "@/lib/petForm";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, breadcrumbLd } from "@/lib/seo";
 
 // Статус и наблюдения меняются в реальном времени — всегда свежие данные.
 export const dynamic = "force-dynamic";
@@ -194,10 +194,16 @@ export default async function LostDetailPage({
       : {}),
     publisher: { "@type": "Organization", name: "Лапка помощи" },
   };
+  const crumbs = breadcrumbLd([
+    { name: "Главная", path: "/" },
+    { name: "Лента розыска", path: "/feed/lost" },
+    { name: report.petName, path: `/lost/${report.id}` },
+  ]);
 
   return (
     <Container className="py-12 sm:py-16">
       <JsonLd data={jsonLd} />
+      <JsonLd data={crumbs} />
       <Link
         href="/feed/lost"
         className="inline-flex items-center gap-2 text-sm font-semibold text-petal-deep transition hover:text-petal"

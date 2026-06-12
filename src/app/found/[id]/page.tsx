@@ -32,7 +32,7 @@ import { timeAgo } from "@/lib/format";
 import { rankLostForFound, ONPAGE_MATCH_MIN } from "@/lib/match";
 import { sizeOptions } from "@/lib/petForm";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, breadcrumbLd } from "@/lib/seo";
 
 // Статус и контакты нашедшего могут меняться — всегда свежие данные.
 export const dynamic = "force-dynamic";
@@ -159,10 +159,16 @@ export default async function FoundDetailPage({
       : {}),
     publisher: { "@type": "Organization", name: "Лапка помощи" },
   };
+  const crumbs = breadcrumbLd([
+    { name: "Главная", path: "/" },
+    { name: "Находки", path: "/found" },
+    { name: headline, path: `/found/${item.id}` },
+  ]);
 
   return (
     <Container className="py-12 sm:py-16">
       <JsonLd data={jsonLd} />
+      <JsonLd data={crumbs} />
       <Link
         href="/found"
         className="inline-flex items-center gap-2 text-sm font-semibold text-petal-deep transition hover:text-petal"
