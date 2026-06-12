@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Crosshair, Map, List, BookOpen } from "lucide-react";
+import { Crosshair, Map, List, PawPrint } from "lucide-react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Field, Input, Select, Textarea } from "@/components/ui/Field";
 import { TagToggle } from "@/components/ui/TagToggle";
@@ -123,8 +123,12 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
         reward: reward ? Number(reward) : null,
       });
       setDoneId(j.id);
-    } catch {
-      setError("Не удалось опубликовать. Попробуй ещё раз.");
+    } catch (e) {
+      // Текст сервера (429 «Слишком часто», 400 «Некорректное фото») вместо
+      // слепого «попробуй ещё раз» — иначе в SOS-флоу бесполезный ретрай.
+      setError(
+        e instanceof Error ? e.message : "Не удалось опубликовать. Попробуй ещё раз.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -142,19 +146,25 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
           районную ленту и Telegram-чаты. Держись — стая уже ищет!
         </p>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-          <ButtonLink href="/map" size="lg">
+          {/* Ссылка на само объявление — для гостя (userId=null) это единственный
+              устойчивый ключ к нему: тут наблюдения, плакат и кнопка «Поделиться». */}
+          <ButtonLink href={`/lost/${doneId}`} size="lg">
+            <PawPrint className="size-5" aria-hidden />
+            Открыть объявление
+          </ButtonLink>
+          <ButtonLink href="/map" variant="secondary" size="lg">
             <Map className="size-5" aria-hidden />
-            На карту поиска
+            На карту
           </ButtonLink>
           <ButtonLink href="/feed/lost" variant="secondary" size="lg">
             <List className="size-5" aria-hidden />
-            В ленту «Потерялись»
-          </ButtonLink>
-          <ButtonLink href="/guide/lost" variant="secondary" size="lg">
-            <BookOpen className="size-5" aria-hidden />
-            Что делать дальше
+            В ленту
           </ButtonLink>
         </div>
+        <p className="mt-4 text-xs text-ink-soft">
+          Сохрани ссылку на объявление — по ней вернёшься к поиску, добавишь
+          приметы и распечатаешь плакат.
+        </p>
       </div>
     );
   }
@@ -210,10 +220,12 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
               </Select>
             </Field>
 
-            <Field
-              label="Фото"
-              hint="По фото соседи узнают собаку быстрее всего"
-            >
+            {/* НЕ <Field>: тот оборачивает детей в <label>, и тап по превью или
+                подписи форвардился бы на кнопку «Убрать фото» → молчаливое удаление. */}
+            <div>
+              <span className="mb-1.5 block text-sm font-semibold text-ink">
+                Фото
+              </span>
               {qPhoto ? (
                 <div className="flex items-center gap-3">
                   <div className="relative size-20 overflow-hidden rounded-2xl border border-blush">
@@ -234,9 +246,17 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
                   </Button>
                 </div>
               ) : (
-                <Input type="file" accept="image/*" onChange={onPhoto} />
+                <Input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={onPhoto}
+                />
               )}
-            </Field>
+              <span className="mt-1 block text-xs text-ink-soft">
+                По фото соседи узнают собаку быстрее всего
+              </span>
+            </div>
           </>
         ) : (
           <Field label="Кто потерялся?" required>

@@ -36,32 +36,39 @@ export async function POST(req: Request) {
 
   // Текущий пользователь (если залогинен) — привязываем к нему объявление,
   // чтобы он мог вести/закрывать поиск и получать уведомления о наблюдениях.
-  const me = await getCurrentUser();
+  const me = await getCurrentUser().catch(() => null);
 
   const radius = Number(b.radiusKm);
-  // Подтягиваем размер/окрас из карточки питомца — для матчинга и фильтров ленты.
-  const petId = str(b.petId);
-  const pet = petId
-    ? await db.pet.findUnique({
-        where: { id: petId },
-        select: { size: true, color: true, photoHash: true },
-      })
-    : null;
+  // petId учитываем ТОЛЬКО если карточка принадлежит текущему пользователю.
+  // Pet.id публичен (QR-паспорт /p/[id]) — иначе любой по отсканированному жетону
+  // создал бы фейковую пропажу чужой собаки (её фото/контакты на плакате, рассылка
+  // соседям). Чужой/анонимный petId → обычная свободная заявка без привязки.
+  const rawPetId = str(b.petId);
+  const pet =
+    rawPetId && me
+      ? await db.pet.findFirst({
+          where: { id: rawPetId, userId: me.id },
+          select: { size: true, color: true, photoHash: true },
+        })
+      : null;
+  const petId = pet ? rawPetId : null;
   const report = await db.lostReport.create({
     data: {
       userId: me?.id ?? null,
       petId,
       petName: censorProfanity(petName.slice(0, 80)) ?? petName.slice(0, 80),
-      breed: str(b.breed),
+      // Капы на свободный текст: клиент шлёт maxLength=80, но прямой POST мог бы
+      // залить мегабайты (как в гарде фото) — режем на сервере.
+      breed: str(b.breed)?.slice(0, 80) ?? null,
       size: pet?.size ?? null,
       color: pet?.color ?? null,
       photo: await savePhoto(photo),
-      photoHash: pet?.photoHash ?? str(b.photoHash),
-      district: str(b.district),
+      photoHash: pet?.photoHash ?? str(b.photoHash)?.slice(0, 64) ?? null,
+      district: str(b.district)?.slice(0, 80) ?? null,
       lat: num(b.lat),
       lng: num(b.lng),
       lostAt: b.lostAt ? new Date(b.lostAt) : new Date(),
-      comment: censorProfanity(str(b.comment)),
+      comment: censorProfanity(str(b.comment)?.slice(0, 1000) ?? null),
       radiusKm: [1, 3, 5, 10].includes(radius) ? radius : 3,
       reward:
         typeof b.reward === "number" && b.reward > 0

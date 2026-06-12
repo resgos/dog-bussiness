@@ -20,18 +20,25 @@ j = await r.json();
 const found = await db.foundReport.findUnique({ where: { id: j.id } });
 ok(r.status === 201 && found?.photoHash === HASH, `foundReport.photoHash сохранён (${found?.photoHash})`);
 
-console.log("\n— SOS копирует photoHash из карточки питомца —");
+console.log("\n— SOS копирует photoHash из карточки СВОЕГО питомца —");
+// petId учитывается только для своей карточки (приватность: Pet.id публичен).
+// Поэтому создаём владельца + сессию и шлём SOS от его имени.
 const hp = "0123456789abcdef";
-const sosPet = await db.pet.create({ data: { name: `SosHash${stamp}`, status: "home", photoHash: hp } });
-r = await fetch(`${BASE}/api/sos`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ petId: sosPet.id, petName: sosPet.name, district: "khamovniki", radiusKm: 3 }) });
+const token = randomBytes(32).toString("hex");
+const owner = await db.user.create({ data: { name: `PhHashOwner${stamp}`, email: `ph+${stamp}@lapka.test` } });
+await db.session.create({ data: { token, userId: owner.id, expiresAt: new Date(Date.now() + 86400000) } });
+const sosPet = await db.pet.create({ data: { userId: owner.id, name: `SosHash${stamp}`, status: "home", photoHash: hp } });
+r = await fetch(`${BASE}/api/sos`, { method: "POST", headers: { "Content-Type": "application/json", Cookie: `lapka_session=${token}` }, body: JSON.stringify({ petId: sosPet.id, petName: sosPet.name, district: "khamovniki", radiusKm: 3 }) });
 j = await r.json();
 const lost = await db.lostReport.findUnique({ where: { id: j.id } });
-ok(r.status === 201 && lost?.photoHash === hp, `lostReport.photoHash скопирован из питомца (${lost?.photoHash})`);
+ok(r.status === 201 && lost?.photoHash === hp, `lostReport.photoHash скопирован из своего питомца (${lost?.photoHash})`);
 
 console.log("\n— уборка —");
 await db.lostReport.deleteMany({ where: { id: j.id } });
 await db.foundReport.deleteMany({ where: { id: found.id } });
 await db.pet.deleteMany({ where: { id: { in: [pet.id, sosPet.id] } } });
+await db.session.deleteMany({ where: { userId: owner.id } });
+await db.user.deleteMany({ where: { id: owner.id } });
 await db.$disconnect();
 console.log(`\nИтог: ${pass} ✓ / ${fail} ✗`);
 process.exit(fail ? 1 : 0);

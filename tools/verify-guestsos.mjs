@@ -68,6 +68,37 @@ try {
     ok(rep?.userId === null && rep?.petId === null, "гостевой розыск без привязок (userId/petId = null)");
     ok(rep?.district === "tverskoy", `район сохранён (${rep?.district})`);
   }
+
+  // 4. Чужой petId НЕ привязывается (Pet.id публичен через QR /p/[id]) —
+  //    защита от фейковой пропажи чужой собаки с её фото/контактами на плакате.
+  {
+    const res2 = await fetch(`${BASE}/api/sos`, {
+      method: "POST",
+      headers: J, // без сессии — аноним
+      body: JSON.stringify({ petName: "Тест-Потеряша", petId: a.pet.id, radiusKm: 3 }),
+    });
+    const j2 = await res2.json().catch(() => ({}));
+    if (j2.id) {
+      cleanup.losts.push(j2.id);
+      const rep = await db.lostReport.findUnique({ where: { id: j2.id } });
+      ok(rep?.petId === null, "чужой petId анонимом отвязан (нет фейк-пропажи)");
+    } else ok(false, "контрольный POST не создан");
+  }
+
+  // 5. Свободный текст капится на сервере (защита от DB-блоата прямым POST).
+  {
+    const res3 = await fetch(`${BASE}/api/sos`, {
+      method: "POST",
+      headers: J,
+      body: JSON.stringify({ petName: "Тест-Потеряша", breed: "Д".repeat(5000), radiusKm: 3 }),
+    });
+    const j3 = await res3.json().catch(() => ({}));
+    if (j3.id) {
+      cleanup.losts.push(j3.id);
+      const rep = await db.lostReport.findUnique({ where: { id: j3.id } });
+      ok((rep?.breed?.length ?? 0) <= 80, `breed обрезан до ≤80 (${rep?.breed?.length})`);
+    } else ok(false, "POST с длинным breed не создан");
+  }
 } finally {
   for (const id of cleanup.losts) {
     await db.sighting.deleteMany({ where: { reportId: id } }).catch(() => {});
