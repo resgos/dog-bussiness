@@ -49,14 +49,20 @@ export async function PATCH(
   });
 
   if (next === "found" && report.status !== "found") {
-    await db.foundEvent.create({
-      data: { petName: report.petName, district: report.district },
+    // Разовые побочки (счётчик «найдено», кредит помощникам, нудж владельцу)
+    // захватываем АТОМАРНО: compare-and-set по helpersCreditedAt=null. При гонке
+    // (двое одновременно жмут «Нашлась!») или повторе с ошибкой пройдёт ровно ОДИН
+    // запрос — без двойного инкремента helpedCount и дублей уведомлений.
+    const claimed = await db.lostReport.updateMany({
+      where: { id, helpersCreditedAt: null },
+      data: { helpersCreditedAt: new Date() },
     });
+    if (claimed.count === 1) {
+      await db.foundEvent.create({
+        data: { petName: report.petName, district: report.district },
+      });
 
-    // «Кто помог»: +1 helpedCount каждому уникальному автору наблюдений (не владельцу).
-    // Идемпотентно: начисляем РОВНО ОДИН раз за всё время жизни розыска
-    // (флаг helpersCreditedAt защищает от повторного кредита при reopen found→home→found).
-    if (!report.helpersCreditedAt) {
+      // «Кто помог»: +1 helpedCount каждому уникальному автору наблюдений (не владельцу).
       const seen = await db.sighting.findMany({
         where: { reportId: id, userId: { not: null } },
         select: { userId: true },
@@ -82,8 +88,8 @@ export async function PATCH(
           link: "/profile/achievements",
         });
       }
-      // Нудж владельцу: поделиться историей воссоединения — растим «стену надежды»
-      // (большинство делятся, только если позвать; сами на /reunited/new доходят редко).
+
+      // Нудж владельцу: поделиться историей воссоединения — растим «стену надежды».
       if (report.userId) {
         await notifyUser(report.userId, {
           type: "found",
@@ -92,11 +98,6 @@ export async function PATCH(
           link: `/reunited/new?petName=${encodeURIComponent(report.petName)}`,
         });
       }
-
-      await db.lostReport.update({
-        where: { id },
-        data: { helpersCreditedAt: new Date() },
-      });
     }
   }
 
@@ -105,6 +106,7 @@ export async function PATCH(
     const subs = await db.reportSubscription.findMany({
       where: { reportId: id },
       select: { userId: true },
+      take: 1000,
     });
     await notifyMany(
       subs.map((s) => s.userId),
@@ -163,7 +165,7 @@ export async function PUT(
   await db.lostReport.update({
     where: { id },
     data: {
-      petName: petName.slice(0, 80),
+      petName: censorProfanity(petName.slice(0, 80)) ?? petName.slice(0, 80),
       breed: str(b?.breed),
       color: str(b?.color),
       size: size && SIZES.includes(size) ? size : null,

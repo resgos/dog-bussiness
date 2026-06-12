@@ -21,6 +21,7 @@ const suites = [
   "verify-sosmatch",
   "verify-districtflyer",
   "verify-reunionudge",
+  "verify-foundrace",
 ];
 
 let failed = 0;

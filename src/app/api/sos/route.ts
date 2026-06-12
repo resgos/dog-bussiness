@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     data: {
       userId: me?.id ?? null,
       petId,
-      petName: petName.slice(0, 80),
+      petName: censorProfanity(petName.slice(0, 80)) ?? petName.slice(0, 80),
       breed: str(b.breed),
       size: pet?.size ?? null,
       color: pet?.color ?? null,
