@@ -3,6 +3,27 @@
 //   node tools/verify-all.mjs
 import { spawnSync } from "node:child_process";
 
+const BASE = "http://localhost:3002";
+
+// Синхронный сон без зависимостей (нужен между sync-сьютами spawnSync).
+function sleepMs(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+// Ждём, пока dev-сервер снова отвечает (любой ответ = жив; reject = сеть лежит).
+// Транзиентный блип/перекомпиляция длится дольше одного немедленного ретрая —
+// поэтому перед повтором сьюта ждём восстановления, а не бьём в мёртвое окно.
+function waitForServer(timeoutMs = 25000) {
+  const deadline = Date.now() + timeoutMs;
+  const probe = `fetch("${BASE}/api/me").then(()=>process.exit(0)).catch(()=>process.exit(1))`;
+  while (Date.now() < deadline) {
+    const r = spawnSync(process.execPath, ["-e", probe], { timeout: 5000 });
+    if (r.status === 0) return true;
+    sleepMs(1000);
+  }
+  return false;
+}
+
 const suites = [
   "e2e-flows",
   "verify-crossmatch",
@@ -52,10 +73,12 @@ for (const s of suites) {
   process.stdout.write(`\n━━━━ ${s} ━━━━\n`);
   let r = spawnSync(process.execPath, [`tools/${s}.mjs`], { stdio: "inherit" });
   if (r.status !== 0) {
-    // Один ретрай: полный прогон 20+ сьютов изредка ловит транзиентный блип
-    // dev-сервера (ECONNREFUSED на смежном блоке). Повтор отсеивает ложные «красные»;
-    // настоящий провал воспроизводится и на втором прогоне.
-    process.stdout.write(`\n  ↻ ретрай ${s} (первый прогон упал)\n`);
+    // Транзиентный блип dev-сервера (fetch failed/ECONNREFUSED на смежном блоке)
+    // длится дольше немедленного ретрая → сперва ДОЖИДАЕМСЯ готовности сервера,
+    // потом повторяем. Настоящий провал воспроизводится и после восстановления.
+    process.stdout.write(`\n  ↻ ретрай ${s}: жду готовности сервера…\n`);
+    waitForServer();
+    sleepMs(1500);
     r = spawnSync(process.execPath, [`tools/${s}.mjs`], { stdio: "inherit" });
   }
   const okRun = r.status === 0;

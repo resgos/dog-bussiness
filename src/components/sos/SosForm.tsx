@@ -8,6 +8,7 @@ import { TagToggle } from "@/components/ui/TagToggle";
 import { SuccessNote } from "@/components/ui/SuccessNote";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { LeafletMap } from "@/components/map/LeafletMap";
+import { ShareButton } from "@/components/share/ShareButton";
 import { postJson } from "@/lib/http";
 import { dHash } from "@/lib/imghash";
 import { districtsByOkrug } from "@/lib/districts";
@@ -152,13 +153,16 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
             <PawPrint className="size-5" aria-hidden />
             Открыть объявление
           </ButtonLink>
+          {/* Репост — главный виральный канал: даём поделиться сразу, не уходя
+              со страницы успеха (особенно важно гостю). */}
+          <ShareButton
+            path={`/lost/${doneId}`}
+            title={`🆘 Разыскивается: ${(quick ? qName.trim() : pet?.name) || "собака"}`}
+            text={`Помогите найти! Каждый репост приближает встречу. 🐾`}
+          />
           <ButtonLink href="/map" variant="secondary" size="lg">
             <Map className="size-5" aria-hidden />
             На карту
-          </ButtonLink>
-          <ButtonLink href="/feed/lost" variant="secondary" size="lg">
-            <List className="size-5" aria-hidden />
-            В ленту
           </ButtonLink>
         </div>
         <p className="mt-4 text-xs text-ink-soft">
