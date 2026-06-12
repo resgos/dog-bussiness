@@ -30,6 +30,7 @@ const suites = [
   "verify-checkout-variant",
   "verify-districthub",
   "verify-foundfilter",
+  "verify-photoguard",
 ];
 
 let failed = 0;

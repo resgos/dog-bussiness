@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
-import { savePhoto } from "@/lib/storage";
+import { savePhoto, isStorablePhoto } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +29,13 @@ export async function POST(req: Request) {
 
   const str = (v: unknown) => (typeof v === "string" && v ? v : null);
 
+  // Фото опционально, но если есть — это data:image в пределах лимита
+  // (savePhoto размер не проверяет → иначе DB-блоат/DoS большим data URL).
+  const photo = str(body.photo);
+  if (!isStorablePhoto(photo)) {
+    return NextResponse.json({ error: "Некорректное фото." }, { status: 400 });
+  }
+
   // Привязываем карточку к владельцу, если он залогинен: иначе питомец
   // остаётся «бесхозным» (userId=null) и владелец не может его править/удалять
   // — PATCH/DELETE /api/pets/[id] проверяют pet.userId === user.id.
@@ -54,7 +61,7 @@ export async function POST(req: Request) {
       extraPhone: str(body.extraPhone),
       telegram: str(body.telegram),
       showPhone: Boolean(body.showPhone),
-      photo: await savePhoto(str(body.photo)),
+      photo: await savePhoto(photo),
       photoHash: str(body.photoHash),
     },
   });

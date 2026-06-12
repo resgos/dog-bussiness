@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
-import { savePhoto } from "@/lib/storage";
+import { savePhoto, isStorablePhoto } from "@/lib/storage";
 import { censorProfanity } from "@/lib/profanity";
 import { notifyMany } from "@/lib/notify";
 import { sendTelegramChannel } from "@/lib/telegram";
@@ -31,6 +31,14 @@ export async function POST(req: Request) {
   }
 
   const size = str(b.size);
+
+  // Фото опционально, но если есть — это data:image в пределах лимита
+  // (savePhoto размер не проверяет → иначе DB-блоат/DoS большим data URL).
+  const photo = str(b.photo);
+  if (!isStorablePhoto(photo)) {
+    return NextResponse.json({ error: "Некорректное фото." }, { status: 400 });
+  }
+
   const user = await getCurrentUser().catch(() => null);
 
   const report = await db.foundReport.create({
@@ -39,7 +47,7 @@ export async function POST(req: Request) {
       finderName: str(b.finderName)?.slice(0, 80) ?? null,
       contactPhone: str(b.contactPhone)?.slice(0, 40) ?? null,
       contactTelegram: str(b.contactTelegram)?.slice(0, 80) ?? null,
-      photo: await savePhoto(str(b.photo)),
+      photo: await savePhoto(photo),
       photoHash: str(b.photoHash),
       breed: str(b.breed)?.slice(0, 80) ?? null,
       color: str(b.color)?.slice(0, 80) ?? null,

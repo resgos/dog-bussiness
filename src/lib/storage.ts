@@ -61,3 +61,18 @@ export async function savePhoto(input: string | null): Promise<string | null> {
   // datauri (и будущие s3/kts до их реализации): храним как есть.
   return input;
 }
+
+/** Максимальный размер фото-инпута (data URL) — чтобы не раздувать БД. */
+export const MAX_PHOTO_BYTES = 3_000_000;
+
+/**
+ * Пригоден ли фото-инпут к сохранению: пусто (фото опционально) или уже-ссылка
+ * (savePhoto вернёт её как есть) — ок; иначе обязан быть data:image в пределах
+ * лимита. POST-роуты используют это для ответа 400 на не-image и гигантские
+ * data URL — savePhoto размер НЕ проверяет, без гарда это вектор DB-блоата/DoS.
+ */
+export function isStorablePhoto(input: string | null | undefined): boolean {
+  if (!input) return true;
+  if (/^(https?:\/\/|\/)/.test(input)) return true;
+  return input.startsWith("data:image") && input.length <= MAX_PHOTO_BYTES;
+}
