@@ -19,6 +19,7 @@ const suites = [
   "verify-foundedit",
   "verify-soft404",
   "verify-sosmatch",
+  "verify-districtflyer",
 ];
 
 let failed = 0;

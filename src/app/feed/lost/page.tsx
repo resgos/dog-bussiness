@@ -1,4 +1,4 @@
-import { Rss } from "lucide-react";
+import { Printer, Rss } from "lucide-react";
 import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
@@ -31,13 +31,24 @@ export default async function FeedLostPage({
           <Badge tone="lost">🔴 Потерялись</Badge>
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">Активные поиски</h1>
           <p className="mt-1 text-ink-soft">Каждая минута на счету — помоги найти.</p>
-          <a
-            href="/feed/lost/rss"
-            className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
-          >
-            <Rss className="size-4" aria-hidden />
-            RSS-лента пропаж
-          </a>
+          <div className="mt-2 flex flex-wrap items-center gap-4">
+            <a
+              href="/feed/lost/rss"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
+            >
+              <Rss className="size-4" aria-hidden />
+              RSS-лента пропаж
+            </a>
+            {initialDistrict ? (
+              <a
+                href={`/poster/district/${encodeURIComponent(initialDistrict)}`}
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
+              >
+                <Printer className="size-4" aria-hidden />
+                Листовка района
+              </a>
+            ) : null}
+          </div>
         </div>
         <ButtonLink href="/sos" variant="sos" size="lg">
           Сообщить о пропаже
