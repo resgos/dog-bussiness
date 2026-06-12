@@ -24,6 +24,7 @@ const suites = [
   "verify-foundrace",
   "verify-claim",
   "verify-foundrss",
+  "verify-ratelimit",
 ];
 
 let failed = 0;

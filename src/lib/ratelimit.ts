@@ -54,12 +54,20 @@ function getRedis(): Redis | null {
   return redis;
 }
 
+// Лимит — это продакшен-защита от спама. В dev/тестах все запросы идут с одного
+// localhost-IP, поэтому лимит лишь флакает E2E (стэкнутые прогоны verify-all) и
+// может сработать на живом демо. Поэтому вне production он по умолчанию выключен.
+// Принудительно проверить лимит локально: RATELIMIT_FORCE=1.
+const RL_ENABLED =
+  process.env.NODE_ENV === "production" || process.env.RATELIMIT_FORCE === "1";
+
 /** true — запрос разрешён; false — лимит превышен. Окно фиксированное. */
 export async function rateLimit(
   key: string,
   max = 5,
   windowMs = 60_000,
 ): Promise<boolean> {
+  if (!RL_ENABLED) return true;
   const r = getRedis();
   if (r) {
     try {
