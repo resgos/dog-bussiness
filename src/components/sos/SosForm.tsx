@@ -227,7 +227,7 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
             onChange={(e) => setReward(e.target.value)}
             placeholder="Например, 5000"
           />
-          <p className="mt-1.5 text-xs text-status-lost">
+          <p className="mt-1.5 text-xs text-status-lost-ink">
             ⚠️ Не переводите предоплату за «возврат» — это частая схема
             мошенников. Награду отдавайте лично после встречи с собакой.
           </p>
@@ -238,7 +238,7 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
             {submitting ? "Поднимаю район…" : "🚨 Поднять район"}
           </Button>
           {error ? (
-            <span className="text-center text-xs text-status-lost">{error}</span>
+            <span className="text-center text-xs text-status-lost-ink">{error}</span>
           ) : null}
         </div>
       </div>

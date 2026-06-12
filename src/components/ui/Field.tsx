@@ -27,7 +27,7 @@ export function Field({
       {label ? (
         <span className="mb-1.5 block text-sm font-semibold text-ink">
           {label}
-          {required ? <span className="text-status-lost"> *</span> : null}
+          {required ? <span className="text-status-lost-ink"> *</span> : null}
         </span>
       ) : null}
       {children}

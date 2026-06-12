@@ -7,7 +7,7 @@ const tones: Record<Tone, string> = {
   neutral: "bg-blush-soft text-ink-soft",
   petal: "bg-blush text-petal-deep",
   paw: "bg-paw/40 text-ink",
-  lost: "bg-status-lost/15 text-status-lost",
+  lost: "bg-status-lost/15 text-status-lost-ink",
   found: "bg-status-found/15 text-status-found-ink",
   seen: "bg-status-seen/15 text-status-seen-ink",
 };
