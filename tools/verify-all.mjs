@@ -23,6 +23,7 @@ const suites = [
   "verify-reunionudge",
   "verify-foundrace",
   "verify-claim",
+  "verify-foundrss",
 ];
 
 let failed = 0;

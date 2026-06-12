@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Rss } from "lucide-react";
 import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
@@ -63,6 +63,13 @@ export default function FoundPage() {
             Кто-то подобрал чужую или бездомную собаку и ищет её хозяина. Узнали
             питомца? Свяжитесь с тем, кто его нашёл.
           </p>
+          <a
+            href="/feed/found/rss"
+            className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
+          >
+            <Rss className="size-4" aria-hidden />
+            RSS-лента находок
+          </a>
         </div>
         <ButtonLink href="/found/new" size="lg" className="shrink-0">
           <PlusCircle className="size-5" aria-hidden />
