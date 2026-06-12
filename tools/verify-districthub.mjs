@@ -30,6 +30,7 @@ try {
       color: "рыжая",
       size: "medium",
       district: DIST,
+      contactPhone: "+7 999 765-43-21",
       status: "open",
     },
   });
@@ -48,6 +49,10 @@ try {
   ok(html.includes("Тверской"), "в хабе — название района (Тверской)");
   ok(html.includes(seeded.lost.petName), "виден активный розыск района");
   ok(html.includes(seeded.found.breed), "видна находка района");
+  ok(
+    html.includes("+7 999 765-43-21"),
+    "на карточке находки показаны контакты нашедшего (переиспользован FoundCard)",
+  );
   ok(html.includes(seeded.reunion.petName), "видна история возвращения района");
   ok(
     html.includes("Активные розыски") && html.includes("Находки рядом"),

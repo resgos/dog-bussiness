@@ -55,7 +55,8 @@ export async function POST(req: Request) {
   }
 
   const variants = await readVariants();
-  const user = await getCurrentUser();
+  // Сбой сессии не должен ронять оформление — оформляем как гостя (userId null).
+  const user = await getCurrentUser().catch(() => null);
 
   // Надбавки выбранных вариантов (priceDelta): без них платные опции
   // (размер/цвет) недосчитываются. Метку «Группа: Значение · …» из cookie
@@ -81,8 +82,10 @@ export async function POST(req: Request) {
     return sum;
   };
 
-  const linePrice = lines.map(
-    (l) => l.product.priceRub + variantDelta(l.product.id, variants[l.product.id]),
+  // Math.max(0, …): вариант-скидка (отрицательный priceDelta) не должна уводить
+  // цену позиции и итог в минус — у Order.totalRub/OrderItem.priceRub нет CHECK >= 0.
+  const linePrice = lines.map((l) =>
+    Math.max(0, l.product.priceRub + variantDelta(l.product.id, variants[l.product.id])),
   );
   const totalRub = linePrice.reduce((sum, p, i) => sum + p * lines[i].qty, 0);
 

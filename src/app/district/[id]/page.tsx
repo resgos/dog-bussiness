@@ -5,7 +5,6 @@ import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
-  Clock,
   Heart,
   MapPin,
   PawPrint,
@@ -19,6 +18,7 @@ import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { ReportCard } from "@/components/feed/ReportCard";
+import { FoundCard } from "@/components/found/FoundCard";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { findDistrict } from "@/lib/districts";
 import { timeAgo, plural } from "@/lib/format";
@@ -27,12 +27,6 @@ import { timeAgo, plural } from "@/lib/format";
 export const dynamic = "force-dynamic";
 
 type Params = { params: Promise<{ id: string }> };
-
-const SIZE_RU: Record<string, string> = {
-  small: "маленькая",
-  medium: "средняя",
-  large: "крупная",
-};
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params;
@@ -44,16 +38,6 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     alternates: { canonical: `/district/${d.id}` },
   };
 }
-
-type FoundLite = {
-  id: string;
-  photo: string | null;
-  breed: string | null;
-  color: string | null;
-  size: string | null;
-  comment: string | null;
-  createdAt: Date | string;
-};
 
 async function loadDistrict(id: string) {
   const [active, found, reunions, activeCount, foundCount, reunionCount] =
@@ -84,52 +68,6 @@ async function loadDistrict(id: string) {
     reunions,
     counts: { active: activeCount, found: foundCount, reunions: reunionCount },
   };
-}
-
-function FoundMini({ f }: { f: FoundLite }) {
-  const summary = [f.breed, f.color, f.size ? SIZE_RU[f.size] : null]
-    .filter(Boolean)
-    .join(" · ");
-  return (
-    <article className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-blush bg-card shadow-card transition-all duration-200 hover:-translate-y-1 hover:shadow-soft">
-      <div className="relative aspect-[4/3] bg-blush-soft">
-        {f.photo ? (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img
-            src={f.photo}
-            alt="Найденная собака"
-            className="size-full object-cover"
-          />
-        ) : (
-          <div className="flex size-full items-center justify-center text-petal-deep">
-            <PawPrint className="size-10" aria-hidden />
-          </div>
-        )}
-        <span className="absolute left-3 top-3 z-10">
-          <Badge tone="found">Найдена — ищем хозяина</Badge>
-        </span>
-      </div>
-      <div className="flex flex-1 flex-col gap-1.5 p-5">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-bold">{summary || "Собака без приметы"}</h3>
-          <span className="inline-flex shrink-0 items-center gap-1 text-xs text-ink-soft">
-            <Clock className="size-3.5" aria-hidden />
-            {timeAgo(f.createdAt)}
-          </span>
-        </div>
-        {f.comment ? (
-          <p className="text-sm leading-relaxed text-ink">{f.comment}</p>
-        ) : null}
-      </div>
-      <Link
-        href={`/found/${f.id}`}
-        className="absolute inset-0 z-0"
-        aria-label="Подробнее о находке"
-      >
-        <span className="sr-only">Подробнее</span>
-      </Link>
-    </article>
-  );
 }
 
 export default async function DistrictHubPage({ params }: Params) {
@@ -233,7 +171,10 @@ export default async function DistrictHubPage({ params }: Params) {
       {/* Активные розыски */}
       <section className="mt-12">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-2xl font-bold">🔴 Активные розыски</h2>
+          <h2 className="flex items-center gap-2 text-2xl font-bold">
+            <Search className="size-6 text-coral" aria-hidden />
+            Активные розыски
+          </h2>
           {counts.active > active.length ? (
             <Link
               href={`/feed/lost?district=${encodeURIComponent(d.id)}`}
@@ -260,18 +201,10 @@ export default async function DistrictHubPage({ params }: Params) {
 
       {/* Находки района */}
       <section className="mt-12">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-2xl font-bold">🐶 Находки рядом</h2>
-          {counts.found > found.length ? (
-            <Link
-              href="/found"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
-            >
-              Все находки
-              <ArrowRight className="size-4" aria-hidden />
-            </Link>
-          ) : null}
-        </div>
+        <h2 className="flex items-center gap-2 text-2xl font-bold">
+          <PawPrint className="size-6 text-petal-deep" aria-hidden />
+          Находки рядом
+        </h2>
 
         {found.length === 0 ? (
           <div className="mt-5 rounded-3xl border border-blush bg-card p-6 shadow-card">
@@ -289,7 +222,7 @@ export default async function DistrictHubPage({ params }: Params) {
         ) : (
           <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {found.map((f) => (
-              <FoundMini key={f.id} f={f} />
+              <FoundCard key={f.id} item={f} />
             ))}
           </div>
         )}
@@ -298,7 +231,10 @@ export default async function DistrictHubPage({ params }: Params) {
       {/* Истории возвращений */}
       {reunions.length > 0 ? (
         <section className="mt-12">
-          <h2 className="text-2xl font-bold">🟢 Уже дома</h2>
+          <h2 className="flex items-center gap-2 text-2xl font-bold">
+            <Heart className="size-6 text-status-found" aria-hidden />
+            Уже дома
+          </h2>
           <p className="mt-1 text-sm text-ink-soft">
             Счастливые финалы из района {d.name}.
           </p>
@@ -310,7 +246,7 @@ export default async function DistrictHubPage({ params }: Params) {
               >
                 <div className="flex items-center gap-2">
                   <Heart className="size-4 text-status-found" aria-hidden />
-                  <span className="font-semibold">{r.petName}</span>
+                  <h3 className="font-semibold">{r.petName}</h3>
                   <span className="ml-auto text-xs text-ink-soft">
                     {timeAgo(r.createdAt)}
                   </span>
