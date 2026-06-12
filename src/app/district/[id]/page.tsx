@@ -201,10 +201,21 @@ export default async function DistrictHubPage({ params }: Params) {
 
       {/* Находки района */}
       <section className="mt-12">
-        <h2 className="flex items-center gap-2 text-2xl font-bold">
-          <PawPrint className="size-6 text-petal-deep" aria-hidden />
-          Находки рядом
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="flex items-center gap-2 text-2xl font-bold">
+            <PawPrint className="size-6 text-petal-deep" aria-hidden />
+            Находки рядом
+          </h2>
+          {counts.found > found.length ? (
+            <Link
+              href={`/found?district=${encodeURIComponent(d.id)}`}
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
+            >
+              Показать все {counts.found}
+              <ArrowRight className="size-4" aria-hidden />
+            </Link>
+          ) : null}
+        </div>
 
         {found.length === 0 ? (
           <div className="mt-5 rounded-3xl border border-blush bg-card p-6 shadow-card">

@@ -88,7 +88,7 @@ flowchart LR
 | Группа | Маршруты |
 |--------|----------|
 | Пропажи | `POST /api/sos` · `PATCH/PUT /api/reports/[id]` · `/lost/[id]` · `/lost/[id]/edit` · `/poster/[id]` |
-| Находки | `POST /api/found` · `PATCH/PUT /api/found/[id]` · `POST /api/found/[id]/claim` · `/found/[id]` · `/found/[id]/poster` · `/found/[id]/edit` |
+| Находки | `POST /api/found` · `PATCH/PUT /api/found/[id]` · `POST /api/found/[id]/claim` · `/found` · `/found?district=…` · `/found/[id]` · `/found/[id]/poster` · `/found/[id]/edit` |
 | Матчинг | `src/lib/match.ts` (район+приметы+время+photo-hash) |
 | Наблюдения | `POST /api/sightings` · карта `/map` |
 | Питомцы/здоровье | `/api/pets*` · `/api/health*` · `GET /api/pets/[id]/health/calendar` (.ics) |

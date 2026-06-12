@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { PlusCircle, Rss } from "lucide-react";
+import { MapPin, PlusCircle, Printer, Rss } from "lucide-react";
 import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
@@ -14,7 +14,7 @@ export const metadata = { title: "Найденные собаки" };
 // segment-level loading.tsx: иначе Suspense-граница сегмента отдаёт shell со
 // статусом 200 раньше, чем notFound() на дочерних /found/[id]* → soft-404 для
 // всего поддерева (плохо для SEO). Скелетон при этом сохраняем.
-async function FoundFeed() {
+async function FoundFeed({ initialDistrict }: { initialDistrict: string | null }) {
   const found = await db.foundReport.findMany({
     where: { status: "open" },
     orderBy: { createdAt: "desc" },
@@ -34,7 +34,7 @@ async function FoundFeed() {
     createdAt: f.createdAt,
   }));
 
-  return <FoundList items={items} />;
+  return <FoundList items={items} initialDistrict={initialDistrict} />;
 }
 
 function FoundFeedSkeleton() {
@@ -50,7 +50,14 @@ function FoundFeedSkeleton() {
   );
 }
 
-export default function FoundPage() {
+export default async function FoundPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ district?: string }>;
+}) {
+  // Глубокая ссылка из хаба района/шеринга: ?district=… предвыбирает фильтр района.
+  const { district } = await searchParams;
+
   return (
     <Container className="py-12 sm:py-16">
       <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
@@ -63,13 +70,33 @@ export default function FoundPage() {
             Кто-то подобрал чужую или бездомную собаку и ищет её хозяина. Узнали
             питомца? Свяжитесь с тем, кто его нашёл.
           </p>
-          <a
-            href="/feed/found/rss"
-            className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
-          >
-            <Rss className="size-4" aria-hidden />
-            RSS-лента находок
-          </a>
+          <div className="mt-2 flex flex-wrap items-center gap-4">
+            <a
+              href="/feed/found/rss"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
+            >
+              <Rss className="size-4" aria-hidden />
+              RSS-лента находок
+            </a>
+            {district ? (
+              <>
+                <a
+                  href={`/district/${encodeURIComponent(district)}`}
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
+                >
+                  <MapPin className="size-4" aria-hidden />
+                  Страница района
+                </a>
+                <a
+                  href={`/poster/district/${encodeURIComponent(district)}`}
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
+                >
+                  <Printer className="size-4" aria-hidden />
+                  Листовка района
+                </a>
+              </>
+            ) : null}
+          </div>
         </div>
         <ButtonLink href="/found/new" size="lg" className="shrink-0">
           <PlusCircle className="size-5" aria-hidden />
@@ -78,7 +105,7 @@ export default function FoundPage() {
       </div>
 
       <Suspense fallback={<FoundFeedSkeleton />}>
-        <FoundFeed />
+        <FoundFeed initialDistrict={district ?? null} />
       </Suspense>
     </Container>
   );

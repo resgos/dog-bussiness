@@ -11,9 +11,16 @@ import { sizeOptions } from "@/lib/petForm";
 import { FoundCard, type FoundItem } from "./FoundCard";
 
 /** Лента находок с поиском по строке и фильтром по району/размеру (клиент). */
-export function FoundList({ items }: { items: FoundItem[] }) {
+export function FoundList({
+  items,
+  initialDistrict = null,
+}: {
+  items: FoundItem[];
+  initialDistrict?: string | null;
+}) {
   const [query, setQuery] = useState("");
-  const [district, setDistrict] = useState<string | null>(null);
+  // Стартовый район можно задать ссылкой (?district=…) — из хаба района/шеринга.
+  const [district, setDistrict] = useState<string | null>(initialDistrict);
   const [breed, setBreed] = useState<string | null>(null);
   const [size, setSize] = useState<string | null>(null);
   const [color, setColor] = useState<string | null>(null);

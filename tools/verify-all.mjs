@@ -29,6 +29,7 @@ const suites = [
   "verify-reviewfixes",
   "verify-checkout-variant",
   "verify-districthub",
+  "verify-foundfilter",
 ];
 
 let failed = 0;
