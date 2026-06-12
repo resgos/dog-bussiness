@@ -57,6 +57,15 @@ const checkout = async (cart, vars) => {
 };
 
 try {
+  // Сценарий 0: превью корзины (/shop/cart) считает итог С надбавками вариантов —
+  // общий с чекаутом хелпер; иначе покупатель видит сумму ниже фактической.
+  {
+    const cookie = `lapka_cart=${encodeURIComponent(JSON.stringify({ [A.id]: 2, [B.id]: 1 }))}; lapka_cart_variants=${encodeURIComponent(JSON.stringify({ [A.id]: "Размер: L · Цвет: Синий" }))}`;
+    const html = await (await fetch(`${BASE}/shop/cart`, { headers: { cookie } })).text();
+    ok(html.includes("3000"), "превью корзины: итог 3000 (с надбавкой +250×2)");
+    ok(html.includes("1250"), "превью корзины: цена позиции A 1250 (база+250)");
+  }
+
   // Сценарий 1: надбавки вариантов учитываются, товар без вариантов не меняется.
   {
     const { res, j } = await checkout(
@@ -77,6 +86,21 @@ try {
       );
       ok(itemB?.priceRub === 500, `priceRub без вариантов B неизменна: ${itemB?.priceRub} (ждали 500)`);
       ok(order?.items.length === 2, `в заказе обе позиции: ${order?.items.length} (ждали 2)`);
+
+      // Сценарий 1б: страница подтверждения /shop/order/[id] — номер, состав,
+      // итог, БЕЗ контактов покупателя; несуществующий id → честный 404.
+      const conf = await fetch(`${BASE}/shop/order/${j.orderId}`);
+      ok(conf.status === 200, `/shop/order/[id] → 200 (${conf.status})`);
+      const page = await conf.text();
+      ok(page.includes(`#${j.orderId.slice(0, 8)}`), "подтверждение: короткий номер заказа");
+      ok(page.includes("Тест-Вариант-A"), "подтверждение: название товара в составе");
+      ok(page.includes("Размер: L · Цвет: Синий"), "подтверждение: метка варианта");
+      ok(page.includes("3000"), "подтверждение: итог 3000");
+      ok(!page.includes("+70000000000"), "подтверждение: телефона покупателя нет (PII)");
+      ok(
+        (await fetch(`${BASE}/shop/order/zzz-nope-404`)).status === 404,
+        "несуществующий заказ → 404",
+      );
     }
   }
 

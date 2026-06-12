@@ -34,6 +34,13 @@ const suites = [
   "verify-authz",
 ];
 
+// Шаг 0: смести сирот от прерванных прошлых прогонов (демо-лента должна быть
+// чистой даже после Ctrl+C посреди сьюта). Не валит прогон — только докладывает.
+{
+  process.stdout.write("━━━━ verify-sweep (предочистка) ━━━━\n");
+  spawnSync(process.execPath, ["tools/verify-sweep.mjs"], { stdio: "inherit" });
+}
+
 let failed = 0;
 const summary = [];
 for (const s of suites) {

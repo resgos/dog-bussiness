@@ -8,6 +8,7 @@ import {
   readVariants,
   writeVariants,
 } from "@/components/shop/cart-cookie";
+import { loadVariantDeltaIndex, linePriceWithVariant } from "@/lib/variant-pricing";
 
 export const dynamic = "force-dynamic";
 
@@ -58,34 +59,11 @@ export async function POST(req: Request) {
   // Сбой сессии не должен ронять оформление — оформляем как гостя (userId null).
   const user = await getCurrentUser().catch(() => null);
 
-  // Надбавки выбранных вариантов (priceDelta): без них платные опции
-  // (размер/цвет) недосчитываются. Метку «Группа: Значение · …» из cookie
-  // сопоставляем с ProductVariant по (productId, name, value) — цену считаем на
-  // сервере, не доверяя клиенту.
-  const variantRows = await db.productVariant.findMany({
-    where: { productId: { in: ids } },
-  });
-  const deltaByKey = new Map<string, number>();
-  for (const v of variantRows) {
-    deltaByKey.set(`${v.productId}|${v.name}|${v.value}`, v.priceDelta);
-  }
-  const variantDelta = (productId: string, label: string | undefined): number => {
-    if (!label) return 0;
-    let sum = 0;
-    for (const part of label.split(" · ")) {
-      const i = part.indexOf(": ");
-      if (i < 0) continue;
-      sum +=
-        deltaByKey.get(`${productId}|${part.slice(0, i)}|${part.slice(i + 2)}`) ??
-        0;
-    }
-    return sum;
-  };
-
-  // Math.max(0, …): вариант-скидка (отрицательный priceDelta) не должна уводить
-  // цену позиции и итог в минус — у Order.totalRub/OrderItem.priceRub нет CHECK >= 0.
+  // Надбавки выбранных вариантов (priceDelta) — общий с корзиной хелпер,
+  // чтобы превью и списание считались одинаково; цена только на сервере.
+  const deltaIndex = await loadVariantDeltaIndex(ids);
   const linePrice = lines.map((l) =>
-    Math.max(0, l.product.priceRub + variantDelta(l.product.id, variants[l.product.id])),
+    linePriceWithVariant(deltaIndex, l.product.id, l.product.priceRub, variants[l.product.id]),
   );
   const totalRub = linePrice.reduce((sum, p, i) => sum + p * lines[i].qty, 0);
 

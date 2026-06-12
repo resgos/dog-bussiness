@@ -5,7 +5,8 @@ import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
-import { buildCartLines, cartTotal, readCart, readVariants } from "@/components/shop/cart-cookie";
+import { buildCartLines, readCart, readVariants } from "@/components/shop/cart-cookie";
+import { loadVariantDeltaIndex, linePriceWithVariant } from "@/lib/variant-pricing";
 import { CartLine } from "@/components/shop/CartLine";
 import { CheckoutForm } from "@/components/shop/CheckoutForm";
 
@@ -21,9 +22,21 @@ export default async function CartPage() {
     ? await db.product.findMany({ where: { id: { in: ids } } })
     : [];
 
-  // Сохраняем порядок и считаем сумму по актуальным ценам.
+  // Сохраняем порядок и считаем сумму по актуальным ценам С УЧЁТОМ выбранных
+  // вариантов (общий с чекаутом хелпер) — иначе превью корзины расходится
+  // с фактическим списанием при платных опциях (размер/цвет).
   const lines = buildCartLines(products, cart);
-  const total = cartTotal(lines);
+  const deltaIndex = await loadVariantDeltaIndex(ids);
+  const linePrices = new Map(
+    lines.map((l) => [
+      l.product.id,
+      linePriceWithVariant(deltaIndex, l.product.id, l.product.priceRub, variants[l.product.id]),
+    ]),
+  );
+  const total = lines.reduce(
+    (sum, l) => sum + (linePrices.get(l.product.id) ?? l.product.priceRub) * l.qty,
+    0,
+  );
   const itemCount = lines.reduce((sum, l) => sum + l.qty, 0);
 
   const user = await getCurrentUser();
@@ -62,7 +75,7 @@ export default async function CartPage() {
                 slug={l.product.slug}
                 name={l.product.name}
                 image={l.product.image}
-                priceRub={l.product.priceRub}
+                priceRub={linePrices.get(l.product.id) ?? l.product.priceRub}
                 qty={l.qty}
                 variant={variants[l.product.id]}
               />

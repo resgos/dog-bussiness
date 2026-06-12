@@ -40,7 +40,11 @@ export function CheckoutForm({ defaultName = "", defaultPhone = "" }: Props) {
         address,
       });
       setOrderId(j.orderId);
-      router.refresh(); // корзина очищена на сервере
+      // НЕ router.refresh(): сервер уже очистил cookie корзины, и refresh
+      // подменил бы всё дерево страницы веткой «Корзина пуста», размонтировав
+      // экран успеха (баг живого теста). Уводим на страницу подтверждения;
+      // локальный экран успеха остаётся мгновенным фолбэком на время перехода.
+      router.push(`/shop/order/${j.orderId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось оформить заказ.");
     } finally {
