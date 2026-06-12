@@ -1,4 +1,4 @@
-import { Printer, Rss } from "lucide-react";
+import { MapPin, Printer, Rss } from "lucide-react";
 import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
@@ -40,13 +40,22 @@ export default async function FeedLostPage({
               RSS-лента пропаж
             </a>
             {initialDistrict ? (
-              <a
-                href={`/poster/district/${encodeURIComponent(initialDistrict)}`}
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
-              >
-                <Printer className="size-4" aria-hidden />
-                Листовка района
-              </a>
+              <>
+                <a
+                  href={`/district/${encodeURIComponent(initialDistrict)}`}
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
+                >
+                  <MapPin className="size-4" aria-hidden />
+                  Страница района
+                </a>
+                <a
+                  href={`/poster/district/${encodeURIComponent(initialDistrict)}`}
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
+                >
+                  <Printer className="size-4" aria-hidden />
+                  Листовка района
+                </a>
+              </>
             ) : null}
           </div>
         </div>

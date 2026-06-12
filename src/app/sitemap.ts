@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { db } from "@/lib/db";
+import { districts } from "@/lib/districts";
 
 const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lapka-pomoshchi.ru";
 
@@ -78,8 +79,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.4,
   }));
 
+  // Хабы районов — постоянные посадочные страницы под локальный поиск
+  // («потерялась собака <район> Москва»). Их немного (24), все известны заранее.
+  const districtRoutes: MetadataRoute.Sitemap = districts.map((d) => ({
+    url: `${BASE}/district/${d.id}`,
+    changeFrequency: "daily" as const,
+    priority: 0.5,
+  }));
+
   return [
     ...staticRoutes,
+    ...districtRoutes,
     ...petRoutes,
     ...lostRoutes,
     ...foundRoutes,

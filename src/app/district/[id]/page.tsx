@@ -1,0 +1,364 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import Image from "next/image";
+import { notFound } from "next/navigation";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Clock,
+  Heart,
+  MapPin,
+  PawPrint,
+  Printer,
+  Rss,
+  Search,
+} from "lucide-react";
+import { db } from "@/lib/db";
+import { Container } from "@/components/ui/Container";
+import { Badge } from "@/components/ui/Badge";
+import { ButtonLink } from "@/components/ui/Button";
+import { Reveal } from "@/components/ui/Reveal";
+import { ReportCard } from "@/components/feed/ReportCard";
+import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
+import { findDistrict } from "@/lib/districts";
+import { timeAgo, plural } from "@/lib/format";
+
+// Хаб района всегда свежий — это сводка «прямо сейчас», кэшировать нельзя.
+export const dynamic = "force-dynamic";
+
+type Params = { params: Promise<{ id: string }> };
+
+const SIZE_RU: Record<string, string> = {
+  small: "маленькая",
+  medium: "средняя",
+  large: "крупная",
+};
+
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { id } = await params;
+  const d = findDistrict(id);
+  if (!d) return { title: "Район не найден" };
+  return {
+    title: `Собаки района ${d.name} — розыски, находки и истории`,
+    description: `Кого сейчас ищут и кого нашли в районе ${d.name} (${d.okrug}, Москва). Активные розыски, найденные собаки и счастливые возвращения домой — в одном месте.`,
+    alternates: { canonical: `/district/${d.id}` },
+  };
+}
+
+type FoundLite = {
+  id: string;
+  photo: string | null;
+  breed: string | null;
+  color: string | null;
+  size: string | null;
+  comment: string | null;
+  createdAt: Date | string;
+};
+
+async function loadDistrict(id: string) {
+  const [active, found, reunions, activeCount, foundCount, reunionCount] =
+    await Promise.all([
+      db.lostReport.findMany({
+        where: { district: id, status: "active" },
+        include: { sightings: { select: { id: true } } },
+        orderBy: { createdAt: "desc" },
+        take: 12,
+      }),
+      db.foundReport.findMany({
+        where: { district: id, status: "open" },
+        orderBy: { createdAt: "desc" },
+        take: 12,
+      }),
+      db.reunion.findMany({
+        where: { district: id },
+        orderBy: { createdAt: "desc" },
+        take: 6,
+      }),
+      db.lostReport.count({ where: { district: id, status: "active" } }),
+      db.foundReport.count({ where: { district: id, status: "open" } }),
+      db.reunion.count({ where: { district: id } }),
+    ]);
+  return {
+    active,
+    found,
+    reunions,
+    counts: { active: activeCount, found: foundCount, reunions: reunionCount },
+  };
+}
+
+function FoundMini({ f }: { f: FoundLite }) {
+  const summary = [f.breed, f.color, f.size ? SIZE_RU[f.size] : null]
+    .filter(Boolean)
+    .join(" · ");
+  return (
+    <article className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-blush bg-card shadow-card transition-all duration-200 hover:-translate-y-1 hover:shadow-soft">
+      <div className="relative aspect-[4/3] bg-blush-soft">
+        {f.photo ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={f.photo}
+            alt="Найденная собака"
+            className="size-full object-cover"
+          />
+        ) : (
+          <div className="flex size-full items-center justify-center text-petal-deep">
+            <PawPrint className="size-10" aria-hidden />
+          </div>
+        )}
+        <span className="absolute left-3 top-3 z-10">
+          <Badge tone="found">Найдена — ищем хозяина</Badge>
+        </span>
+      </div>
+      <div className="flex flex-1 flex-col gap-1.5 p-5">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-bold">{summary || "Собака без приметы"}</h3>
+          <span className="inline-flex shrink-0 items-center gap-1 text-xs text-ink-soft">
+            <Clock className="size-3.5" aria-hidden />
+            {timeAgo(f.createdAt)}
+          </span>
+        </div>
+        {f.comment ? (
+          <p className="text-sm leading-relaxed text-ink">{f.comment}</p>
+        ) : null}
+      </div>
+      <Link
+        href={`/found/${f.id}`}
+        className="absolute inset-0 z-0"
+        aria-label="Подробнее о находке"
+      >
+        <span className="sr-only">Подробнее</span>
+      </Link>
+    </article>
+  );
+}
+
+export default async function DistrictHubPage({ params }: Params) {
+  const { id } = await params;
+  const d = findDistrict(id);
+  if (!d) notFound();
+
+  const data = await loadDistrict(id).catch(() => ({
+    active: [],
+    found: [],
+    reunions: [],
+    counts: { active: 0, found: 0, reunions: 0 },
+  }));
+  const { active, found, reunions, counts } = data;
+
+  const stats = [
+    {
+      label: plural(counts.active, "в розыске", "в розыске", "в розыске"),
+      value: counts.active,
+      Icon: Search,
+      tone: "text-coral",
+    },
+    {
+      label: "находок ждут",
+      value: counts.found,
+      Icon: PawPrint,
+      tone: "text-petal-deep",
+    },
+    {
+      label: "вернулись домой",
+      value: counts.reunions,
+      Icon: Heart,
+      tone: "text-status-found",
+    },
+  ];
+
+  return (
+    <Container className="py-10 sm:py-14">
+      {/* Навигация наверх к обзору районов */}
+      <Link
+        href="/pulse"
+        className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
+      >
+        <ArrowLeft className="size-4" aria-hidden />
+        Все районы
+      </Link>
+
+      {/* Шапка района */}
+      <div className="mt-4 max-w-2xl">
+        <Badge tone="petal">
+          <MapPin className="mr-1 inline size-4" aria-hidden />
+          {d.okrug}
+        </Badge>
+        <h1 className="mt-3 text-3xl font-bold sm:text-4xl">Район {d.name}</h1>
+        <p className="mt-2 text-lg text-ink-soft">
+          Что происходит с собаками в районе прямо сейчас: кого ищут, кого нашли
+          и кто уже дома.
+        </p>
+      </div>
+
+      {/* Три ключевые цифры района */}
+      <div className="mt-7 grid gap-4 sm:grid-cols-3">
+        {stats.map((s, i) => (
+          <Reveal key={s.label} delay={i * 0.06}>
+            <div className="flex items-center gap-3 rounded-2xl border border-blush bg-card p-5 shadow-card">
+              <s.Icon className={`size-7 shrink-0 ${s.tone}`} aria-hidden />
+              <div>
+                <span className="font-display text-3xl font-bold leading-none">
+                  {s.value}
+                </span>
+                <span className="ml-2 text-sm text-ink-soft">{s.label}</span>
+              </div>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+
+      {/* Действия */}
+      <div className="mt-6 flex flex-wrap gap-3">
+        <ButtonLink href="/sos" variant="sos" size="md">
+          Сообщить о пропаже
+        </ButtonLink>
+        <ButtonLink href="/found" variant="secondary" size="md">
+          <PawPrint className="size-4" aria-hidden /> Я нашёл собаку
+        </ButtonLink>
+        <ButtonLink
+          href={`/poster/district/${d.id}`}
+          variant="secondary"
+          size="md"
+        >
+          <Printer className="size-4" aria-hidden /> Листовка района
+        </ButtonLink>
+        <a
+          href="/feed/lost/rss"
+          className="inline-flex items-center gap-1.5 self-center text-sm font-semibold text-petal-deep hover:underline"
+        >
+          <Rss className="size-4" aria-hidden /> RSS пропаж
+        </a>
+      </div>
+
+      {/* Активные розыски */}
+      <section className="mt-12">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-2xl font-bold">🔴 Активные розыски</h2>
+          {counts.active > active.length ? (
+            <Link
+              href={`/feed/lost?district=${encodeURIComponent(d.id)}`}
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
+            >
+              Показать все {counts.active}
+              <ArrowRight className="size-4" aria-hidden />
+            </Link>
+          ) : null}
+        </div>
+
+        {active.length === 0 ? (
+          <div className="mt-5 rounded-3xl border border-blush bg-card p-6 shadow-card">
+            <ShunyaBubble message="В этом районе сейчас никто не в розыске — и пусть так и будет. Если собака потеряется, стая поднимется на помощь." />
+          </div>
+        ) : (
+          <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {active.map((r) => (
+              <ReportCard key={r.id} report={r} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Находки района */}
+      <section className="mt-12">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-2xl font-bold">🐶 Находки рядом</h2>
+          {counts.found > found.length ? (
+            <Link
+              href="/found"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
+            >
+              Все находки
+              <ArrowRight className="size-4" aria-hidden />
+            </Link>
+          ) : null}
+        </div>
+
+        {found.length === 0 ? (
+          <div className="mt-5 rounded-3xl border border-blush bg-card p-6 shadow-card">
+            <p className="text-ink-soft">
+              Пока никто не отметил найденную собаку в этом районе. Нашли —{" "}
+              <Link
+                href="/found"
+                className="font-semibold text-petal-deep hover:underline"
+              >
+                сообщите о находке
+              </Link>
+              , и хозяин увидит её быстрее.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {found.map((f) => (
+              <FoundMini key={f.id} f={f} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Истории возвращений */}
+      {reunions.length > 0 ? (
+        <section className="mt-12">
+          <h2 className="text-2xl font-bold">🟢 Уже дома</h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            Счастливые финалы из района {d.name}.
+          </p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {reunions.map((r) => (
+              <div
+                key={r.id}
+                className="rounded-2xl border border-blush bg-card p-5 shadow-card"
+              >
+                <div className="flex items-center gap-2">
+                  <Heart className="size-4 text-status-found" aria-hidden />
+                  <span className="font-semibold">{r.petName}</span>
+                  <span className="ml-auto text-xs text-ink-soft">
+                    {timeAgo(r.createdAt)}
+                  </span>
+                </div>
+                <p className="mt-2 line-clamp-4 text-sm leading-relaxed text-ink-soft">
+                  {r.story}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4">
+            <Link
+              href="/reunited"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
+            >
+              Все истории возвращений
+              <ArrowRight className="size-4" aria-hidden />
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
+      {/* Подвал — на карту и к обзору районов */}
+      <Reveal>
+        <div className="mt-14 flex flex-col items-center gap-5 rounded-[2.5rem] border border-blush bg-gradient-to-br from-blush-soft to-card p-8 text-center shadow-card sm:p-10">
+          <div className="relative size-20">
+            <Image
+              src="/shunya/pose-happy-cut.png"
+              alt="Шуня"
+              fill
+              sizes="80px"
+              className="object-contain"
+            />
+          </div>
+          <p className="max-w-xl text-lg text-ink-soft">
+            Чем больше соседей в стае, тем быстрее находятся собаки. Загляните на
+            карту района или поднимите тревогу, если кто-то потерялся.
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <ButtonLink href="/map" variant="secondary" size="lg">
+              <MapPin className="size-5" aria-hidden /> Карта
+            </ButtonLink>
+            <ButtonLink href="/pulse" size="lg">
+              Пульс по районам <ArrowRight className="size-5" aria-hidden />
+            </ButtonLink>
+          </div>
+        </div>
+      </Reveal>
+    </Container>
+  );
+}

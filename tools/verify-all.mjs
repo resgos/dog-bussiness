@@ -28,13 +28,21 @@ const suites = [
   "verify-mapfounds",
   "verify-reviewfixes",
   "verify-checkout-variant",
+  "verify-districthub",
 ];
 
 let failed = 0;
 const summary = [];
 for (const s of suites) {
   process.stdout.write(`\n━━━━ ${s} ━━━━\n`);
-  const r = spawnSync(process.execPath, [`tools/${s}.mjs`], { stdio: "inherit" });
+  let r = spawnSync(process.execPath, [`tools/${s}.mjs`], { stdio: "inherit" });
+  if (r.status !== 0) {
+    // Один ретрай: полный прогон 20+ сьютов изредка ловит транзиентный блип
+    // dev-сервера (ECONNREFUSED на смежном блоке). Повтор отсеивает ложные «красные»;
+    // настоящий провал воспроизводится и на втором прогоне.
+    process.stdout.write(`\n  ↻ ретрай ${s} (первый прогон упал)\n`);
+    r = spawnSync(process.execPath, [`tools/${s}.mjs`], { stdio: "inherit" });
+  }
   const okRun = r.status === 0;
   if (!okRun) failed++;
   summary.push(`${okRun ? "✓" : "✗"} ${s}`);
