@@ -97,10 +97,35 @@ try {
       ok(page.includes("Размер: L · Цвет: Синий"), "подтверждение: метка варианта");
       ok(page.includes("3000"), "подтверждение: итог 3000");
       ok(!page.includes("+70000000000"), "подтверждение: телефона покупателя нет (PII)");
+      // Заказ гостевой (чекаут без сессии) → показываем подсказку сохранить
+      // ссылку (CTA «Мои заказы» рендерится только владельцу; хинт и CTA взаимно
+      // исключают друг друга — наличие хинта доказывает гостевую ветку. «Мои
+      // заказы» в подвале не считаем — это глобальный навигационный линк).
+      ok(page.includes("Сохрани ссылку"), "гостю — подсказка сохранить ссылку");
+      ok(page.includes("Заказ принят"), "статус new → бейдж «Заказ принят»");
       ok(
         (await fetch(`${BASE}/shop/order/zzz-nope-404`)).status === 404,
         "несуществующий заказ → 404",
       );
+
+      // Статус-зависимый копирайт: выполненный заказ не должен говорить «уже мчим».
+      const doneOrder = await db.order.create({
+        data: {
+          name: "Тест Готов",
+          phone: "+70000000000",
+          status: "done",
+          totalRub: 1000,
+          items: { create: [{ productId: A.id, qty: 1, priceRub: 1000 }] },
+        },
+      });
+      const dpage = await (await fetch(`${BASE}/shop/order/${doneOrder.id}`)).text();
+      ok(dpage.includes("Выполнен"), "статус done → бейдж «Выполнен»");
+      ok(
+        !dpage.includes("Уже мчим за заказом"),
+        "статус done НЕ показывает копирайт «только что заказал»",
+      );
+      await db.orderItem.deleteMany({ where: { orderId: doneOrder.id } }).catch(() => {});
+      await db.order.delete({ where: { id: doneOrder.id } }).catch(() => {});
     }
   }
 
