@@ -18,6 +18,7 @@ const suites = [
   "verify-lostedit",
   "verify-foundedit",
   "verify-soft404",
+  "verify-sosmatch",
 ];
 
 let failed = 0;

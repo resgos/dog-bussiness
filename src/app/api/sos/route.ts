@@ -6,6 +6,7 @@ import { censorProfanity } from "@/lib/profanity";
 import { notifyMany } from "@/lib/notify";
 import { sendTelegramChannel } from "@/lib/telegram";
 import { rateLimit, ipKey } from "@/lib/ratelimit";
+import { rankFoundForLost } from "@/lib/match";
 
 export const dynamic = "force-dynamic";
 
@@ -93,6 +94,38 @@ export async function POST(req: Request) {
     } catch {
       /* рассылка не критична — игнорируем */
     }
+  }
+
+  // Умный алерт: новая пропажа может совпасть с уже открытыми находками —
+  // оповестим нашедших, чтобы они связались с владельцем (симметрично /api/found:
+  // там при находке оповещаем владельцев совпавших пропаж). Только сильные
+  // совпадения, чтобы не спамить.
+  try {
+    const founds = await db.foundReport.findMany({
+      where: { status: "open" },
+      orderBy: { createdAt: "desc" },
+      take: 500,
+    });
+    const matches = rankFoundForLost(report, founds, 40);
+    const finderIds = [
+      ...new Set(
+        matches
+          .map((m) => m.item.userId)
+          .filter(
+            (uid): uid is string => Boolean(uid) && uid !== report.userId,
+          ),
+      ),
+    ];
+    if (finderIds.length) {
+      await notifyMany(finderIds, {
+        type: "found",
+        title: "Возможно, вашу находку ищут! 🔎",
+        body: "Рядом подали в розыск собаку, похожую на найденную вами. Загляните — вдруг это её хозяин.",
+        link: "/feed/lost",
+      });
+    }
+  } catch {
+    /* алерт некритичен — игнорируем */
   }
 
   // Бродкаст в районный Telegram-канал (no-op без настроенного бота/канала).
