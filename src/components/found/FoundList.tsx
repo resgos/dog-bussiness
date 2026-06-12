@@ -102,10 +102,13 @@ export function FoundList({
           />
         </div>
 
-        {presentDistricts.length > 0 ? (
+        {presentDistricts.length > 0 || district ? (
           <div>
             <p className="mb-2 text-sm font-semibold text-ink">Район</p>
             <div className="flex flex-wrap gap-2">
+              <TagToggle active={district === null} onClick={() => setDistrict(null)}>
+                Все районы
+              </TagToggle>
               {presentDistricts.map(([okrug, list]) =>
                 list.map((d) => (
                   <TagToggle

@@ -4,8 +4,10 @@ import { getCurrentUser } from "@/lib/auth";
 import { savePhoto } from "@/lib/storage";
 import { censorProfanity } from "@/lib/profanity";
 import { notifyMany } from "@/lib/notify";
+import { sendTelegramChannel } from "@/lib/telegram";
 import { rankLostForFound } from "@/lib/match";
 import { rateLimit, ipKey } from "@/lib/ratelimit";
+import { findDistrict } from "@/lib/districts";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +70,26 @@ export async function POST(req: Request) {
       });
     }
   } catch { /* алерт некритичен */ }
+
+  // Бродкаст находки в районный Telegram-канал (no-op без бота/канала) —
+  // симметрично /api/sos, где в канал уходят пропажи. Расширяет охват: владельцы,
+  // читающие районный чат, увидят найденную собаку. Контакты не публикуем —
+  // только ссылку на страницу находки (там и связь с нашедшим).
+  {
+    const base = process.env.NEXT_PUBLIC_SITE_URL || "";
+    const place = found.district
+      ? (findDistrict(found.district)?.name ?? found.district)
+      : null;
+    const facts = [found.breed, found.color, place].filter(Boolean).join(" · ");
+    const text = [
+      `🐶 Найдена собака${facts ? `: ${facts}` : ""}`,
+      found.comment || "",
+      base ? `Узнали? Контакты и детали: ${base}/found/${found.id}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+    await sendTelegramChannel(text);
+  }
 
   return NextResponse.json({ id: report.id }, { status: 201 });
 }
