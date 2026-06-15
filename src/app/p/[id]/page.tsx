@@ -2,10 +2,11 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { Camera, MapPin, Phone, Send, PawPrint, ShieldAlert, ScanLine } from "lucide-react";
+import { Camera, MapPin, Phone, Send, PawPrint, ShieldAlert, ScanLine, QrCode } from "lucide-react";
 import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
+import { ButtonLink } from "@/components/ui/Button";
 import { findDistrict } from "@/lib/districts";
 import { ageOptions, sizeOptions } from "@/lib/petForm";
 import { ShareButton } from "@/components/share/ShareButton";
@@ -203,6 +204,17 @@ export default async function PassportPage({
                     : `Цифровой паспорт питомца ${pet.name} · Лапка помощи`
                 }
               />
+
+              {/* Превентивная QR-бирка на ошейник: печать → паспорт по скану. */}
+              <ButtonLink
+                variant="secondary"
+                size="sm"
+                href={`/p/${pet.id}/card`}
+                className="self-start"
+              >
+                <QrCode className="size-4" aria-hidden />
+                QR-бирка на ошейник
+              </ButtonLink>
 
               {district ? (
                 <p className="inline-flex items-center gap-1.5 text-sm text-ink-soft">
