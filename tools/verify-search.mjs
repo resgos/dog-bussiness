@@ -45,13 +45,20 @@ try {
     "секции Розыски / Находки / Паспорта",
   );
 
-  // Короткий запрос → подсказка, без обращения к БД.
+  // Короткий запрос → подсказка + чипы быстрого browse (породы/районы).
   const shortHtml = await (await fetch(`${BASE}/search?q=a`)).text();
   ok(shortHtml.includes("минимум 2 символа"), "короткий запрос → подсказка");
+  ok(
+    shortHtml.includes("Популярные породы") && shortHtml.includes("корги") &&
+      shortHtml.includes("/search?q="),
+    "короткий запрос → чипы популярных пород (ссылки в поиск)",
+  );
+  ok(shortHtml.includes("По районам"), "короткий запрос → чипы районов");
 
-  // Нет совпадений → дружелюбная заглушка.
+  // Нет совпадений → дружелюбная заглушка + чипы для восстановления.
   const noneHtml = await (await fetch(`${BASE}/search?q=zzznet${stamp}`)).text();
   ok(noneHtml.includes("ничего не нашлось"), "нет совпадений → заглушка");
+  ok(noneHtml.includes("Популярные породы"), "нет совпадений → чипы для recovery");
 
   // Поиск по названию района (Хамовники → слуг khamovniki).
   const distLost = await db.lostReport.create({

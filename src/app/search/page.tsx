@@ -60,6 +60,15 @@ async function runSearch(query: string) {
   return { losts, founds, pets };
 }
 
+const POPULAR_BREEDS = [
+  "корги",
+  "хаски",
+  "лабрадор",
+  "метис",
+  "джек-рассел",
+  "дворняжка",
+];
+
 export default async function SearchPage({ searchParams }: Params) {
   const { q } = await searchParams;
   const query = (q ?? "").trim().slice(0, 80);
@@ -68,6 +77,37 @@ export default async function SearchPage({ searchParams }: Params) {
     ? await runSearch(query)
     : { losts: [], founds: [], pets: [] };
   const total = losts.length + founds.length + pets.length;
+
+  // Быстрый browse при пустом/нулевом запросе: популярные породы и районы как
+  // ссылки-чипы — поиск полезен сразу, без догадок «что ввести».
+  const quickChips = (
+    <div className="mt-8">
+      <p className="text-sm font-semibold text-ink">Популярные породы</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {POPULAR_BREEDS.map((b) => (
+          <Link
+            key={b}
+            href={`/search?q=${encodeURIComponent(b)}`}
+            className="rounded-full border border-blush bg-card px-3.5 py-1.5 text-sm font-semibold text-ink transition-colors hover:border-petal hover:bg-blush-soft"
+          >
+            {b}
+          </Link>
+        ))}
+      </div>
+      <p className="mt-5 text-sm font-semibold text-ink">По районам</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {districts.slice(0, 8).map((d) => (
+          <Link
+            key={d.id}
+            href={`/search?q=${encodeURIComponent(d.name)}`}
+            className="rounded-full border border-blush bg-card px-3.5 py-1.5 text-sm font-semibold text-ink transition-colors hover:border-petal hover:bg-blush-soft"
+          >
+            {d.name}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <Container className="py-12 sm:py-16">
@@ -94,14 +134,22 @@ export default async function SearchPage({ searchParams }: Params) {
       </form>
 
       {!ready ? (
-        <p className="mt-8 text-ink-soft">Введите минимум 2 символа.</p>
+        <>
+          <p className="mt-8 text-ink-soft">
+            Введите минимум 2 символа — или выберите из популярного:
+          </p>
+          {quickChips}
+        </>
       ) : total === 0 ? (
-        <div className="mt-8 rounded-3xl border border-blush bg-card p-8 shadow-card">
-          <ShunyaBubble
-            src="/shunya/pose-surprised.png"
-            message={`По запросу «${query}» ничего не нашлось. Попробуй другое слово — кличку, породу или район.`}
-          />
-        </div>
+        <>
+          <div className="mt-8 rounded-3xl border border-blush bg-card p-8 shadow-card">
+            <ShunyaBubble
+              src="/shunya/pose-surprised.png"
+              message={`По запросу «${query}» ничего не нашлось. Попробуй другое слово — кличку, породу или район.`}
+            />
+          </div>
+          {quickChips}
+        </>
       ) : (
         <div className="mt-8 space-y-10">
           <p className="text-sm text-ink-soft">Найдено: {total}</p>
