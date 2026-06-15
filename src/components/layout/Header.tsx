@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { ChevronDown, LogIn, Menu, X } from "lucide-react";
+import { ChevronDown, LogIn, Menu, Search, X } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { SosButton } from "./SosButton";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
@@ -106,6 +106,13 @@ export function Header() {
 
         {/* Действия */}
         <div className="flex items-center gap-2">
+          <Link
+            href="/search"
+            aria-label="Поиск по объявлениям"
+            className="inline-flex size-9 items-center justify-center rounded-full text-ink transition-colors hover:bg-blush-soft"
+          >
+            <Search className="size-5" aria-hidden />
+          </Link>
           {user ? (
             <>
               <NotificationBell unread={unread} />

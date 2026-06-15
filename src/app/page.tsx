@@ -29,6 +29,15 @@ const siteLd = {
   name: "Лапка помощи",
   url: SITE_URL,
   inLanguage: "ru-RU",
+  // Sitelinks-поиск в выдаче Google: ведёт на наш /search?q=…
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${SITE_URL}/search?q={search_term_string}`,
+    },
+    "query-input": "required name=search_term_string",
+  },
 };
 
 export default function HomePage() {
