@@ -7,7 +7,12 @@ import { SearchMap } from "@/components/map/SearchMap";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Карта поиска" };
 
-export default async function MapPage() {
+export default async function MapPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ report?: string; see?: string }>;
+}) {
+  const { report, see } = await searchParams;
   const me = await getCurrentUser();
 
   const [reports, walkers, founds] = await Promise.all([
@@ -57,6 +62,8 @@ export default async function MapPage() {
         walkers={walkers}
         founds={founds}
         walking={walking}
+        initialReportId={report ?? null}
+        openSightingForReport={see === "1"}
       />
     </Container>
   );

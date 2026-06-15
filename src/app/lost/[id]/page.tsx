@@ -298,6 +298,14 @@ export default async function LostDetailPage({
             {report.status === "active" ? (
               <SubscribeButton reportId={report.id} />
             ) : null}
+            {report.status === "active" ? (
+              // Нашедший отмечает наблюдение в один шаг: карта откроется на этом
+              // розыске с формой «видел» (см. /map?report=…&see=1).
+              <ButtonLink href={`/map?report=${report.id}&see=1`}>
+                <Eye className="size-4" aria-hidden />
+                Я видел эту собаку
+              </ButtonLink>
+            ) : null}
             <ButtonLink href={`/poster/${report.id}`}>
               <Printer className="size-4" aria-hidden />
               Розыскной плакат
@@ -317,7 +325,7 @@ export default async function LostDetailPage({
                     } Каждый репост приближает встречу.`
               }
             />
-            <ButtonLink variant="secondary" href="/map">
+            <ButtonLink variant="secondary" href={`/map?report=${report.id}`}>
               <MapIcon className="size-4" aria-hidden />
               На карту поиска
             </ButtonLink>

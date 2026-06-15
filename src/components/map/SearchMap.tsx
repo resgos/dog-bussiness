@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, MapPin, Crosshair, Navigation, Circle, ArrowDownNarrowWide, Spline } from "lucide-react";
 import { findDistrict } from "@/lib/districts";
@@ -76,16 +76,28 @@ export function SearchMap({
   walkers = [],
   founds = [],
   walking = false,
+  initialReportId = null,
+  openSightingForReport = false,
 }: {
   reports: Report[];
   walkers?: Walker[];
   founds?: FoundMark[];
   walking?: boolean;
+  initialReportId?: string | null;
+  openSightingForReport?: boolean;
 }) {
   const router = useRouter();
   const [filter, setFilter] = useState<Filter>("all");
   const [recency, setRecency] = useState<Recency>("all");
-  const [sightingFor, setSightingFor] = useState<{ id: string; name: string } | null>(null);
+  // Глубокая ссылка /map?report=…&see=1 (со страницы розыска): сразу открываем
+  // форму наблюдения для этого розыска — нашедший отмечает «видел» в один шаг.
+  const initialSeen =
+    openSightingForReport && initialReportId
+      ? reports.find((r) => r.id === initialReportId && r.status === "active")
+      : null;
+  const [sightingFor, setSightingFor] = useState<{ id: string; name: string } | null>(
+    initialSeen ? { id: initialSeen.id, name: initialSeen.petName } : null,
+  );
   const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
   const [nearestFirst, setNearestFirst] = useState(false);
@@ -99,6 +111,15 @@ export function SearchMap({
     setFocusId(id);
     setFocusNonce((n) => n + 1);
   };
+
+  // Глубокая ссылка /map?report=… — наводим карту на розыск после монтирования
+  // (Leaflet грузится асинхронно: даём ему встать, иначе фокус уйдёт в пустоту).
+  useEffect(() => {
+    if (!initialReportId || !reports.some((r) => r.id === initialReportId)) return;
+    const t = setTimeout(() => focusMarker(initialReportId), 600);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const whenOf = (r: Report) => new Date(r.lostAt ?? r.createdAt).getTime();
 

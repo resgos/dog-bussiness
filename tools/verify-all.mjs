@@ -59,6 +59,7 @@ const suites = [
   "verify-photohash",
   "verify-wave1",
   "verify-jsonld",
+  "verify-sightingdeeplink",
 ];
 
 // Шаг 0: смести сирот от прерванных прошлых прогонов (демо-лента должна быть
