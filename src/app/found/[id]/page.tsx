@@ -139,6 +139,21 @@ export default async function FoundDetailPage({
     }
   }
 
+  // «Ещё находки рядом»: другие открытые находки того же района (Meteora-style
+  // related, симметрично «Ещё ищут рядом» на розысках). Без миграций.
+  const nearby = item.district
+    ? await db.foundReport.findMany({
+        where: {
+          status: "open",
+          district: item.district,
+          id: { not: item.id },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 3,
+        select: { id: true, breed: true, color: true, photo: true, createdAt: true },
+      })
+    : [];
+
   // Структурированные данные (schema.org Article) для богатых результатов Google.
   const jsonLd = articleLd({
     headline: isReunited
@@ -354,6 +369,65 @@ export default async function FoundDetailPage({
               );
             })}
           </div>
+        </section>
+      ) : null}
+
+      {nearby.length > 0 ? (
+        <section className="mt-10 sm:mt-12">
+          <h2 className="inline-flex items-center gap-2 text-2xl font-bold">
+            <PawPrint className="size-6 text-petal" aria-hidden />
+            Ещё находки{districtName ? ` в районе ${districtName}` : " рядом"}
+          </h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            Другие найденные собаки рядом — возможно, хозяин ищет одну из них.
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {nearby.map((n) => {
+              const facts =
+                [n.breed, n.color].filter(Boolean).join(" · ") || "Найдена собака";
+              return (
+                <Link
+                  key={n.id}
+                  href={`/found/${n.id}`}
+                  className="group flex items-center gap-4 rounded-3xl border border-blush bg-card p-4 shadow-card transition-all duration-200 hover:-translate-y-1 hover:shadow-soft"
+                >
+                  <span className="relative block size-16 shrink-0 overflow-hidden rounded-2xl bg-blush-soft">
+                    {n.photo ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={n.photo}
+                        alt={facts}
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <span className="flex size-full items-center justify-center text-petal">
+                        <PawPrint className="size-7" aria-hidden />
+                      </span>
+                    )}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate font-bold text-ink group-hover:text-petal-deep">
+                      {facts}
+                    </span>
+                    <span className="block text-xs text-ink-soft">
+                      {timeAgo(n.createdAt)}
+                    </span>
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+          {item.district ? (
+            <p className="mt-4 text-sm">
+              <Link
+                href={`/district/${item.district}`}
+                className="font-semibold text-petal-deep hover:underline"
+              >
+                Все пропажи и находки района
+                {districtName ? ` ${districtName}` : ""} →
+              </Link>
+            </p>
+          ) : null}
         </section>
       ) : null}
 
