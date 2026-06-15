@@ -173,6 +173,21 @@ export default async function LostDetailPage({
     }
   }
 
+  // «Ещё ищут рядом»: другие активные розыски того же района (Meteora-style
+  // related). Больше глаз на район — выше шанс у каждой собаки. Без миграций.
+  const nearby = report.district
+    ? await db.lostReport.findMany({
+        where: {
+          status: "active",
+          district: report.district,
+          id: { not: report.id },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 3,
+        select: { id: true, petName: true, photo: true, breed: true, createdAt: true },
+      })
+    : [];
+
   // Структурированные данные (schema.org Article) для богатых результатов Google.
   const jsonLd = articleLd({
     headline: isFound
@@ -430,6 +445,62 @@ export default async function LostDetailPage({
           </div>
         )}
       </section>
+
+      {nearby.length > 0 ? (
+        <section className="mt-10 sm:mt-12">
+          <h2 className="inline-flex items-center gap-2 text-2xl font-bold">
+            <PawPrint className="size-6 text-petal" aria-hidden />
+            Ещё ищут{districtName ? ` в районе ${districtName}` : " рядом"}
+          </h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            Другие активные розыски рядом — больше глаз на район, выше шанс у
+            каждой собаки.
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {nearby.map((n) => (
+              <Link
+                key={n.id}
+                href={`/lost/${n.id}`}
+                className="group flex items-center gap-4 rounded-3xl border border-blush bg-card p-4 shadow-card transition-all duration-200 hover:-translate-y-1 hover:shadow-soft"
+              >
+                <span className="relative block size-16 shrink-0 overflow-hidden rounded-2xl bg-blush-soft">
+                  {n.photo ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={n.photo}
+                      alt={`Разыскивается ${n.petName}`}
+                      className="size-full object-cover"
+                    />
+                  ) : (
+                    <span className="flex size-full items-center justify-center text-petal">
+                      <PawPrint className="size-7" aria-hidden />
+                    </span>
+                  )}
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate font-bold text-ink group-hover:text-petal-deep">
+                    {n.petName}
+                  </span>
+                  <span className="block truncate text-sm text-ink-soft">
+                    {[n.breed, timeAgo(n.createdAt)].filter(Boolean).join(" · ")}
+                  </span>
+                </span>
+              </Link>
+            ))}
+          </div>
+          {report.district ? (
+            <p className="mt-4 text-sm">
+              <Link
+                href={`/district/${report.district}`}
+                className="font-semibold text-petal-deep hover:underline"
+              >
+                Все пропажи и находки района
+                {districtName ? ` ${districtName}` : ""} →
+              </Link>
+            </p>
+          ) : null}
+        </section>
+      ) : null}
     </Container>
   );
 }
