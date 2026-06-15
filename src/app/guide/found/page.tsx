@@ -12,8 +12,28 @@ import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
+import { FaqSection } from "@/components/ui/FaqSection";
 
 export const metadata = { title: "Нашли собаку — что делать" };
+
+const FOUND_FAQ = [
+  {
+    q: "Нашёл собаку — что делать в первую очередь?",
+    a: "Проверьте ошейник: жетон с телефоном или QR-паспорт «Лапки» (наведите камеру). Сообщите о находке в «Лапке» — хозяин, который ищет рядом, увидит её.",
+  },
+  {
+    q: "Как проверить, есть ли у собаки чип?",
+    a: "Чип бесплатно считывают сканером в любой ветклинике. По номеру в реестрах (Animal-ID.RU, AnimalFace) можно найти контакты хозяина.",
+  },
+  {
+    q: "Можно ли оставить собаку у себя на время поисков?",
+    a: "Если есть возможность — да, это безопаснее улицы. Обеспечьте воду, еду и тепло, разместите объявление о находке и следите за совпадениями в ленте.",
+  },
+  {
+    q: "Как убедиться, что человек — настоящий хозяин?",
+    a: "Попросите детали, которых нет в объявлении: особые приметы, кличку, на которую собака отзывается, старые фото. Настоящий хозяин ответит без труда.",
+  },
+];
 
 type Step = {
   icon: LucideIcon;
@@ -101,6 +121,8 @@ export default function GuideFoundPage() {
             })}
           </ol>
         </section>
+
+        <FaqSection items={FOUND_FAQ} />
 
         <section className="mt-10 rounded-3xl bg-blush-soft p-6 sm:p-8">
           <h2 className="text-xl font-bold text-ink">Помоги собаке вернуться домой</h2>

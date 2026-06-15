@@ -51,3 +51,17 @@ export function breadcrumbLd(items: { name: string; path: string }[]) {
     })),
   };
 }
+
+/** JSON-LD «частые вопросы» (schema.org FAQPage). Кормится тем же массивом, что
+ *  и видимый аккордеон, — структурированное и видимое всегда совпадают. */
+export function faqLd(items: { q: string; a: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((it) => ({
+      "@type": "Question",
+      name: it.q,
+      acceptedAnswer: { "@type": "Answer", text: it.a },
+    })),
+  };
+}
