@@ -32,6 +32,13 @@ const stamp = Date.now();
 const cleanup = { losts: [], founds: [], pets: [] };
 
 try {
+  // — / (главная): корень structured data — Organization + WebSite —
+  const home = extractAll(await (await fetch(`${BASE}/`)).text());
+  const org = ofType(home, "Organization");
+  ok(Boolean(org), "/: Organization-блок присутствует");
+  ok(org?.logo?.startsWith("http"), "/: Organization.logo — абсолютный URL");
+  ok(Boolean(ofType(home, "WebSite")), "/: WebSite-блок присутствует");
+
   // — /lost/[id] —
   const lost = await db.lostReport.create({
     data: { petName: `LdПёс-${stamp}`, breed: "корги", district: "tverskoy", status: "active" },
