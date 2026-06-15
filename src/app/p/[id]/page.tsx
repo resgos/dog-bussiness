@@ -12,7 +12,7 @@ import { ShareButton } from "@/components/share/ShareButton";
 import { PetGallery } from "@/components/pets/PetGallery";
 import { PhotoLightbox } from "@/components/ui/PhotoLightbox";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { absoluteUrl, breadcrumbLd } from "@/lib/seo";
+import { articleLd, breadcrumbLd } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -109,23 +109,18 @@ export default async function PassportPage({
   ].filter(Boolean) as string[];
 
   // Структурированные данные паспорта (третий публичный тип контента после
-  // пропаж/находок) — богатые результаты Google. Картинка — реальный URL OG-карточки.
-  const passportLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
+  // пропаж/находок) — общий билдер Article.
+  const passportLd = articleLd({
     headline:
       pet.status === "lost"
         ? `🆘 Разыскивается: ${pet.name}`
         : `Паспорт питомца: ${pet.name}`,
     description: facts.join(", ") || "Цифровой паспорт питомца — Лапка помощи.",
-    image: [absoluteUrl(`/p/${pet.id}/opengraph-image`)],
-    datePublished: new Date(pet.createdAt).toISOString(),
-    url: absoluteUrl(`/p/${pet.id}`),
-    ...(district
-      ? { contentLocation: { "@type": "Place", name: `${district}, Москва` } }
-      : {}),
-    publisher: { "@type": "Organization", name: "Лапка помощи" },
-  };
+    imagePath: `/p/${pet.id}/opengraph-image`,
+    urlPath: `/p/${pet.id}`,
+    datePublished: pet.createdAt,
+    districtName: district,
+  });
   const crumbs = breadcrumbLd([
     { name: "Главная", path: "/" },
     { name: pet.name, path: `/p/${pet.id}` },

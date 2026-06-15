@@ -32,7 +32,7 @@ import { timeAgo } from "@/lib/format";
 import { rankLostForFound, ONPAGE_MATCH_MIN } from "@/lib/match";
 import { sizeOptions } from "@/lib/petForm";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { absoluteUrl, breadcrumbLd } from "@/lib/seo";
+import { articleLd, breadcrumbLd } from "@/lib/seo";
 
 // Статус и контакты нашедшего могут меняться — всегда свежие данные.
 export const dynamic = "force-dynamic";
@@ -139,10 +139,8 @@ export default async function FoundDetailPage({
     }
   }
 
-  // Структурированные данные для богатых результатов Google (org-поиск находок).
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
+  // Структурированные данные (schema.org Article) для богатых результатов Google.
+  const jsonLd = articleLd({
     headline: isReunited
       ? "Собака вернулась домой — воссоединились"
       : `Найдена собака: ${headline}`,
@@ -150,15 +148,11 @@ export default async function FoundDetailPage({
       [facts.join(", "), districtName ? `район ${districtName}` : null]
         .filter(Boolean)
         .join(". ") || "Узнали собаку? Помогите вернуть её домой.",
-    image: [absoluteUrl(`/found/${item.id}/opengraph-image`)],
-    datePublished: new Date(item.createdAt).toISOString(),
-    dateModified: new Date(item.createdAt).toISOString(),
-    url: absoluteUrl(`/found/${item.id}`),
-    ...(districtName
-      ? { contentLocation: { "@type": "Place", name: `${districtName}, Москва` } }
-      : {}),
-    publisher: { "@type": "Organization", name: "Лапка помощи" },
-  };
+    imagePath: `/found/${item.id}/opengraph-image`,
+    urlPath: `/found/${item.id}`,
+    datePublished: item.createdAt,
+    districtName,
+  });
   const crumbs = breadcrumbLd([
     { name: "Главная", path: "/" },
     { name: "Находки", path: "/found" },

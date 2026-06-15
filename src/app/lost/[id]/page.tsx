@@ -31,7 +31,7 @@ import { timeAgo } from "@/lib/format";
 import { rankFoundForLost, ONPAGE_MATCH_MIN } from "@/lib/match";
 import { sizeOptions } from "@/lib/petForm";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { absoluteUrl, breadcrumbLd } from "@/lib/seo";
+import { articleLd, breadcrumbLd } from "@/lib/seo";
 
 // Статус и наблюдения меняются в реальном времени — всегда свежие данные.
 export const dynamic = "force-dynamic";
@@ -173,11 +173,8 @@ export default async function LostDetailPage({
     }
   }
 
-  // Структурированные данные для богатых результатов Google (org-поиск — основной
-  // бесплатный канал). Картинка — динамическая OG-карточка (настоящий URL, не data:).
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
+  // Структурированные данные (schema.org Article) для богатых результатов Google.
+  const jsonLd = articleLd({
     headline: isFound
       ? `${report.petName} — найдена`
       : `🆘 Разыскивается: ${report.petName}`,
@@ -185,15 +182,12 @@ export default async function LostDetailPage({
       [report.breed, districtName ? `район ${districtName}` : null]
         .filter(Boolean)
         .join(", ") || "Помогите вернуть собаку домой — Лапка помощи.",
-    image: [absoluteUrl(`/lost/${report.id}/opengraph-image`)],
-    datePublished: new Date(report.lostAt ?? report.createdAt).toISOString(),
-    dateModified: new Date(report.createdAt).toISOString(),
-    url: absoluteUrl(`/lost/${report.id}`),
-    ...(districtName
-      ? { contentLocation: { "@type": "Place", name: `${districtName}, Москва` } }
-      : {}),
-    publisher: { "@type": "Organization", name: "Лапка помощи" },
-  };
+    imagePath: `/lost/${report.id}/opengraph-image`,
+    urlPath: `/lost/${report.id}`,
+    datePublished: report.lostAt ?? report.createdAt,
+    dateModified: report.createdAt,
+    districtName,
+  });
   const crumbs = breadcrumbLd([
     { name: "Главная", path: "/" },
     { name: "Лента розыска", path: "/feed/lost" },
