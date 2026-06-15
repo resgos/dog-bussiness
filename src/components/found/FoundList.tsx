@@ -10,7 +10,13 @@ import { districtsByOkrug } from "@/lib/districts";
 import { sizeOptions } from "@/lib/petForm";
 import { FoundCard, type FoundItem } from "./FoundCard";
 
-/** Лента находок с поиском по строке и фильтром по району/размеру (клиент). */
+const SORTS = [
+  { key: "new", label: "Сначала новые" },
+  { key: "long", label: "Дольше всех ждут" },
+] as const;
+type SortKey = (typeof SORTS)[number]["key"];
+
+/** Лента находок с поиском, фильтрами по району/размеру и сортировкой (клиент). */
 export function FoundList({
   items,
   initialDistrict = null,
@@ -24,6 +30,7 @@ export function FoundList({
   const [breed, setBreed] = useState<string | null>(null);
   const [size, setSize] = useState<string | null>(null);
   const [color, setColor] = useState<string | null>(null);
+  const [sort, setSort] = useState<SortKey>("new");
 
   // Показываем чипы только для районов, по которым есть находки — лишних не плодим.
   const presentDistricts = useMemo(() => {
@@ -57,7 +64,7 @@ export function FoundList({
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return items.filter((i) => {
+    const matched = items.filter((i) => {
       if (district && i.district !== district) return false;
       if (breed && i.breed !== breed) return false;
       if (size && i.size !== size) return false;
@@ -71,7 +78,15 @@ export function FoundList({
       }
       return true;
     });
-  }, [items, query, district, breed, size, color]);
+    const ts = (d: Date | string) => new Date(d).getTime();
+    // «Дольше всех ждут» — старые открытые находки первыми: собака давно найдена,
+    // а хозяин не объявился → ей нужна свежая видимость.
+    const order: Record<SortKey, (a: FoundItem, b: FoundItem) => number> = {
+      new: (a, b) => ts(b.createdAt) - ts(a.createdAt),
+      long: (a, b) => ts(a.createdAt) - ts(b.createdAt),
+    };
+    return [...matched].sort(order[sort]);
+  }, [items, query, district, breed, size, color, sort]);
 
   const hasFilters = Boolean(
     query.trim() || district || breed || size || color,
@@ -83,6 +98,7 @@ export function FoundList({
     setBreed(null);
     setSize(null);
     setColor(null);
+    setSort("new");
   };
 
   return (
@@ -100,6 +116,21 @@ export function FoundList({
             className="pl-11"
             aria-label="Поиск по находкам"
           />
+        </div>
+
+        <div>
+          <p className="mb-2 text-sm font-semibold text-ink">Сортировка</p>
+          <div className="flex flex-wrap gap-2">
+            {SORTS.map((srt) => (
+              <TagToggle
+                key={srt.key}
+                active={sort === srt.key}
+                onClick={() => setSort(srt.key)}
+              >
+                {srt.label}
+              </TagToggle>
+            ))}
+          </div>
         </div>
 
         {presentDistricts.length > 0 || district ? (

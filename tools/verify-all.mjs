@@ -66,6 +66,7 @@ const suites = [
   "verify-passportcard",
   "verify-breadcrumbs",
   "verify-nearbyfound",
+  "verify-foundsort",
 ];
 
 // Шаг 0: смести сирот от прерванных прошлых прогонов (демо-лента должна быть
