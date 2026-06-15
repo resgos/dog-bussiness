@@ -29,6 +29,13 @@ type LostReport = {
   sightings: { id: string }[];
 };
 
+const SORTS = [
+  { key: "new", label: "Сначала новые" },
+  { key: "reward", label: "С наградой" },
+  { key: "long", label: "Дольше всех ищут" },
+] as const;
+type SortKey = (typeof SORTS)[number]["key"];
+
 /** Лента активных пропаж с поиском по кличке/породе и фильтром по району (клиент). */
 export function LostFilters({
   reports,
@@ -44,6 +51,7 @@ export function LostFilters({
   const [size, setSize] = useState<string | null>(null);
   const [color, setColor] = useState<string | null>(null);
   const [withSightings, setWithSightings] = useState(false);
+  const [sort, setSort] = useState<SortKey>("new");
 
   // Чипы только для районов, которые реально встречаются в объявлениях — лишних не плодим.
   const presentDistricts = useMemo(() => {
@@ -107,8 +115,20 @@ export function LostFilters({
       const t = new Date(r.boostedUntil).getTime();
       return t > now ? t : 0;
     };
-    return [...matched].sort((a, b) => boostTs(b) - boostTs(a));
-  }, [reports, query, district, breed, size, color, withSightings]);
+    const ts = (d: Date | string | null) => (d ? new Date(d).getTime() : 0);
+    // Выбор пользователя: новые / по награде / «дольше всех в поиске» (старые
+    // активные — холодные дела, которым нужна свежая видимость).
+    const order: Record<SortKey, (a: LostReport, b: LostReport) => number> = {
+      new: (a, b) => ts(b.createdAt) - ts(a.createdAt),
+      reward: (a, b) =>
+        (b.reward ?? 0) - (a.reward ?? 0) || ts(b.createdAt) - ts(a.createdAt),
+      long: (a, b) => ts(a.lostAt ?? a.createdAt) - ts(b.lostAt ?? b.createdAt),
+    };
+    // Платный «буст» всегда выше; внутри группы — выбранная сортировка.
+    return [...matched].sort(
+      (a, b) => boostTs(b) - boostTs(a) || order[sort](a, b),
+    );
+  }, [reports, query, district, breed, size, color, withSightings, sort]);
 
   const hasFilters = Boolean(
     query.trim() || district || breed || size || color || withSightings,
@@ -121,6 +141,7 @@ export function LostFilters({
     setSize(null);
     setColor(null);
     setWithSightings(false);
+    setSort("new");
   };
 
   return (
@@ -138,6 +159,21 @@ export function LostFilters({
             className="pl-11"
             aria-label="Поиск по пропавшим"
           />
+        </div>
+
+        <div>
+          <p className="mb-2 text-sm font-semibold text-ink">Сортировка</p>
+          <div className="flex flex-wrap gap-2">
+            {SORTS.map((s) => (
+              <TagToggle
+                key={s.key}
+                active={sort === s.key}
+                onClick={() => setSort(s.key)}
+              >
+                {s.label}
+              </TagToggle>
+            ))}
+          </div>
         </div>
 
         <div>

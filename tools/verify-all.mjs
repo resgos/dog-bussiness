@@ -62,6 +62,7 @@ const suites = [
   "verify-sightingdeeplink",
   "verify-search",
   "verify-nearbylost",
+  "verify-feedsort",
 ];
 
 // Шаг 0: смести сирот от прерванных прошлых прогонов (демо-лента должна быть
