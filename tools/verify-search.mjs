@@ -45,6 +45,41 @@ try {
     "секции Розыски / Находки / Паспорта",
   );
 
+  // Вкладки-фильтры по типу: ссылки ?type=… присутствуют на странице результатов.
+  ok(
+    html.includes("type=lost") && html.includes("type=found") && html.includes("type=pet"),
+    "вкладки-фильтры: ссылки ?type=lost|found|pet",
+  );
+
+  // Вкладка «Находки»: видна находка, розыск и паспорт скрыты (по id-ссылкам —
+  // устойчиво к RSC-payload: href рендерится только в видимой секции).
+  const foundOnly = await (
+    await fetch(`${BASE}/search?q=${encodeURIComponent(TAG)}&type=found`)
+  ).text();
+  ok(foundOnly.includes(`/found/${found.id}`), "вкладка «Находки»: находка видна");
+  ok(
+    !foundOnly.includes(`/lost/${lost.id}`) && !foundOnly.includes(`/p/${petLost.id}`),
+    "вкладка «Находки»: розыск и паспорт скрыты",
+  );
+
+  // Вкладка «Розыски»: виден розыск, находка скрыта.
+  const lostOnly = await (
+    await fetch(`${BASE}/search?q=${encodeURIComponent(TAG)}&type=lost`)
+  ).text();
+  ok(
+    lostOnly.includes(`/lost/${lost.id}`) && !lostOnly.includes(`/found/${found.id}`),
+    "вкладка «Розыски»: розыск виден, находка скрыта",
+  );
+
+  // Пустая выбранная вкладка (розыск есть, находок нет) → заметка «Показать все».
+  const emptyTab = await (
+    await fetch(`${BASE}/search?q=${encodeURIComponent("ЛостИмя" + stamp)}&type=found`)
+  ).text();
+  ok(
+    emptyTab.includes("ничего нет") && emptyTab.includes("Показать все результаты"),
+    "пустая выбранная вкладка → заметка «Показать все»",
+  );
+
   // Короткий запрос → подсказка + чипы быстрого browse (породы/районы).
   const shortHtml = await (await fetch(`${BASE}/search?q=a`)).text();
   ok(shortHtml.includes("минимум 2 символа"), "короткий запрос → подсказка");

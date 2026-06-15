@@ -20,7 +20,16 @@ export const metadata: Metadata = {
   alternates: { canonical: "/search" },
 };
 
-type Params = { searchParams: Promise<{ q?: string }> };
+type Params = { searchParams: Promise<{ q?: string; type?: string }> };
+
+// Вкладки-фильтры результатов по типу. Порядок = порядок секций ниже.
+const TABS = [
+  { key: "all", label: "Все" },
+  { key: "lost", label: "🔴 Розыски" },
+  { key: "found", label: "🐶 Находки" },
+  { key: "pet", label: "🐾 Паспорта" },
+] as const;
+type TabKey = (typeof TABS)[number]["key"];
 
 /** Поиск по активным розыскам, открытым находкам и публичным паспортам
  *  (только lost/found — «домашние» питомцы в выдачу не попадают, приватность). */
@@ -70,13 +79,29 @@ const POPULAR_BREEDS = [
 ];
 
 export default async function SearchPage({ searchParams }: Params) {
-  const { q } = await searchParams;
+  const { q, type: rawType } = await searchParams;
   const query = (q ?? "").trim().slice(0, 80);
   const ready = query.length >= 2;
   const { losts, founds, pets } = ready
     ? await runSearch(query)
     : { losts: [], founds: [], pets: [] };
   const total = losts.length + founds.length + pets.length;
+
+  // Активная вкладка (Все/Розыски/Находки/Паспорта). Неизвестное значение → «Все».
+  const type: TabKey = (TABS.some((t) => t.key === rawType) ? rawType : "all") as TabKey;
+  const counts: Record<TabKey, number> = {
+    all: total,
+    lost: losts.length,
+    found: founds.length,
+    pet: pets.length,
+  };
+  const tabHref = (key: TabKey) =>
+    key === "all"
+      ? `/search?q=${encodeURIComponent(query)}`
+      : `/search?q=${encodeURIComponent(query)}&type=${key}`;
+  // Секцию показываем на вкладке «Все» и на её собственной вкладке (если не пуста).
+  const show = (key: Exclude<TabKey, "all">) =>
+    (type === "all" || type === key) && counts[key] > 0;
 
   // Быстрый browse при пустом/нулевом запросе: популярные породы и районы как
   // ссылки-чипы — поиск полезен сразу, без догадок «что ввести».
@@ -151,10 +176,48 @@ export default async function SearchPage({ searchParams }: Params) {
           {quickChips}
         </>
       ) : (
-        <div className="mt-8 space-y-10">
-          <p className="text-sm text-ink-soft">Найдено: {total}</p>
+        <div className="mt-8 space-y-8">
+          <div className="space-y-3">
+            <p className="text-sm text-ink-soft">Найдено: {total}</p>
+            <div
+              role="tablist"
+              aria-label="Фильтр результатов по типу"
+              className="flex flex-wrap gap-2"
+            >
+              {TABS.map((t) => {
+                const active = type === t.key;
+                return (
+                  <Link
+                    key={t.key}
+                    href={tabHref(t.key)}
+                    aria-current={active ? "page" : undefined}
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors ${
+                      active
+                        ? "border-petal bg-blush text-petal-deep"
+                        : "border-blush bg-card text-ink hover:bg-blush-soft"
+                    }`}
+                  >
+                    {t.label}
+                    <span className="text-xs text-ink-soft">{counts[t.key]}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
 
-          {losts.length ? (
+          {type !== "all" && counts[type] === 0 ? (
+            <div className="rounded-3xl border border-blush bg-card p-6 text-ink-soft shadow-card">
+              В этом разделе по запросу «{query}» ничего нет.{" "}
+              <Link
+                href={tabHref("all")}
+                className="font-semibold text-petal-deep hover:underline"
+              >
+                Показать все результаты
+              </Link>
+            </div>
+          ) : null}
+
+          {show("lost") ? (
             <section>
               <h2 className="text-2xl font-bold">🔴 Розыски</h2>
               <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -165,7 +228,7 @@ export default async function SearchPage({ searchParams }: Params) {
             </section>
           ) : null}
 
-          {founds.length ? (
+          {show("found") ? (
             <section>
               <h2 className="text-2xl font-bold">🐶 Находки</h2>
               <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -176,7 +239,7 @@ export default async function SearchPage({ searchParams }: Params) {
             </section>
           ) : null}
 
-          {pets.length ? (
+          {show("pet") ? (
             <section>
               <h2 className="text-2xl font-bold">🐾 Паспорта</h2>
               <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
