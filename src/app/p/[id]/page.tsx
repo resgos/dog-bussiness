@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Camera, MapPin, Phone, Send, PawPrint, ShieldAlert, ScanLine, QrCode } from "lucide-react";
 import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
 import { findDistrict } from "@/lib/districts";
@@ -122,17 +123,19 @@ export default async function PassportPage({
     datePublished: pet.createdAt,
     districtName: district,
   });
-  const crumbs = breadcrumbLd([
+  const crumbItems = [
     { name: "Главная", path: "/" },
     { name: pet.name, path: `/p/${pet.id}` },
-  ]);
+  ];
+  const crumbs = breadcrumbLd(crumbItems);
 
   return (
     <Container className="py-12 sm:py-16">
       <JsonLd data={passportLd} />
       <JsonLd data={crumbs} />
       <div className="mx-auto max-w-2xl">
-        <p className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-ink-soft">
+        <Breadcrumbs items={crumbItems} />
+        <p className="mb-4 mt-4 inline-flex items-center gap-2 text-sm font-semibold text-ink-soft">
           <PawPrint className="size-4 text-petal" aria-hidden />
           Цифровой паспорт · Лапка помощи
         </p>

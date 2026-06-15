@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  ArrowLeft,
   Camera,
   Clock,
   MapPin,
@@ -19,6 +18,7 @@ import {
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { Container } from "@/components/ui/Container";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
 import { PhotoLightbox } from "@/components/ui/PhotoLightbox";
@@ -153,23 +153,18 @@ export default async function FoundDetailPage({
     datePublished: item.createdAt,
     districtName,
   });
-  const crumbs = breadcrumbLd([
+  const crumbItems = [
     { name: "Главная", path: "/" },
     { name: "Находки", path: "/found" },
     { name: headline, path: `/found/${item.id}` },
-  ]);
+  ];
+  const crumbs = breadcrumbLd(crumbItems);
 
   return (
     <Container className="py-12 sm:py-16">
       <JsonLd data={jsonLd} />
       <JsonLd data={crumbs} />
-      <Link
-        href="/found"
-        className="inline-flex items-center gap-2 text-sm font-semibold text-petal-deep transition hover:text-petal"
-      >
-        <ArrowLeft className="size-4" aria-hidden />
-        К находкам
-      </Link>
+      <Breadcrumbs items={crumbItems} />
 
       <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
         {/* Фото: клик открывает полноэкранный просмотр (оригинал без кропа) */}

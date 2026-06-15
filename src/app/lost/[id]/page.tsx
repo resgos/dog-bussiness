@@ -6,7 +6,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 import {
-  ArrowLeft,
   Camera,
   Clock,
   Eye,
@@ -21,6 +20,7 @@ import {
 } from "lucide-react";
 import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
 import { PhotoLightbox } from "@/components/ui/PhotoLightbox";
@@ -203,23 +203,18 @@ export default async function LostDetailPage({
     dateModified: report.createdAt,
     districtName,
   });
-  const crumbs = breadcrumbLd([
+  const crumbItems = [
     { name: "Главная", path: "/" },
     { name: "Лента розыска", path: "/feed/lost" },
     { name: report.petName, path: `/lost/${report.id}` },
-  ]);
+  ];
+  const crumbs = breadcrumbLd(crumbItems);
 
   return (
     <Container className="py-12 sm:py-16">
       <JsonLd data={jsonLd} />
       <JsonLd data={crumbs} />
-      <Link
-        href="/feed/lost"
-        className="inline-flex items-center gap-2 text-sm font-semibold text-petal-deep transition hover:text-petal"
-      >
-        <ArrowLeft className="size-4" aria-hidden />
-        В ленту
-      </Link>
+      <Breadcrumbs items={crumbItems} />
 
       <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
         {/* Фото: клик открывает полноэкранный просмотр (оригинал без кропа) */}
