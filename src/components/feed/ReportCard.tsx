@@ -38,7 +38,13 @@ export function ReportCard({ report }: { report: ReportLite }) {
       <div className="relative aspect-[4/3] bg-blush-soft">
         {report.photo ? (
           /* eslint-disable-next-line @next/next/no-img-element */
-          <img src={report.photo} alt={`Фото питомца ${report.petName}`} className="size-full object-cover" />
+          <img
+            src={report.photo}
+            alt={`Фото питомца ${report.petName}`}
+            loading="lazy"
+            decoding="async"
+            className="size-full object-cover"
+          />
         ) : (
           <div className="flex size-full flex-col items-center justify-center gap-2 p-4 text-center">
             <div className="relative size-20">

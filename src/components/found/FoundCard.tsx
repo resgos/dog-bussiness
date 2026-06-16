@@ -38,6 +38,8 @@ export function FoundCard({ item }: { item: FoundItem }) {
           <img
             src={item.photo}
             alt={`Найденная собака${item.breed ? ` · ${item.breed}` : ""}`}
+            loading="lazy"
+            decoding="async"
             className="size-full object-cover"
           />
         ) : (

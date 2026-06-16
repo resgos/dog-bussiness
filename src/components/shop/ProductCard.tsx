@@ -24,6 +24,8 @@ export function ProductCard({ product }: { product: ProductCardData }) {
           <img
             src={product.image}
             alt={product.name}
+            loading="lazy"
+            decoding="async"
             className="size-full object-cover"
           />
         ) : (

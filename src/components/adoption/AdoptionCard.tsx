@@ -38,6 +38,8 @@ export function AdoptionCard({ item }: { item: AdoptionItem }) {
           <img
             src={item.photo}
             alt={`${item.name}${item.breed ? ` · ${item.breed}` : ""}`}
+            loading="lazy"
+            decoding="async"
             className="size-full object-cover"
           />
         ) : (
