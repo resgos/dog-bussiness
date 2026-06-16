@@ -5,6 +5,8 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ShunyaCompanion } from "@/components/brand/ShunyaCompanion";
 import { PushRegister } from "@/components/notifications/PushRegister";
+import { MotionProvider } from "@/components/motion/MotionProvider";
+import { ScrollToTop } from "@/components/ui/ScrollToTop";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -78,13 +80,16 @@ export default async function RootLayout({
         >
           Перейти к содержимому
         </a>
-        <Header />
-        <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">
-          {children}
-        </main>
-        <Footer />
-        <ShunyaCompanion />
-        <PushRegister />
+        <MotionProvider>
+          <Header />
+          <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">
+            {children}
+          </main>
+          <Footer />
+          <ScrollToTop />
+          <ShunyaCompanion />
+          <PushRegister />
+        </MotionProvider>
       </body>
     </html>
   );

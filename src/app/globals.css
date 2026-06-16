@@ -159,3 +159,18 @@
     animation: none;
   }
 }
+
+/* Уважаем системную настройку «меньше движения»: глушим все CSS-анимации,
+   переходы и плавный скролл (float, wag, fade-up, ping и пр.) для пользователей
+   с вестибулярной чувствительностью. framer-motion покрыт <MotionConfig
+   reducedMotion="user"> в layout. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
