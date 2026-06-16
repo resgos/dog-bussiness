@@ -75,6 +75,7 @@ const suites = [
   "verify-homeog",
   "verify-motionpolish",
   "verify-focuspolish",
+  "verify-formux",
 ];
 
 // Шаг 0: смести сирот от прерванных прошлых прогонов (демо-лента должна быть

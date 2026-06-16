@@ -153,6 +153,8 @@ export function LostFilters({
             aria-hidden
           />
           <Input
+            type="search"
+            enterKeyHint="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Поиск по кличке или породе…"

@@ -147,6 +147,8 @@ export default async function SearchPage({ searchParams }: Params) {
       <form action="/search" method="get" className="mt-6 flex gap-2">
         <Input
           name="q"
+          type="search"
+          enterKeyHint="search"
           defaultValue={query}
           placeholder="Например: корги, рыжий, Хамовники"
           aria-label="Поисковый запрос"

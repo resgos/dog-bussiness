@@ -5,8 +5,11 @@ import type {
 } from "react";
 import { cn } from "@/lib/cn";
 
+// Фокус — единый брендовый :focus-visible outline (globals.css) + подсветка
+// рамки petal; убрали outline-none (он его блокировал) и бледное blush-кольцо.
+// Плейсхолдер поднят до /80 — читаемее (контраст), но всё ещё «подсказка».
 const fieldBase =
-  "w-full rounded-2xl border border-blush bg-card px-4 py-2.5 text-ink outline-none transition-colors placeholder:text-ink-soft/60 focus:border-petal focus:ring-4 focus:ring-blush";
+  "w-full rounded-2xl border border-blush bg-card px-4 py-2.5 text-ink transition-colors placeholder:text-ink-soft/80 focus:border-petal";
 
 /** Обёртка поля: подпись + обязательность + подсказка (label оборачивает контрол). */
 export function Field({
