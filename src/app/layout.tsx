@@ -69,8 +69,18 @@ export default async function RootLayout({
       className={`${nunito.variable} ${comfortaa.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        {/* Скип-ссылка (WCAG 2.4.1): первый Tab уводит клавиатуру мимо навигации
+            прямо к контенту. Скрыта визуально, появляется при фокусе. */}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-5 focus:py-2.5 focus:text-sm focus:font-bold focus:text-white focus:shadow-lift"
+        >
+          Перейти к содержимому
+        </a>
         <Header />
-        <main className="flex-1">{children}</main>
+        <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">
+          {children}
+        </main>
         <Footer />
         <ShunyaCompanion />
         <PushRegister />
