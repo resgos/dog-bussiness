@@ -80,6 +80,7 @@ const suites = [
   "verify-typorss",
   "verify-typocanon",
   "verify-nearbydistrict",
+  "verify-headera11y",
 ];
 
 // Шаг 0: смести сирот от прерванных прошлых прогонов (демо-лента должна быть

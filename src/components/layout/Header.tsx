@@ -63,6 +63,7 @@ export function Header() {
               <div key={item.href} className="group relative">
                 <Link
                   href={item.href}
+                  aria-current={isActive(item.href) ? "page" : undefined}
                   className={cn(
                     "inline-flex items-center gap-1 rounded-full px-3.5 py-2 text-sm font-semibold transition-colors hover:bg-blush-soft",
                     isActive(item.href) && "bg-blush text-petal-deep",
@@ -77,6 +78,7 @@ export function Header() {
                       <li key={child.href}>
                         <Link
                           href={child.href}
+                          aria-current={isActive(child.href) ? "page" : undefined}
                           className={cn(
                             "block rounded-xl px-3 py-2 text-sm font-medium text-ink-soft transition-colors hover:bg-blush-soft hover:text-ink",
                             isActive(child.href) && "text-petal-deep",
@@ -93,6 +95,7 @@ export function Header() {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActive(item.href) ? "page" : undefined}
                 className={cn(
                   "rounded-full px-3.5 py-2 text-sm font-semibold transition-colors hover:bg-blush-soft",
                   isActive(item.href) && "bg-blush text-petal-deep",
@@ -109,7 +112,7 @@ export function Header() {
           <Link
             href="/search"
             aria-label="Поиск по объявлениям"
-            className="inline-flex size-9 items-center justify-center rounded-full text-ink transition-colors hover:bg-blush-soft"
+            className="inline-flex size-11 items-center justify-center rounded-full text-ink transition-colors hover:bg-blush-soft"
           >
             <Search className="size-5" aria-hidden />
           </Link>
@@ -163,6 +166,7 @@ export function Header() {
               <div key={item.href}>
                 <Link
                   href={item.href}
+                  aria-current={isActive(item.href) ? "page" : undefined}
                   className={cn(
                     "block rounded-xl px-3 py-2.5 text-base font-semibold transition-colors hover:bg-blush-soft",
                     isActive(item.href) && "bg-blush text-petal-deep",
