@@ -8,7 +8,16 @@ import { FoundList } from "@/components/found/FoundList";
 import type { FoundItem } from "@/components/found/FoundCard";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Найденные собаки" };
+export const metadata = {
+  title: "Найденные собаки",
+  alternates: {
+    types: {
+      "application/rss+xml": [
+        { url: "/feed/found/rss", title: "Лапка помощи — найденные собаки" },
+      ],
+    },
+  },
+};
 
 // Загрузку выносим в дочерний async-компонент под inline <Suspense>, а НЕ в
 // segment-level loading.tsx: иначе Suspense-граница сегмента отдаёт shell со

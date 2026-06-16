@@ -7,7 +7,17 @@ import { LostFilters } from "@/components/feed/LostFilters";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Потерялись" };
+export const metadata = {
+  title: "Потерялись",
+  // Авто-обнаружение RSS фид-ридерами и браузерами (rel="alternate").
+  alternates: {
+    types: {
+      "application/rss+xml": [
+        { url: "/feed/lost/rss", title: "Лапка помощи — активные пропажи" },
+      ],
+    },
+  },
+};
 
 export default async function FeedLostPage({
   searchParams,
