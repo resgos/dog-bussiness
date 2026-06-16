@@ -11,6 +11,7 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Найденные собаки",
   alternates: {
+    canonical: "/found",
     types: {
       "application/rss+xml": [
         { url: "/feed/found/rss", title: "Лапка помощи — найденные собаки" },

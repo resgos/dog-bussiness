@@ -9,8 +9,10 @@ import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Потерялись",
-  // Авто-обнаружение RSS фид-ридерами и браузерами (rel="alternate").
+  // canonical → базовый URL: ?district=… фильтр-варианты не плодят дубль-контент.
   alternates: {
+    canonical: "/feed/lost",
+    // Авто-обнаружение RSS фид-ридерами и браузерами (rel="alternate").
     types: {
       "application/rss+xml": [
         { url: "/feed/lost/rss", title: "Лапка помощи — активные пропажи" },
