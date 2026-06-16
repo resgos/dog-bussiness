@@ -237,10 +237,33 @@ export default async function PassportPage({
               ) : null}
 
               {pet.chip ? (
-                <p className="inline-flex items-center gap-1.5 text-sm text-ink-soft">
-                  <ScanLine className="size-4 text-petal" aria-hidden />
-                  Микрочип: <span className="font-mono">{pet.chip}</span>
-                </p>
+                <div className="text-sm text-ink-soft">
+                  <p className="inline-flex items-center gap-1.5">
+                    <ScanLine className="size-4 text-petal" aria-hidden />
+                    Микрочип: <span className="font-mono">{pet.chip}</span>
+                  </p>
+                  {/* Нашедший может сразу пробить чип в национальных реестрах. */}
+                  <p className="mt-1 text-xs">
+                    Проверить в реестре:{" "}
+                    <a
+                      href="https://www.animal-id.ru/search/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-petal-deep hover:underline"
+                    >
+                      Animal-ID.RU
+                    </a>
+                    {" · "}
+                    <a
+                      href="https://animalface.ru/search/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-petal-deep hover:underline"
+                    >
+                      AnimalFace
+                    </a>
+                  </p>
+                </div>
               ) : null}
 
               {marks.length || pet.marksText ? (

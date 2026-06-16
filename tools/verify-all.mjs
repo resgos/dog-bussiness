@@ -76,6 +76,7 @@ const suites = [
   "verify-motionpolish",
   "verify-focuspolish",
   "verify-formux",
+  "verify-anchorchip",
 ];
 
 // Шаг 0: смести сирот от прерванных прошлых прогонов (демо-лента должна быть
