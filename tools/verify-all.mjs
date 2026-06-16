@@ -74,6 +74,7 @@ const suites = [
   "verify-districtog",
   "verify-homeog",
   "verify-motionpolish",
+  "verify-focuspolish",
 ];
 
 // Шаг 0: смести сирот от прерванных прошлых прогонов (демо-лента должна быть

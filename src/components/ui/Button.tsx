@@ -5,8 +5,10 @@ import { cn } from "@/lib/cn";
 type Variant = "primary" | "secondary" | "ghost" | "sos" | "sos-outline";
 type Size = "sm" | "md" | "lg";
 
+// Фокус — через единый брендовый :focus-visible outline в globals.css (виден,
+// повторяет скругление), без низкоконтрастного blush-кольца.
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blush disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap";
+  "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap";
 
 const variants: Record<Variant, string> = {
   // Главная кнопка — пастельно-оранжевый из лого (ТЗ: «Кнопки. Важно!»)

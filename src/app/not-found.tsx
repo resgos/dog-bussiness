@@ -1,6 +1,7 @@
-import { ArrowLeft, Compass } from "lucide-react";
+import { ArrowLeft, Compass, Search } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { ButtonLink } from "@/components/ui/Button";
+import { ButtonLink, Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Field";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 
 export default function NotFound() {
@@ -23,6 +24,24 @@ export default function NotFound() {
             message="Ой! Тут пусто. Идём домой — там теплее и пахнет вкусняшками."
           />
         </div>
+
+        {/* Поиск прямо со страницы 404: потерявшийся посетитель сразу находит
+            нужное, а не упирается в тупик. */}
+        <form
+          action="/search"
+          method="get"
+          className="mx-auto mt-8 flex max-w-md gap-2"
+        >
+          <Input
+            name="q"
+            placeholder="Искать собаку, породу, район…"
+            aria-label="Поиск по платформе"
+          />
+          <Button type="submit" className="shrink-0">
+            <Search className="size-4" aria-hidden />
+            Найти
+          </Button>
+        </form>
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/" variant="primary" size="lg">

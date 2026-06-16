@@ -109,6 +109,20 @@
     color: inherit;
   }
 
+  /* Единый видимый фокус клавиатуры: розовый контур бренда (≥3:1 к фону) вместо
+     дефолтного браузерного и почти невидимого blush-кольца. Контур повторяет
+     border-radius элемента, поэтому круглые кнопки получают круглый фокус. */
+  a:focus-visible,
+  button:focus-visible,
+  summary:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--color-petal-deep);
+    outline-offset: 2px;
+  }
+
   ::selection {
     background-color: var(--color-blush);
     color: var(--color-ink);
