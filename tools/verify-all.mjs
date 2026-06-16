@@ -69,6 +69,7 @@ const suites = [
   "verify-foundsort",
   "verify-faq",
   "verify-districtshare",
+  "verify-messengershare",
 ];
 
 // Шаг 0: смести сирот от прерванных прошлых прогонов (демо-лента должна быть

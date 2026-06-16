@@ -26,6 +26,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { PhotoLightbox } from "@/components/ui/PhotoLightbox";
 import { SubscribeButton } from "@/components/feed/SubscribeButton";
 import { ShareButton } from "@/components/share/ShareButton";
+import { MessengerShare } from "@/components/share/MessengerShare";
 import { findDistrict } from "@/lib/districts";
 import { timeAgo } from "@/lib/format";
 import { rankFoundForLost, ONPAGE_MATCH_MIN } from "@/lib/match";
@@ -334,6 +335,15 @@ export default async function LostDetailPage({
               На карту поиска
             </ButtonLink>
           </div>
+
+          {report.status === "active" ? (
+            <MessengerShare
+              path={`/lost/${report.id}`}
+              text={`Помогите найти ${report.petName}!${
+                districtName ? ` Район: ${districtName}.` : ""
+              } Каждый репост приближает встречу.`}
+            />
+          ) : null}
         </div>
       </div>
 
