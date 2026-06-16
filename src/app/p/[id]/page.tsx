@@ -11,6 +11,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { findDistrict } from "@/lib/districts";
 import { ageOptions, sizeOptions } from "@/lib/petForm";
 import { ShareButton } from "@/components/share/ShareButton";
+import { MessengerShare } from "@/components/share/MessengerShare";
 import { PetGallery } from "@/components/pets/PetGallery";
 import { PhotoLightbox } from "@/components/ui/PhotoLightbox";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -218,6 +219,15 @@ export default async function PassportPage({
                 <QrCode className="size-4" aria-hidden />
                 QR-бирка на ошейник
               </ButtonLink>
+
+              {pet.status === "lost" ? (
+                <MessengerShare
+                  path={`/p/${pet.id}`}
+                  text={`Помогите найти ${pet.name}!${
+                    district ? ` Район: ${district}.` : ""
+                  } Поделитесь паспортом.`}
+                />
+              ) : null}
 
               {district ? (
                 <p className="inline-flex items-center gap-1.5 text-sm text-ink-soft">

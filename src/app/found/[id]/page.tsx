@@ -26,6 +26,7 @@ import { FoundSubscribeButton } from "@/components/found/FoundSubscribeButton";
 import { FoundStatusButton } from "@/components/found/FoundStatusButton";
 import { ClaimButton } from "@/components/found/ClaimButton";
 import { ShareButton } from "@/components/share/ShareButton";
+import { MessengerShare } from "@/components/share/MessengerShare";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { findDistrict } from "@/lib/districts";
 import { timeAgo } from "@/lib/format";
@@ -315,6 +316,15 @@ export default async function FoundDetailPage({
               Активные поиски рядом
             </ButtonLink>
           </div>
+
+          {!isReunited ? (
+            <MessengerShare
+              path={`/found/${item.id}`}
+              text={`Найдена собака${
+                districtName ? ` в районе ${districtName}` : ""
+              } — ${headline}. Узнали? Помогите вернуть домой!`}
+            />
+          ) : null}
         </div>
       </div>
 
