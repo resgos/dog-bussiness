@@ -21,7 +21,7 @@ import { ReportCard } from "@/components/feed/ReportCard";
 import { FoundCard } from "@/components/found/FoundCard";
 import { ShareButton } from "@/components/share/ShareButton";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
-import { findDistrict } from "@/lib/districts";
+import { findDistrict, districts } from "@/lib/districts";
 import { timeAgo, plural } from "@/lib/format";
 
 // Хаб района всегда свежий — это сводка «прямо сейчас», кэшировать нельзя.
@@ -83,6 +83,12 @@ export default async function DistrictHubPage({ params }: Params) {
     counts: { active: 0, found: 0, reunions: 0 },
   }));
   const { active, found, reunions, counts } = data;
+
+  // Районы того же округа: собака легко переходит границу района — даём искателю
+  // быстрый переход к соседям.
+  const sameOkrug = districts.filter(
+    (x) => x.okrug === d.okrug && x.id !== d.id,
+  );
 
   const stats = [
     {
@@ -288,6 +294,30 @@ export default async function DistrictHubPage({ params }: Params) {
               Все истории возвращений
               <ArrowRight className="size-4" aria-hidden />
             </Link>
+          </div>
+        </section>
+      ) : null}
+
+      {/* Районы рядом: соседи того же округа */}
+      {sameOkrug.length > 0 ? (
+        <section className="mt-12">
+          <h2 className="flex items-center gap-2 text-2xl font-bold">
+            <MapPin className="size-6 text-petal" aria-hidden />
+            Районы рядом · {d.okrug}
+          </h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            Собака легко переходит границу района — загляните к соседям.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {sameOkrug.map((x) => (
+              <Link
+                key={x.id}
+                href={`/district/${x.id}`}
+                className="rounded-full border border-blush bg-card px-3.5 py-1.5 text-sm font-semibold text-ink transition-colors hover:border-petal hover:bg-blush-soft"
+              >
+                {x.name}
+              </Link>
+            ))}
           </div>
         </section>
       ) : null}

@@ -96,6 +96,11 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    /* Сайт всегда светлый: нативные контролы (чекбоксы, скроллбары, дата-пикеры)
+       рендерятся в светлой теме даже в dark-mode браузере. */
+    color-scheme: light;
+    /* Брендовый акцент нативных контролов (чекбоксы, радио, range, progress). */
+    accent-color: var(--color-petal-deep);
   }
 
   h1,

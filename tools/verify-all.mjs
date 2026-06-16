@@ -79,6 +79,7 @@ const suites = [
   "verify-anchorchip",
   "verify-typorss",
   "verify-typocanon",
+  "verify-nearbydistrict",
 ];
 
 // Шаг 0: смести сирот от прерванных прошлых прогонов (демо-лента должна быть
