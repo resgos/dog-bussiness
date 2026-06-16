@@ -40,7 +40,8 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ru_RU",
     siteName: "Лапка помощи",
-    images: ["/brand/logo.png"],
+    // og:image отдаёт корневая динамическая карточка app/opengraph-image.tsx
+    // (Next подставит её автоматически в openGraph.images и twitter.images).
   },
   manifest: "/manifest.webmanifest",
   icons: {
