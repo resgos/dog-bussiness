@@ -9,6 +9,8 @@ type ShareButtonProps = {
   path: string;
   title: string;
   text?: string;
+  /** aria-label кнопки под контекст (паспорт/розыск/находка/район). */
+  label?: string;
 };
 
 /**
@@ -16,7 +18,12 @@ type ShareButtonProps = {
  * Native Web Share API (мобильные), иначе — копирование ссылки в буфер.
  * Всё завязано на onClick → безопасно для SSR (navigator читается только в браузере).
  */
-export function ShareButton({ path, title, text }: ShareButtonProps) {
+export function ShareButton({
+  path,
+  title,
+  text,
+  label = "Поделиться паспортом",
+}: ShareButtonProps) {
   const [copied, setCopied] = useState(false);
 
   const share = async () => {
@@ -46,7 +53,7 @@ export function ShareButton({ path, title, text }: ShareButtonProps) {
 
   return (
     <div className="relative inline-flex">
-      <Button variant="secondary" onClick={share} aria-label="Поделиться паспортом">
+      <Button variant="secondary" onClick={share} aria-label={label}>
         {copied ? (
           <Check className="size-4 text-petal-deep" aria-hidden />
         ) : (

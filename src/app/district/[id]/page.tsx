@@ -19,6 +19,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { ReportCard } from "@/components/feed/ReportCard";
 import { FoundCard } from "@/components/found/FoundCard";
+import { ShareButton } from "@/components/share/ShareButton";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { findDistrict } from "@/lib/districts";
 import { timeAgo, plural } from "@/lib/format";
@@ -160,6 +161,17 @@ export default async function DistrictHubPage({ params }: Params) {
         >
           <Printer className="size-4" aria-hidden /> Листовка района
         </ButtonLink>
+        <ShareButton
+          path={`/district/${d.id}`}
+          title={`Собаки района ${d.name} — Лапка помощи`}
+          text={`Район ${d.name}: ${counts.active} в розыске, ${counts.found} ${plural(
+            counts.found,
+            "находка",
+            "находки",
+            "находок",
+          )} ждут хозяев. Загляните и помогите вернуть собак домой.`}
+          label="Поделиться районом"
+        />
         <a
           href="/feed/lost/rss"
           className="inline-flex items-center gap-1.5 self-center text-sm font-semibold text-petal-deep hover:underline"
