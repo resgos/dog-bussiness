@@ -6,11 +6,13 @@ import {
   ArrowRight,
   Eye,
   Heart,
+  HeartHandshake,
   MapPin,
   PawPrint,
   Search,
   ShieldCheck,
   Sparkles,
+  Wallet,
 } from "lucide-react";
 import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
@@ -38,6 +40,15 @@ type Pulse = {
   sightingsWeek: number;
   helped: number;
   districts: { key: string; name: string; count: number }[];
+  revenue: { kind: string; totalRub: number }[];
+};
+
+/** Человекочитаемые каналы монетизации (Purchase.kind). */
+const REVENUE_LABELS: Record<string, string> = {
+  boost: "🚀 Продвижение объявлений",
+  plus: "⭐ Подписка «Лапка+»",
+  partner: "🤝 Партнёрские размещения",
+  "poster-service": "🚚 Расклейка плакатов",
 };
 
 // Читаем агрегаты одним заходом. Дашборд публичный — при сбое БД мягко
@@ -45,7 +56,7 @@ type Pulse = {
 async function loadPulse(): Promise<Pulse> {
   const weekAgo = new Date(Date.now() - 7 * 86_400_000);
   try {
-    const [activeLost, foundLost, openFound, reunions, sightingsWeek, helpedAgg, grouped] =
+    const [activeLost, foundLost, openFound, reunions, sightingsWeek, helpedAgg, grouped, purchases] =
       await Promise.all([
         db.lostReport.count({ where: { status: "active" } }),
         db.lostReport.count({ where: { status: "found" } }),
@@ -59,6 +70,11 @@ async function loadPulse(): Promise<Pulse> {
           _count: { district: true },
           orderBy: { _count: { district: "desc" } },
           take: 6,
+        }),
+        // Экономика: суммы по каналам монетизации (реестр Purchase).
+        db.purchase.groupBy({
+          by: ["kind"],
+          _sum: { amountRub: true },
         }),
       ]);
     const districts = grouped
@@ -76,6 +92,10 @@ async function loadPulse(): Promise<Pulse> {
       sightingsWeek,
       helped: helpedAgg._sum.helpedCount ?? 0,
       districts,
+      revenue: purchases.map((g) => ({
+        kind: g.kind,
+        totalRub: g._sum.amountRub ?? 0,
+      })),
     };
   } catch {
     return {
@@ -86,6 +106,7 @@ async function loadPulse(): Promise<Pulse> {
       sightingsWeek: 0,
       helped: 0,
       districts: [],
+      revenue: [],
     };
   }
 }
@@ -98,6 +119,15 @@ export default async function PulsePage() {
   // метрика (не путать с числом добровольных историй «Уже дома»).
   const rate = rescueRate(p.foundLost, p.activeLost);
   const maxDistrict = Math.max(1, ...p.districts.map((d) => d.count));
+
+  // Экономика: выручка сервисов платформы отдельно от денег сообщества
+  // (донаты на награды идут нашедшим, а не платформе — честное разделение).
+  const donatedRub =
+    p.revenue.find((r) => r.kind === "reward-donation")?.totalRub ?? 0;
+  const serviceRevenue = p.revenue
+    .filter((r) => r.kind !== "reward-donation" && r.totalRub > 0)
+    .sort((a, b) => b.totalRub - a.totalRub);
+  const serviceTotalRub = serviceRevenue.reduce((a, r) => a + r.totalRub, 0);
 
   const stats = [
     {
@@ -263,6 +293,65 @@ export default async function PulsePage() {
           </div>
         )}
       </section>
+
+      {/* Экономика платформы: выручка сервисов + деньги сообщества (демо) */}
+      {serviceTotalRub > 0 || donatedRub > 0 ? (
+        <section className="mt-10">
+          <div className="flex items-center gap-2">
+            <Wallet className="size-6 text-petal-deep" aria-hidden />
+            <h2 className="text-2xl font-bold">Экономика платформы</h2>
+          </div>
+          <p className="mt-1 text-sm text-ink-soft">
+            Прозрачно: сколько сервисы «Лапки» заработали и сколько соседи
+            собрали на награды (демо-оплаты).
+          </p>
+          <div className="mt-5 grid gap-4 lg:grid-cols-2">
+            <div className="rounded-3xl border border-blush bg-card p-6 shadow-card">
+              <p className="inline-flex items-center gap-2 font-bold text-ink">
+                <Wallet className="size-5 text-petal-deep" aria-hidden />
+                Выручка сервисов
+              </p>
+              <p
+                className="mt-2 font-display text-4xl font-bold leading-none"
+                data-revenue-total={serviceTotalRub}
+              >
+                {fmt(serviceTotalRub)} ₽
+              </p>
+              <ul className="mt-4 space-y-2">
+                {serviceRevenue.map((r) => (
+                  <li
+                    key={r.kind}
+                    className="flex items-baseline justify-between gap-3 text-sm"
+                  >
+                    <span className="text-ink">
+                      {REVENUE_LABELS[r.kind] ?? r.kind}
+                    </span>
+                    <span className="shrink-0 font-semibold text-petal-deep">
+                      {fmt(r.totalRub)} ₽
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="rounded-3xl border border-blush bg-card p-6 shadow-card">
+              <p className="inline-flex items-center gap-2 font-bold text-ink">
+                <HeartHandshake className="size-5 text-status-found-ink" aria-hidden />
+                Соседи собрали на награды
+              </p>
+              <p
+                className="mt-2 font-display text-4xl font-bold leading-none text-status-found-ink"
+                data-donated-total={donatedRub}
+              >
+                {fmt(donatedRub)} ₽
+              </p>
+              <p className="mt-4 text-sm leading-relaxed text-ink-soft">
+                Донаты идут нашедшим, а не платформе: деньги района работают на
+                возвращение собак домой.
+              </p>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {/* Сила стаи + финальный призыв */}
       <Reveal>
