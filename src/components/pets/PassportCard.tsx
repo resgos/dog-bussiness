@@ -78,6 +78,18 @@ export function PassportCard({ pet }: { pet: CardPet }) {
             <Printer className="size-5" aria-hidden />
             🖨 Печать / Сохранить PDF
           </button>
+          {/* Мост «печать → магазин» (P0 #1 бизнес-беклога): бумажная бирка —
+              временное решение, гравированный адресник — постоянное. */}
+          <p className="text-sm text-ink-soft">
+            Бумажная бирка боится дождя —{" "}
+            <Link
+              href="/shop/addressniki"
+              className="font-semibold text-petal-deep hover:underline"
+            >
+              закажите гравированный адресник с QR
+            </Link>{" "}
+            в нашем магазине.
+          </p>
         </div>
 
         {/* ——— Сама бирка ——— */}

@@ -120,6 +120,19 @@ export function LostPoster({
             <Printer className="size-5" aria-hidden />
             🖨 Печать / Сохранить PDF
           </button>
+          {/* Мост «плакат → Лапка+» (P0 #3 бизнес-беклога): владелец в поиске —
+              самый мотивированный на приоритетное SOS-оповещение. Только в
+              no-print панели, на бумагу не попадает. */}
+          <p className="text-sm text-ink-soft">
+            ⭐ С подпиской{" "}
+            <Link
+              href="/plus"
+              className="font-semibold text-petal-deep hover:underline"
+            >
+              Лапка+
+            </Link>{" "}
+            ваши объявления видят первыми — приоритетное SOS-оповещение района.
+          </p>
         </div>
 
         {/* ——— Сам плакат (А4-пропорции) ——— */}

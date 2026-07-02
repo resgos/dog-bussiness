@@ -83,6 +83,7 @@ const suites = [
   "verify-headera11y",
   "verify-imgperf",
   "verify-boostbridge",
+  "verify-p0bridges",
 ];
 
 // Шаг 0: смести сирот от прерванных прошлых прогонов (демо-лента должна быть
