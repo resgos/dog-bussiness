@@ -19,6 +19,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { db } from "@/lib/db";
+import { getCurrentUser } from "@/lib/auth";
 import { Container } from "@/components/ui/Container";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Badge } from "@/components/ui/Badge";
@@ -27,6 +28,7 @@ import { PhotoLightbox } from "@/components/ui/PhotoLightbox";
 import { SubscribeButton } from "@/components/feed/SubscribeButton";
 import { ShareButton } from "@/components/share/ShareButton";
 import { MessengerShare } from "@/components/share/MessengerShare";
+import { DonateReward } from "@/components/boost/DonateReward";
 import { findDistrict } from "@/lib/districts";
 import { timeAgo } from "@/lib/format";
 import { rankFoundForLost, ONPAGE_MATCH_MIN } from "@/lib/match";
@@ -115,6 +117,14 @@ export default async function LostDetailPage({
   const { id } = await params;
   const report = await getReport(id);
   if (!report) notFound();
+
+  // «Награда от соседей»: пул донатов района + статус входа для моста.
+  const me = await getCurrentUser().catch(() => null);
+  const donated = await db.purchase.aggregate({
+    where: { kind: "reward-donation", refId: id },
+    _sum: { amountRub: true },
+  });
+  const donatedRub = donated._sum.amountRub ?? 0;
 
   const districtName = report.district
     ? findDistrict(report.district)?.name
@@ -289,6 +299,14 @@ export default async function LostDetailPage({
               </p>
             </div>
           ) : null}
+
+          {/* Краудфандинг награды: соседи скидываются на поиск (P1 #4). */}
+          <DonateReward
+            reportId={report.id}
+            initialTotal={donatedRub}
+            isAuthed={Boolean(me)}
+            active={report.status === "active"}
+          />
 
           {report.comment ? (
             <div>
