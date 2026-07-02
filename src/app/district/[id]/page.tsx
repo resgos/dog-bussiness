@@ -11,6 +11,7 @@ import {
   Printer,
   Rss,
   Search,
+  Store,
 } from "lucide-react";
 import { db } from "@/lib/db";
 import { Container } from "@/components/ui/Container";
@@ -19,6 +20,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { ReportCard } from "@/components/feed/ReportCard";
 import { FoundCard } from "@/components/found/FoundCard";
+import { PartnerCard } from "@/components/services/PartnerCard";
 import { ShareButton } from "@/components/share/ShareButton";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { findDistrict, districts } from "@/lib/districts";
@@ -41,7 +43,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 }
 
 async function loadDistrict(id: string) {
-  const [active, found, reunions, activeCount, foundCount, reunionCount] =
+  const [active, found, reunions, partners, activeCount, foundCount, reunionCount] =
     await Promise.all([
       db.lostReport.findMany({
         where: { district: id, status: "active" },
@@ -59,6 +61,13 @@ async function loadDistrict(id: string) {
         orderBy: { createdAt: "desc" },
         take: 6,
       }),
+      // «Друзья района» — партнёрские слоты (P1 #5): featured (платное промо)
+      // первыми, только одобренные.
+      db.partner.findMany({
+        where: { district: id, status: "approved" },
+        orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
+        take: 4,
+      }),
       db.lostReport.count({ where: { district: id, status: "active" } }),
       db.foundReport.count({ where: { district: id, status: "open" } }),
       db.reunion.count({ where: { district: id } }),
@@ -67,6 +76,7 @@ async function loadDistrict(id: string) {
     active,
     found,
     reunions,
+    partners,
     counts: { active: activeCount, found: foundCount, reunions: reunionCount },
   };
 }
@@ -80,9 +90,10 @@ export default async function DistrictHubPage({ params }: Params) {
     active: [],
     found: [],
     reunions: [],
+    partners: [],
     counts: { active: 0, found: 0, reunions: 0 },
   }));
-  const { active, found, reunions, counts } = data;
+  const { active, found, reunions, partners, counts } = data;
 
   // Районы того же округа: собака легко переходит границу района — даём искателю
   // быстрый переход к соседям.
@@ -294,6 +305,34 @@ export default async function DistrictHubPage({ params }: Params) {
               Все истории возвращений
               <ArrowRight className="size-4" aria-hidden />
             </Link>
+          </div>
+        </section>
+      ) : null}
+
+      {/* «Друзья района» — партнёрские слоты (P1 #5): проверенные сервисы для
+          собак; featured (платное промо) первыми. CTA — B2B-вход на /partners. */}
+      {partners.length > 0 ? (
+        <section className="mt-12">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="flex items-center gap-2 text-2xl font-bold">
+              <Store className="size-6 text-petal-deep" aria-hidden />
+              Друзья района
+            </h2>
+            <Link
+              href="/partners"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-petal-deep hover:underline"
+            >
+              Разместить свой сервис
+              <ArrowRight className="size-4" aria-hidden />
+            </Link>
+          </div>
+          <p className="mt-1 text-sm text-ink-soft">
+            Проверенные сервисы для собак в районе {d.name}.
+          </p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {partners.map((p) => (
+              <PartnerCard key={p.id} partner={p} />
+            ))}
           </div>
         </section>
       ) : null}
