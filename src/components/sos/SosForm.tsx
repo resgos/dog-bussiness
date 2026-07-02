@@ -9,6 +9,7 @@ import { SuccessNote } from "@/components/ui/SuccessNote";
 import { ShunyaBubble } from "@/components/brand/ShunyaBubble";
 import { LeafletMap } from "@/components/map/LeafletMap";
 import { ShareButton } from "@/components/share/ShareButton";
+import { BoostButton } from "@/components/boost/BoostButton";
 import { postJson } from "@/lib/http";
 import { dHash } from "@/lib/imghash";
 import { districtsByOkrug } from "@/lib/districts";
@@ -27,7 +28,13 @@ function toLocalInput(d: Date) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function SosForm({ pets }: { pets: PetLite[] }) {
+export function SosForm({
+  pets,
+  isAuthed = false,
+}: {
+  pets: PetLite[];
+  isAuthed?: boolean;
+}) {
   const [petId, setPetId] = useState(pets[0]?.id ?? "");
   // Быстрая заявка (гость / без карточек питомца): кличка и приметы свободным
   // текстом — паникующий владелец не должен сперва проходить мастер питомца.
@@ -164,6 +171,24 @@ export function SosForm({ pets }: { pets: PetLite[] }) {
             <Map className="size-5" aria-hidden />
             На карту
           </ButtonLink>
+        </div>
+        {/* Мост к бусту: владелец в момент максимальной мотивации — предлагаем
+            поднять объявление в топ района прямо с экрана успеха (P0 #2 бизнес-
+            беклога). Буст доступен только владельцу объявления (гостевой SOS
+            бустить нельзя — Purchase пишется на аккаунт), поэтому гостю даём
+            мост в регистрацию. */}
+        <div className="mx-auto mt-6 max-w-md rounded-3xl border border-blush bg-blush-soft/60 p-5">
+          <p className="font-bold text-ink">Ускорить поиск</p>
+          <p className="mb-3 mt-1 text-sm text-ink-soft">
+            Поднимите объявление в топ ленты района — его увидят первым.
+          </p>
+          {isAuthed ? (
+            <BoostButton reportId={doneId} />
+          ) : (
+            <ButtonLink href="/auth" variant="secondary" size="sm">
+              Войдите, чтобы поднять в топ
+            </ButtonLink>
+          )}
         </div>
         <p className="mt-4 text-xs text-ink-soft">
           Сохрани ссылку на объявление — по ней вернёшься к поиску, добавишь

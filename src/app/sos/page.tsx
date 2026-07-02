@@ -31,7 +31,7 @@ export default async function SosPage() {
           Отметь место и время, выбери радиус — соседи узнают за секунды.
         </p>
       </div>
-      <SosForm pets={pets} />
+      <SosForm pets={pets} isAuthed={Boolean(user)} />
     </Container>
   );
 }
