@@ -2,6 +2,7 @@ import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
+import { getCurrentUser } from "@/lib/auth";
 import { LostPoster } from "@/components/poster/LostPoster";
 
 // Данные плаката всегда свежие (телефон/награда/статус могут меняться).
@@ -36,8 +37,20 @@ export default async function PosterPage({
     ? await db.pet.findUnique({ where: { id: report.petId } })
     : null;
 
+  // «Расклеить за вас»: вход и наличие заявки знает сервер (SSR-корректно).
+  const me = await getCurrentUser().catch(() => null);
+  const existingOrder = await db.purchase.findFirst({
+    where: { kind: "poster-service", refId: report.id },
+    select: { id: true },
+  });
+
   return (
     <LostPoster
+      service={{
+        isAuthed: Boolean(me),
+        active: report.status === "active",
+        alreadyOrdered: Boolean(existingOrder),
+      }}
       report={{
         id: report.id,
         petId: report.petId,

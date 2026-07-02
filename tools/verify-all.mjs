@@ -86,6 +86,7 @@ const suites = [
   "verify-p0bridges",
   "verify-rewarddonate",
   "verify-districtslots",
+  "verify-posterservice",
 ];
 
 // Шаг 0: смести сирот от прерванных прошлых прогонов (демо-лента должна быть

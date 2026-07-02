@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowLeft, MapPin, Phone, Printer, QrCode } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
+import { PosterService } from "@/components/poster/PosterService";
 import { findDistrict } from "@/lib/districts";
 
 /** Поля объявления о пропаже, нужные плакату (даты — ISO-строкой из server-компонента). */
@@ -43,12 +44,21 @@ function formatLostDate(iso: string | null): string | null {
   }).format(date);
 }
 
+/** Данные для заказа расклейки (P1 #7) — сервер знает вход/статус/заявку. */
+type PosterServiceInfo = {
+  isAuthed: boolean;
+  active: boolean;
+  alreadyOrdered: boolean;
+};
+
 export function LostPoster({
   report,
   pet,
+  service,
 }: {
   report: PosterReport;
   pet: PosterPet;
+  service: PosterServiceInfo;
 }) {
   const districtName = report.district
     ? findDistrict(report.district)?.name ?? null
@@ -120,6 +130,14 @@ export function LostPoster({
             <Printer className="size-5" aria-hidden />
             🖨 Печать / Сохранить PDF
           </button>
+          {/* «Расклеить за вас» (P1 #7): печать + расклейка по району силами
+              партнёра-курьера. Только в no-print панели. */}
+          <PosterService
+            reportId={report.id}
+            isAuthed={service.isAuthed}
+            active={service.active}
+            alreadyOrdered={service.alreadyOrdered}
+          />
           {/* Мост «плакат → Лапка+» (P0 #3 бизнес-беклога): владелец в поиске —
               самый мотивированный на приоритетное SOS-оповещение. Только в
               no-print панели, на бумагу не попадает. */}
