@@ -88,6 +88,7 @@ const suites = [
   "verify-districtslots",
   "verify-posterservice",
   "verify-revenue",
+  "verify-mypurchases",
 ];
 
 // Шаг 0: смести сирот от прерванных прошлых прогонов (демо-лента должна быть

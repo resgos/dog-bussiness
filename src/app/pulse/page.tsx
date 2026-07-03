@@ -22,6 +22,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { findDistrict } from "@/lib/districts";
 import { plural } from "@/lib/format";
 import { rescueRate } from "@/lib/pulse";
+import { purchaseLabel } from "@/lib/purchases";
 
 // Живые цифры — всегда свежие, без кэша.
 export const dynamic = "force-dynamic";
@@ -41,14 +42,6 @@ type Pulse = {
   helped: number;
   districts: { key: string; name: string; count: number }[];
   revenue: { kind: string; totalRub: number }[];
-};
-
-/** Человекочитаемые каналы монетизации (Purchase.kind). */
-const REVENUE_LABELS: Record<string, string> = {
-  boost: "🚀 Продвижение объявлений",
-  plus: "⭐ Подписка «Лапка+»",
-  partner: "🤝 Партнёрские размещения",
-  "poster-service": "🚚 Расклейка плакатов",
 };
 
 // Читаем агрегаты одним заходом. Дашборд публичный — при сбое БД мягко
@@ -323,9 +316,7 @@ export default async function PulsePage() {
                     key={r.kind}
                     className="flex items-baseline justify-between gap-3 text-sm"
                   >
-                    <span className="text-ink">
-                      {REVENUE_LABELS[r.kind] ?? r.kind}
-                    </span>
+                    <span className="text-ink">{purchaseLabel(r.kind)}</span>
                     <span className="shrink-0 font-semibold text-petal-deep">
                       {fmt(r.totalRub)} ₽
                     </span>

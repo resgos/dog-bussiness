@@ -57,6 +57,7 @@ export const profileNav: NavItem[] = [
   { label: "Пригласить соседа", href: "/profile/invite" },
   { label: "Моя стая", href: "/profile/my-pack" },
   { label: "Мои заказы", href: "/profile/orders" },
+  { label: "Мои покупки", href: "/profile/purchases" },
   { label: "Достижения", href: "/profile/achievements" },
   { label: "Настройки", href: "/profile/settings" },
 ];
