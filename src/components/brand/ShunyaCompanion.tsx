@@ -57,7 +57,9 @@ export function ShunyaCompanion() {
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
       const rel = e.clientX / window.innerWidth - 0.5;
-      tiltRaw.set(Math.max(-10, Math.min(10, rel * 20)));
+      // Амплитуда наклона умеренная: при ±10° арт в движении выходил за
+      // границы круглой кнопки (см. overflow-visible ниже).
+      tiltRaw.set(Math.max(-6, Math.min(6, rel * 12)));
     };
     window.addEventListener("pointermove", onMove);
     return () => window.removeEventListener("pointermove", onMove);
@@ -121,10 +123,13 @@ export function ShunyaCompanion() {
         aria-label="Шуня — помощник"
         animate={{ y: [0, -6, 0] }}
         transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-        className="relative grid size-20 place-items-center overflow-hidden rounded-full border-4 border-card bg-card shadow-lift ring-1 ring-blush sm:size-24"
+        /* overflow-visible: арт «дышит» и наклоняется — с overflow-hidden
+           уши/макушка резались границей круга в движении. Прозрачный PNG
+           может чуть выглядывать за круг — это ок, ничего не обрезается. */
+        className="relative grid size-20 place-items-center overflow-visible rounded-full border-4 border-card bg-card shadow-lift ring-1 ring-blush sm:size-24"
       >
         <motion.span style={{ rotate }} className="block">
-          <ShunyaLive pose={pose} size={72} />
+          <ShunyaLive pose={pose} size={68} />
         </motion.span>
         {!seen ? (
           <span className="absolute -right-0.5 -top-0.5 flex size-3.5">

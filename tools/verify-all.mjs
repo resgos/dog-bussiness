@@ -89,6 +89,8 @@ const suites = [
   "verify-posterservice",
   "verify-revenue",
   "verify-mypurchases",
+  "verify-familyplan",
+  "verify-shunya",
 ];
 
 // Шаг 0: смести сирот от прерванных прошлых прогонов (демо-лента должна быть

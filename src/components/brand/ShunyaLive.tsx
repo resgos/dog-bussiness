@@ -66,6 +66,22 @@ export function ShunyaLive({
           />
         );
       })}
+      {/* Предзагрузка всех поз: исходники тяжёлые (~1 МБ), и без прогрева смена
+          позы мигала пустым кадром, пока грузился новый PNG. Скрытый слой
+          заставляет Next выкачать все кадры сразу — кросс-фейд всегда мгновенный. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 opacity-0">
+        {Object.entries(SRC).map(([key, src]) => (
+          <Image
+            key={key}
+            src={src}
+            alt=""
+            fill
+            loading="eager"
+            sizes={`${size}px`}
+            className="object-contain"
+          />
+        ))}
+      </div>
     </div>
   );
 }
