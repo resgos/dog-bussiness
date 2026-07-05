@@ -164,7 +164,7 @@ export default async function PassportPage({
                 <div className="flex size-full flex-col items-center justify-center gap-3 p-6 text-center">
                   <div className="relative size-28 sm:size-32">
                     <Image
-                      src="/shunya/pose-surprised-cut.png"
+                      src="/shunya/sm/pose-surprised.png"
                       alt="Шуня ищет фото"
                       fill
                       sizes="128px"

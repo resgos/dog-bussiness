@@ -61,7 +61,7 @@ export async function ReunionsTeaser() {
 
               <div className="relative mx-auto aspect-square w-full max-w-[14rem] overflow-hidden rounded-[2rem] border-4 border-card bg-card shadow-soft">
                 <Image
-                  src="/shunya/pose-happy-cut.png"
+                  src="/shunya/sm/pose-happy.png"
                   alt="Шуня ждёт первую историю возвращения"
                   fill
                   sizes="(max-width: 1024px) 60vw, 14rem"
@@ -116,7 +116,7 @@ export async function ReunionsTeaser() {
                       />
                     ) : (
                       <Image
-                        src="/shunya/pose-happy-cut.png"
+                        src="/shunya/sm/pose-happy.png"
                         alt={`${r.petName} снова дома`}
                         fill
                         sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 22rem"

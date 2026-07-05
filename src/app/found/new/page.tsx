@@ -25,7 +25,7 @@ export default async function FoundNewPage() {
 
       <div className="mx-auto mb-8 max-w-xl">
         <ShunyaBubble
-          src="/shunya/pose-happy.png"
+          src="/shunya/sm/pose-happy.png"
           message="Какой ты молодец, что не прошёл мимо! Опиши находку по-быстрому — и я подниму хозяев района."
         />
       </div>

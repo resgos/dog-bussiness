@@ -86,7 +86,7 @@ export default function GuideFoundPage() {
         </header>
 
         <ShunyaBubble
-          src="/shunya/pose-surprised.png"
+          src="/shunya/sm/pose-surprised.png"
           message="Спасибо, что не прошёл мимо! Идём по шагам — вместе вернём собаку хозяину."
           className="mt-8"
         />

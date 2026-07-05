@@ -108,7 +108,7 @@ export default function GuideLostPage() {
         </header>
 
         <ShunyaBubble
-          src="/shunya/pose-surprised.png"
+          src="/shunya/sm/pose-surprised.png"
           message="Главное — не паникуй. Большинство собак находят рядом с домом в первые часы. Идём по шагам — я рядом."
           className="mt-8"
         />

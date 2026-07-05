@@ -201,7 +201,7 @@ export function SosForm({
   return (
     <div className="mx-auto max-w-xl">
       <ShunyaBubble
-        src="/shunya/pose-surprised.png"
+        src="/shunya/sm/pose-surprised.png"
         message="Не паникуй — я рядом. Заполни по-быстрому, и я подниму весь район."
         className="mb-8"
       />

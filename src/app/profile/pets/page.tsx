@@ -98,7 +98,7 @@ export default async function PetsPage() {
                   <div className="flex size-full flex-col items-center justify-center gap-2 p-4 text-center">
                     <div className="relative size-20">
                       <Image
-                        src="/shunya/pose-surprised-cut.png"
+                        src="/shunya/sm/pose-surprised.png"
                         alt="Шуня ждёт фото"
                         fill
                         sizes="80px"

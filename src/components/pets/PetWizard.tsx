@@ -36,12 +36,12 @@ import {
 } from "@/lib/petForm";
 
 const poses = [
-  "/shunya/pose-happy.png",
-  "/shunya/pose-happy.png",
-  "/shunya/pose-surprised.png",
-  "/shunya/pose-sneaky.png",
-  "/shunya/pose-grumpy.png",
-  "/shunya/pose-happy.png",
+  "/shunya/sm/pose-happy.png",
+  "/shunya/sm/pose-happy.png",
+  "/shunya/sm/pose-surprised.png",
+  "/shunya/sm/pose-sneaky.png",
+  "/shunya/sm/pose-grumpy.png",
+  "/shunya/sm/pose-happy.png",
 ];
 
 export function PetWizard() {

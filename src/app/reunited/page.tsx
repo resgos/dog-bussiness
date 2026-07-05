@@ -41,7 +41,7 @@ export default async function ReunitedPage() {
       {items.length === 0 ? (
         <div className="mt-10 rounded-3xl border border-blush bg-card p-6 shadow-card sm:p-8">
           <ShunyaBubble
-            src="/shunya/pose-happy.png"
+            src="/shunya/sm/pose-happy.png"
             message="Здесь будут истории счастливых возвращений. Стань первым — расскажи, как нашлась твоя собака!"
           />
           <div className="mt-6">
@@ -76,7 +76,7 @@ export default async function ReunitedPage() {
                     ) : (
                       <div className="flex size-full items-center justify-center">
                         <Image
-                          src="/shunya/pose-happy-cut.png"
+                          src="/shunya/sm/pose-happy.png"
                           alt="Шуня"
                           width={120}
                           height={120}

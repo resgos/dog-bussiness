@@ -57,7 +57,7 @@ export default async function ReunitedNewPage({
 
       <div className="mx-auto mb-8 max-w-xl">
         <ShunyaBubble
-          src="/shunya/pose-happy.png"
+          src="/shunya/sm/pose-happy.png"
           message="Обожаю счастливые финалы! Добавь фото и пару тёплых слов — и история украсит ленту."
           bubbleClassName="flex items-center gap-2"
         />

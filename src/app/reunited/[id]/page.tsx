@@ -67,7 +67,7 @@ export default async function ReunionDetailPage({
           <div className="flex aspect-[4/3] w-full items-center justify-center rounded-3xl border border-blush bg-blush-soft shadow-card">
             <div className="relative size-36 sm:size-44">
               <Image
-                src="/shunya/pose-happy-cut.png"
+                src="/shunya/sm/pose-happy.png"
                 alt="Шуня"
                 fill
                 sizes="176px"

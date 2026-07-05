@@ -25,7 +25,7 @@ export default async function AdoptionNewPage() {
 
       <div className="mx-auto mb-8 max-w-xl">
         <ShunyaBubble
-          src="/shunya/pose-happy.png"
+          src="/shunya/sm/pose-happy.png"
           message="Давай найдём этому хорошему мальчику или девочке настоящий дом! Опиши собаку потеплее — я помогу подобрать ей семью."
         />
       </div>

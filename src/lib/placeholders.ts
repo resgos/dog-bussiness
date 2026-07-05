@@ -19,7 +19,7 @@ export const placeholders: Record<string, Placeholder> = {
       "Регистрация по номеру телефона с SMS-кодом или вход через email и пароль. Привяжи Telegram, чтобы получать оповещения о пропажах в своём районе.",
     shunyaSays:
       "Привет! Я Шуня. Ушастая, быстрая и всегда на связи. Мой район — твой район, а мои друзья — все местные собаки и их хозяева!",
-    shunyaSrc: "/shunya/pose-happy.png",
+    shunyaSrc: "/shunya/sm/pose-happy.png",
     features: [
       "Вход по телефону + SMS-код",
       "Альтернатива: email и пароль",
@@ -61,7 +61,7 @@ export const placeholders: Record<string, Placeholder> = {
       "Шесть тёплых шагов: фото → основная информация → особые приметы → район и маршруты → характер → контакты.",
     shunyaSays:
       "Ну покажи, покажи! Кто этот красавчик? Я запомню мордочку, кличку и все особые приметы.",
-    shunyaSrc: "/shunya/pose-happy.png",
+    shunyaSrc: "/shunya/sm/pose-happy.png",
     features: [
       "Главное фото (можно прямо с камеры)",
       "Кличка, порода, возраст, размер, окрас",
@@ -103,7 +103,7 @@ export const placeholders: Record<string, Placeholder> = {
     description:
       "Выбери питомца, отметь точку и время пропажи, добавь комментарий и выбери радиус оповещения: 1 / 3 / 5 / 10 км.",
     shunyaSays: "Не паникуй — я рядом. Жми, и я подниму весь район за 60 секунд.",
-    shunyaSrc: "/shunya/pose-happy.png",
+    shunyaSrc: "/shunya/sm/pose-happy.png",
     features: [
       "Выбор питомца из зарегистрированных",
       "Точка пропажи на карте или геолокация",
@@ -201,7 +201,7 @@ export const placeholders: Record<string, Placeholder> = {
     description:
       "«Лапка помощи» — чтобы ни одна собака в Москве не оставалась потерянной дольше одного дня. Мы объединяем владельцев в городское сообщество взаимопомощи.",
     shunyaSays: "Мы — стая. Свои помогают своим, без вопросов и за секунды.",
-    shunyaSrc: "/shunya/pose-sneaky.png",
+    shunyaSrc: "/shunya/sm/pose-sneaky.png",
   },
   "/partners": {
     eyebrow: "🤝 Партнёрам",

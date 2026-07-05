@@ -190,7 +190,7 @@ export default async function PulsePage() {
         <div className="mt-6 grid items-center gap-6 rounded-[2.5rem] border border-blush bg-gradient-to-br from-blush-soft to-card p-8 shadow-card sm:p-10 lg:grid-cols-[auto_1fr_auto]">
           <div className="relative mx-auto size-28 shrink-0 sm:size-32">
             <Image
-              src="/shunya/pose-happy-cut.png"
+              src="/shunya/sm/pose-happy.png"
               alt="Шуня радуется возвращениям"
               fill
               sizes="128px"

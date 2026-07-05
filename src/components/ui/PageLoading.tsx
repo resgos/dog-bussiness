@@ -12,7 +12,7 @@ export function PageLoading({
       <div className="flex flex-col items-center gap-6 text-center">
         <div className="relative size-20 animate-bounce sm:size-24">
           <Image
-            src="/shunya/pose-happy-cut.png"
+            src="/shunya/sm/pose-happy.png"
             alt=""
             fill
             sizes="96px"

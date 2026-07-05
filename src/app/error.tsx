@@ -22,7 +22,7 @@ export default function Error({
       <div className="mx-auto max-w-xl text-center">
         <div className="relative mx-auto size-40 sm:size-48">
           <Image
-            src="/shunya/pose-grumpy-cut.png"
+            src="/shunya/sm/pose-grumpy.png"
             alt="Шуня огорчена"
             fill
             sizes="192px"

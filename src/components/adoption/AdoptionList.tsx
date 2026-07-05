@@ -100,7 +100,7 @@ export function AdoptionList({ items }: { items: AdoptionItem[] }) {
       {filtered.length === 0 ? (
         <div className="rounded-3xl border border-blush bg-card p-8 shadow-card">
           <ShunyaBubble
-            src="/shunya/pose-happy.png"
+            src="/shunya/sm/pose-happy.png"
             message={
               items.length === 0
                 ? "Пока никто не разместил собаку на пристройство. Если ты пристраиваешь хвостика — расскажи о нём первым!"

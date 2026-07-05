@@ -8,7 +8,7 @@ import { cn } from "@/lib/cn";
  */
 export function ShunyaBubble({
   message,
-  src = "/shunya/pose-happy.png",
+  src = "/shunya/sm/pose-happy.png",
   size = 128,
   className,
   bubbleClassName,

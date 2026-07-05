@@ -20,7 +20,7 @@ export default function NotFound() {
 
         <div className="mt-8 flex justify-center">
           <ShunyaBubble
-            src="/shunya/pose-surprised.png"
+            src="/shunya/sm/pose-surprised.png"
             message="Ой! Тут пусто. Идём домой — там теплее и пахнет вкусняшками."
           />
         </div>

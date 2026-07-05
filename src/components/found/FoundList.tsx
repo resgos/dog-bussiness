@@ -233,7 +233,7 @@ export function FoundList({
       {filtered.length === 0 ? (
         <div className="rounded-3xl border border-blush bg-card p-8 shadow-card">
           <ShunyaBubble
-            src="/shunya/pose-surprised.png"
+            src="/shunya/sm/pose-surprised.png"
             message={
               items.length === 0
                 ? "Пока никто не сообщал о находках. Если ты нашёл собаку — расскажи о ней первым!"

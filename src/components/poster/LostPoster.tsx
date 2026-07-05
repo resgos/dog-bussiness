@@ -64,7 +64,7 @@ export function LostPoster({
     ? findDistrict(report.district)?.name ?? null
     : null;
   const lostDate = formatLostDate(report.lostAt);
-  const photo = report.photo || pet?.photo || "/shunya/pose-surprised-cut.png";
+  const photo = report.photo || pet?.photo || "/shunya/sm/pose-surprised.png";
   const hasPhoto = Boolean(report.photo || pet?.photo);
 
   // Куда ведёт QR: паспорт питомца (если привязан) либо общая лента пропаж.

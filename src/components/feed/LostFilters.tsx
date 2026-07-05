@@ -280,7 +280,7 @@ export function LostFilters({
       {filtered.length === 0 ? (
         <div className="rounded-3xl border border-blush bg-card p-8 shadow-card">
           <ShunyaBubble
-            src="/shunya/pose-surprised.png"
+            src="/shunya/sm/pose-surprised.png"
             message="Ничего не нашли — попробуй сменить фильтр."
           />
         </div>

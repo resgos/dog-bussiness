@@ -366,7 +366,7 @@ export default async function DistrictHubPage({ params }: Params) {
         <div className="mt-14 flex flex-col items-center gap-5 rounded-[2.5rem] border border-blush bg-gradient-to-br from-blush-soft to-card p-8 text-center shadow-card sm:p-10">
           <div className="relative size-20">
             <Image
-              src="/shunya/pose-happy-cut.png"
+              src="/shunya/sm/pose-happy.png"
               alt="Шуня"
               fill
               sizes="80px"

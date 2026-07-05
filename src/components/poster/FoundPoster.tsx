@@ -41,7 +41,7 @@ export function FoundPoster({ found }: { found: PosterFound }) {
   const sizeLabel =
     sizeOptions.find((o) => o.value === found.size)?.label ?? null;
   const foundDate = formatDate(found.createdAt);
-  const photo = found.photo || "/shunya/pose-surprised-cut.png";
+  const photo = found.photo || "/shunya/sm/pose-surprised.png";
   const hasPhoto = Boolean(found.photo);
 
   const qrUrl = `${SITE}/found/${found.id}`;

@@ -94,7 +94,7 @@ export default async function MatchesPage({
       {matches.length === 0 ? (
         <div className="mt-8 rounded-3xl border border-blush bg-card p-6 shadow-card sm:p-8">
           <ShunyaBubble
-            src="/shunya/pose-surprised-cut.png"
+            src="/shunya/sm/pose-surprised.png"
             message="Пока похожих находок нет — как появятся, покажу. Я держу нос по ветру!"
           />
         </div>
@@ -129,7 +129,7 @@ export default async function MatchesPage({
                     <div className="flex size-full flex-col items-center justify-center gap-2 p-5 text-center">
                       <div className="relative size-20">
                         <Image
-                          src="/shunya/pose-surprised-cut.png"
+                          src="/shunya/sm/pose-surprised.png"
                           alt="Шуня"
                           fill
                           sizes="80px"

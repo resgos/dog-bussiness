@@ -210,7 +210,7 @@ export function AuthFlow({ referral }: { referral?: string }) {
     <div className="mx-auto flex max-w-xl flex-col items-center">
       <div className="relative size-36 overflow-hidden rounded-[2rem] border-4 border-card bg-card shadow-soft ring-1 ring-blush">
         <Image
-          src={greeted ? "/shunya/pose-happy.png" : "/shunya/pose-wave.png"}
+          src={greeted ? "/shunya/sm/pose-happy.png" : "/shunya/sm/pose-wave.png"}
           alt="Шуня"
           fill
           priority

@@ -46,7 +46,7 @@ export function FoundCard({ item }: { item: FoundItem }) {
           <div className="flex size-full flex-col items-center justify-center gap-2 p-5 text-center">
             <div className="relative size-20">
               <Image
-                src="/shunya/pose-surprised-cut.png"
+                src="/shunya/sm/pose-surprised.png"
                 alt="Шуня"
                 fill
                 sizes="80px"

@@ -31,7 +31,7 @@ export function FinalCta() {
 
               <div className="relative mx-auto aspect-square w-full max-w-xs overflow-hidden rounded-[2rem] border-4 border-card bg-card shadow-soft">
                 <Image
-                  src="/shunya/pose-happy.png"
+                  src="/shunya/sm/pose-happy.png"
                   alt="Шуня ждёт тебя в стае"
                   fill
                   sizes="(max-width: 1024px) 80vw, 20rem"

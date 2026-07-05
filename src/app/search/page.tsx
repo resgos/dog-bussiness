@@ -171,7 +171,7 @@ export default async function SearchPage({ searchParams }: Params) {
         <>
           <div className="mt-8 rounded-3xl border border-blush bg-card p-8 shadow-card">
             <ShunyaBubble
-              src="/shunya/pose-surprised.png"
+              src="/shunya/sm/pose-surprised.png"
               message={`По запросу «${query}» ничего не нашлось. Попробуй другое слово — кличку, породу или район.`}
             />
           </div>

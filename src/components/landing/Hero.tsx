@@ -72,7 +72,7 @@ export function Hero() {
         >
           <div className="relative aspect-square overflow-hidden rounded-[2.75rem] border-4 border-card bg-card shadow-lift">
             <Image
-              src="/shunya/pose-happy.png"
+              src="/shunya/sm/pose-happy.png"
               alt="Шуня — маскот «Лапки помощи»"
               fill
               priority

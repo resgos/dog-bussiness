@@ -5,11 +5,11 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 
 const SRC = {
-  happy: "/shunya/pose-happy-cut.png",
-  wave: "/shunya/pose-wave-cut.png",
-  surprised: "/shunya/pose-surprised-cut.png",
-  sneaky: "/shunya/pose-sneaky-cut.png",
-  grumpy: "/shunya/pose-grumpy-cut.png",
+  happy: "/shunya/sm/pose-happy.png",
+  wave: "/shunya/sm/pose-wave.png",
+  surprised: "/shunya/sm/pose-surprised.png",
+  sneaky: "/shunya/sm/pose-sneaky.png",
+  grumpy: "/shunya/sm/pose-grumpy.png",
 } as const;
 
 export type ShunyaPose = keyof typeof SRC;
@@ -43,6 +43,14 @@ export function ShunyaLive({
       return [...prev, { id: idRef.current, pose }].slice(-2);
     });
   }, [pose]);
+
+  // После кросс-фейда нижний слой УДАЛЯЕТСЯ: кадры прозрачные, и старая поза
+  // просвечивала сквозь новую («Шуня множится при наведении» — репорт).
+  useEffect(() => {
+    if (stack.length < 2) return;
+    const t = setTimeout(() => setStack((prev) => prev.slice(-1)), 400);
+    return () => clearTimeout(t);
+  }, [stack]);
 
   return (
     <div

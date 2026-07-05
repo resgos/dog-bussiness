@@ -60,7 +60,7 @@ export default async function ProfilePage() {
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">Войди в стаю</h1>
           <div className="mt-8 rounded-3xl border border-blush bg-card p-6 shadow-card sm:p-8">
             <ShunyaBubble
-              src="/shunya/pose-wave.png"
+              src="/shunya/sm/pose-wave.png"
               message="Тут живёт твой профиль, питомцы и достижения. Зайди — и я покажу, что у нас в стае происходит!"
             />
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">

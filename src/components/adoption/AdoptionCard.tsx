@@ -46,7 +46,7 @@ export function AdoptionCard({ item }: { item: AdoptionItem }) {
           <div className="flex size-full items-center justify-center p-6">
             <div className="relative size-28">
               <Image
-                src="/shunya/pose-happy-cut.png"
+                src="/shunya/sm/pose-happy.png"
                 alt="Шуня"
                 fill
                 sizes="112px"

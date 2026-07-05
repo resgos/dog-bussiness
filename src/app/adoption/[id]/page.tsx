@@ -83,7 +83,7 @@ export default async function AdoptionDetailPage({
             <div className="flex aspect-square w-full items-center justify-center rounded-3xl border border-blush bg-blush-soft shadow-card">
               <div className="relative size-40 sm:size-52">
                 <Image
-                  src="/shunya/pose-happy-cut.png"
+                  src="/shunya/sm/pose-happy.png"
                   alt="Шуня"
                   fill
                   sizes="208px"
@@ -183,7 +183,7 @@ export default async function AdoptionDetailPage({
 
       <div className="mt-12">
         <ShunyaBubble
-          src="/shunya/pose-happy.png"
+          src="/shunya/sm/pose-happy.png"
           message="Забирая из приюта — спасаешь две жизни: этой собаке даёшь дом, а её место освобождается для следующей."
         />
       </div>

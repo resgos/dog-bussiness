@@ -25,7 +25,7 @@ export default async function InvitePage() {
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">Зови соседей в стаю</h1>
           <div className="mt-8 rounded-3xl border border-blush bg-card p-6 shadow-card sm:p-8">
             <ShunyaBubble
-              src="/shunya/pose-wave.png"
+              src="/shunya/sm/pose-wave.png"
               message="Чтобы получить личную ссылку-приглашение, заходи в стаю. Чем нас больше в районе — тем быстрее находим потеряшек!"
             />
             <div className="mt-6">

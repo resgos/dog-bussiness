@@ -239,7 +239,7 @@ export default async function LostDetailPage({
           <div className="flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-3xl border border-blush bg-blush-soft p-6 text-center shadow-card">
             <div className="relative size-28 sm:size-32">
               <Image
-                src="/shunya/pose-surprised-cut.png"
+                src="/shunya/sm/pose-surprised.png"
                 alt="Шуня ищет фото"
                 fill
                 sizes="128px"

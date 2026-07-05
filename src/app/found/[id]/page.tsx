@@ -194,7 +194,7 @@ export default async function FoundDetailPage({
           <div className="flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-3xl border border-blush bg-blush-soft p-6 text-center shadow-card">
             <div className="relative size-28 sm:size-32">
               <Image
-                src="/shunya/pose-surprised-cut.png"
+                src="/shunya/sm/pose-surprised.png"
                 alt="Шуня ищет фото"
                 fill
                 sizes="128px"
@@ -443,7 +443,7 @@ export default async function FoundDetailPage({
 
       <div className="mt-10 rounded-3xl border border-blush bg-card p-6 shadow-card sm:p-8">
         <ShunyaBubble
-          src="/shunya/pose-happy.png"
+          src="/shunya/sm/pose-happy.png"
           message="Узнали собаку? Свяжитесь с нашедшим — и подскажите хозяину, если знаете его. Вместе вернём хвостика домой! 🐾"
         />
       </div>

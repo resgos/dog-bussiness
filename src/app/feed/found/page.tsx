@@ -37,7 +37,7 @@ export default async function FeedFoundPage() {
       {reports.length === 0 ? (
         <div className="rounded-3xl border border-blush bg-card p-8 shadow-card">
           <ShunyaBubble
-            src="/shunya/pose-happy.png"
+            src="/shunya/sm/pose-happy.png"
             message="Скоро здесь будут счастливые встречи. Помогай искать — и их станет больше!"
           />
         </div>
