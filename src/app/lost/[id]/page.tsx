@@ -287,6 +287,25 @@ export default async function LostDetailPage({
             </Fact>
           </div>
 
+          {/* Иерархия действий по ролям (дизайн-критика №2): главный гость
+              страницы — НАШЕДШИЙ, его действие первое и акцентное. */}
+          {report.status === "active" ? (
+            <div className="rounded-2xl border-2 border-petal/60 bg-blush-soft/70 p-4">
+              <p className="font-bold text-ink">{`Видели ${report.petName}?`}</p>
+              <p className="mt-1 text-sm text-ink-soft">
+                Отметьте место и время на карте — хозяин сразу получит сигнал.
+              </p>
+              <ButtonLink
+                href={`/map?report=${report.id}&see=1`}
+                size="lg"
+                className="mt-3"
+              >
+                <Eye className="size-5" aria-hidden />
+                Я видел эту собаку
+              </ButtonLink>
+            </div>
+          ) : null}
+
           {report.reward ? (
             <div className="rounded-2xl bg-paw/25 p-4">
               <p className="inline-flex items-center gap-2 font-bold text-ink">
@@ -317,51 +336,53 @@ export default async function LostDetailPage({
             </div>
           ) : null}
 
-          <div className="mt-2 flex flex-wrap items-center gap-3">
+          {/* Роль «сочувствующий сосед»: репост — главный вклад без выхода из
+              дома. Кнопка «Поделиться» и мессенджеры сгруппированы вместе. */}
+          <div className="rounded-2xl bg-blush-soft/50 p-4">
+            <p className="text-sm font-bold text-ink">
+              {isFound ? "Поделитесь радостью" : "Помочь поиску за 10 секунд"}
+            </p>
+            <div className="mt-2.5 flex flex-wrap items-center gap-3">
+              <ShareButton
+                path={`/lost/${report.id}`}
+                title={
+                  isFound
+                    ? `${report.petName} — найдена!`
+                    : `🆘 Разыскивается: ${report.petName}`
+                }
+                text={
+                  isFound
+                    ? `${report.petName} уже дома — спасибо всем, кто помогал искать!`
+                    : `Помогите найти ${report.petName}!${
+                        districtName ? ` Район: ${districtName}.` : ""
+                      } Каждый репост приближает встречу.`
+                }
+              />
+              {report.status === "active" ? (
+                <MessengerShare
+                  path={`/lost/${report.id}`}
+                  text={`Помогите найти ${report.petName}!${
+                    districtName ? ` Район: ${districtName}.` : ""
+                  } Каждый репост приближает встречу.`}
+                />
+              ) : null}
+            </div>
+          </div>
+
+          {/* Сервисный ряд — вторичные действия, не конкурируют с главными. */}
+          <div className="mt-1 flex flex-wrap items-center gap-3">
             {report.status === "active" ? (
               <SubscribeButton reportId={report.id} />
             ) : null}
-            {report.status === "active" ? (
-              // Нашедший отмечает наблюдение в один шаг: карта откроется на этом
-              // розыске с формой «видел» (см. /map?report=…&see=1).
-              <ButtonLink href={`/map?report=${report.id}&see=1`}>
-                <Eye className="size-4" aria-hidden />
-                Я видел эту собаку
-              </ButtonLink>
-            ) : null}
-            <ButtonLink href={`/poster/${report.id}`}>
+            <ButtonLink variant="secondary" href={`/poster/${report.id}`}>
               <Printer className="size-4" aria-hidden />
               Розыскной плакат
             </ButtonLink>
-            <ShareButton
-              path={`/lost/${report.id}`}
-              title={
-                isFound
-                  ? `${report.petName} — найдена!`
-                  : `🆘 Разыскивается: ${report.petName}`
-              }
-              text={
-                isFound
-                  ? `${report.petName} уже дома — спасибо всем, кто помогал искать!`
-                  : `Помогите найти ${report.petName}!${
-                      districtName ? ` Район: ${districtName}.` : ""
-                    } Каждый репост приближает встречу.`
-              }
-            />
             <ButtonLink variant="secondary" href={`/map?report=${report.id}`}>
               <MapIcon className="size-4" aria-hidden />
               На карту поиска
             </ButtonLink>
           </div>
-
-          {report.status === "active" ? (
-            <MessengerShare
-              path={`/lost/${report.id}`}
-              text={`Помогите найти ${report.petName}!${
-                districtName ? ` Район: ${districtName}.` : ""
-              } Каждый репост приближает встречу.`}
-            />
-          ) : null}
         </div>
       </div>
 
