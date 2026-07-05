@@ -26,9 +26,14 @@ function formatUntil(until?: Date | string | null): string | null {
 export function PlusButton({
   active = false,
   until = null,
+  tier = "solo",
+  priceLabel = "199 ₽/мес",
 }: {
   active?: boolean;
   until?: Date | string | null;
+  /** Тариф подписки: личный (по умолчанию) или семейный (P3 #13). */
+  tier?: "solo" | "family";
+  priceLabel?: string;
 }) {
   const router = useRouter();
   const [subscribed, setSubscribed] = useState(active);
@@ -43,6 +48,7 @@ export function PlusButton({
     try {
       const res = await postJson<{ ok: boolean; planUntil: string }>(
         "/api/plus/subscribe",
+        { tier },
       );
       setUntilDate(res.planUntil ?? null);
       setSubscribed(true);
@@ -72,7 +78,7 @@ export function PlusButton({
     <div className="flex flex-col items-start gap-2">
       <Button size="lg" onClick={subscribe} disabled={busy}>
         <Sparkles className="size-5" aria-hidden />
-        {busy ? "Оформляю…" : "Оформить Лапка+ · 199 ₽/мес"}
+        {busy ? "Оформляю…" : `Оформить · ${priceLabel}`}
       </Button>
       <span className="text-xs text-ink-soft">
         Демо-оплата — деньги не списываются.

@@ -87,15 +87,46 @@ export default async function PlusPage() {
             <h2 className="text-xl font-bold">Оформление</h2>
           </div>
 
-          {user ? (
-            <PlusButton active={isPlus} until={user.planUntil} />
+          {isPlus && user ? (
+            <PlusButton active until={user.planUntil} />
           ) : (
+            /* Тарифная сетка (P3 #13) видна и гостю — цены продают до входа;
+               гостю вместо оплаты — мост в /auth. Перки в MVP общие, семейный —
+               до 5 аккаунтов (механика приглашений — позже). */
             <div className="flex flex-col gap-5">
-              <ShunyaBubble message="Чтобы оформить Лапка+, сначала войдите в стаю — и я всё подключу!" />
-              <div>
-                <ButtonLink href="/auth" size="lg">
-                  Войти, чтобы оформить
-                </ButtonLink>
+              {!user ? (
+                <ShunyaBubble message="Чтобы оформить Лапка+, сначала войдите в стаю — и я всё подключу!" />
+              ) : null}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="flex flex-col gap-3 rounded-3xl border border-blush bg-card p-6 shadow-card">
+                  <p className="text-lg font-bold text-ink">Личный · 199 ₽/мес</p>
+                  <p className="text-sm text-ink-soft">
+                    Все возможности Лапка+ для вас и вашей стаи.
+                  </p>
+                  {user ? (
+                    <PlusButton tier="solo" priceLabel="199 ₽/мес" />
+                  ) : (
+                    <ButtonLink href="/auth" variant="secondary" size="md">
+                      Войти и оформить
+                    </ButtonLink>
+                  )}
+                </div>
+                <div className="flex flex-col gap-3 rounded-3xl border-2 border-paw bg-card p-6 shadow-card ring-1 ring-paw/40">
+                  <p className="text-lg font-bold text-ink">
+                    Семейный · 299 ₽/мес{" "}
+                    <span className="text-petal-deep">· выгодно</span>
+                  </p>
+                  <p className="text-sm text-ink-soft">
+                    До 5 аккаунтов семьи и общая стая питомцев.
+                  </p>
+                  {user ? (
+                    <PlusButton tier="family" priceLabel="299 ₽/мес" />
+                  ) : (
+                    <ButtonLink href="/auth" size="md">
+                      Войти и оформить
+                    </ButtonLink>
+                  )}
+                </div>
               </div>
             </div>
           )}
