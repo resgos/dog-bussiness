@@ -143,7 +143,10 @@ export function Header() {
               Войти
             </ButtonLink>
           )}
-          <SosButton size="sm" className="hidden sm:inline-flex" />
+          {/* SOS всегда виден, включая мобильные: главный сценарий («собака
+              потерялась, я в поле с телефоном») не должен прятаться в бургер
+              (находка дизайн-критики). */}
+          <SosButton size="sm" />
 
           {/* Мобильный тоггл */}
           <button

@@ -92,6 +92,7 @@ const suites = [
   "verify-familyplan",
   "verify-shunya",
   "verify-moneyjourney",
+  "verify-mobilesos",
 ];
 
 // Шаг 0: смести сирот от прерванных прошлых прогонов (демо-лента должна быть
