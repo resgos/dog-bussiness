@@ -96,6 +96,7 @@ const suites = [
   "verify-ctahierarchy",
   "verify-security",
   "verify-mappayload",
+  "verify-foundlifecycle",
 ];
 
 // Шаг 0: смести сирот от прерванных прошлых прогонов (демо-лента должна быть

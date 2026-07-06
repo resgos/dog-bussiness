@@ -47,23 +47,32 @@ export async function PATCH(
     where: { id },
     data: { status: next },
   });
+  // ПРИМЕЧАНИЕ (ревью #7): при переоткрытии НЕ сбрасываем helpersCreditedAt —
+  // иначе на повторной находке уже кредитованные помощники получат +1 второй раз
+  // (verify-foundrace это ловит). Кредитовать НОВЫХ помощников из окна
+  // переоткрытия, не задваивая старых, можно только пер-помощник трекингом
+  // (флаг на sighting / join-таблица) — это миграция, вынесено в supervised.
 
-  if (next === "found" && report.status !== "found") {
-    // Разовые побочки (счётчик «найдено», кредит помощникам, нудж владельцу)
-    // захватываем АТОМАРНО: compare-and-set по helpersCreditedAt=null. При гонке
-    // (двое одновременно жмут «Нашлась!») или повторе с ошибкой пройдёт ровно ОДИН
-    // запрос — без двойного инкремента helpedCount и дублей уведомлений.
-    const claimed = await db.lostReport.updateMany({
-      where: { id, helpersCreditedAt: null },
-      data: { helpersCreditedAt: new Date() },
-    });
-    if (claimed.count === 1) {
-      await db.foundEvent.create({
+  if (next === "found") {
+    // Разовые побочки (счётчик «найдено» + кредит помощникам) захватываем
+    // АТОМАРНО в одной транзакции: CAS по helpersCreditedAt=null + foundEvent +
+    // инкременты helpedCount. Раньше они шли отдельными запросами вне транзакции
+    // — падение в середине навсегда теряло часть кредитов (флаг уже стоял, ретрай
+    // блокировался). Теперь при сбое всё откатывается, флаг снова null → ретрай
+    // или конкурент повторит. Гейт по CAS (не по report.status) — ретрай-safe.
+    const result = await db.$transaction(async (tx) => {
+      const claimed = await tx.lostReport.updateMany({
+        where: { id, helpersCreditedAt: null },
+        data: { helpersCreditedAt: new Date() },
+      });
+      if (claimed.count !== 1) return { won: false, helperIds: [] as string[] };
+
+      await tx.foundEvent.create({
         data: { petName: report.petName, district: report.district },
       });
 
-      // «Кто помог»: +1 helpedCount каждому уникальному автору наблюдений (не владельцу).
-      const seen = await db.sighting.findMany({
+      // «Кто помог»: уникальные авторы наблюдений (не владелец).
+      const seen = await tx.sighting.findMany({
         where: { reportId: id, userId: { not: null } },
         select: { userId: true },
       });
@@ -77,26 +86,32 @@ export async function PATCH(
         ),
       ];
       for (const hid of helperIds) {
-        await db.user.update({
+        await tx.user.update({
           where: { id: hid },
           data: { helpedCount: { increment: 1 } },
         });
+      }
+      return { won: true, helperIds };
+    });
+
+    // Уведомления — вне транзакции (best-effort): их сбой не должен откатывать
+    // уже зафиксированные кредиты, а падение одного — рвать остальные/ответ.
+    if (result.won) {
+      for (const hid of result.helperIds) {
         await notifyUser(hid, {
           type: "found",
           title: "Спасибо! Ты помог найти 🐾",
           body: `Собака «${report.petName}» нашлась — твоё наблюдение помогло. +1 к «помог найти».`,
           link: "/profile/achievements",
-        });
+        }).catch(() => {});
       }
-
-      // Нудж владельцу: поделиться историей воссоединения — растим «стену надежды».
       if (report.userId) {
         await notifyUser(report.userId, {
           type: "found",
           title: "Поздравляем — нашлась! 💞",
           body: `Расскажите, как вернулась «${report.petName}» — ваша история подарит надежду тем, кто ещё в поиске.`,
           link: `/reunited/new?petName=${encodeURIComponent(report.petName)}`,
-        });
+        }).catch(() => {});
       }
     }
   }
