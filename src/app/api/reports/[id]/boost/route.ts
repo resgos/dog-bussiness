@@ -36,22 +36,32 @@ export async function POST(
     );
   }
 
-  // Идемпотентность: пока буст активен — не списываем повторно и не продлеваем
-  // (защита от двойного клика/повтора; критично, когда подключат реальный шлюз).
-  if (
-    report.boostedUntil &&
-    new Date(report.boostedUntil).getTime() > Date.now()
-  ) {
+  const now = new Date();
+  const boostedUntil = new Date(now.getTime() + BOOST_DURATION_MS);
+
+  // Атомарный CAS вместо check-then-act: активируем буст только если он ещё не
+  // активен (boostedUntil пуст или в прошлом). При гонке двух запросов ровно
+  // ОДИН получит count===1 → ровно одна запись в Purchase. Раньше двойной клик
+  // проходил обе проверки и списывал 598 ₽ вместо 299 (критично для шлюза).
+  const claimed = await db.lostReport.updateMany({
+    where: {
+      id,
+      OR: [{ boostedUntil: null }, { boostedUntil: { lt: now } }],
+    },
+    data: { boostedUntil },
+  });
+  if (claimed.count === 0) {
+    // Буст уже активен (или гонка проиграна) — повторно не списываем.
+    const fresh = await db.lostReport.findUnique({
+      where: { id },
+      select: { boostedUntil: true },
+    });
     return NextResponse.json({
       ok: true,
-      boostedUntil: report.boostedUntil,
+      boostedUntil: fresh?.boostedUntil,
       already: true,
     });
   }
-
-  const boostedUntil = new Date(Date.now() + BOOST_DURATION_MS);
-
-  await db.lostReport.update({ where: { id }, data: { boostedUntil } });
 
   // Реестр выручки: фиксируем «покупку» продвижения (демо-оплата).
   await db.purchase.create({

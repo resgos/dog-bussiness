@@ -5,8 +5,18 @@ import { savePhoto, isStorablePhoto } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
 
+// Раньше без авторизации и без where отдавал приватные поля (ownerPhone,
+// extraPhone, telegram, address, chip) ВСЕХ питомцев мимо флага showPhone —
+// массовый слив PII владельцев. Теперь — только свои карточки вошедшему.
 export async function GET() {
-  const pets = await db.pet.findMany({ orderBy: { createdAt: "desc" } });
+  const user = await getCurrentUser().catch(() => null);
+  if (!user) {
+    return NextResponse.json({ error: "Требуется вход" }, { status: 401 });
+  }
+  const pets = await db.pet.findMany({
+    where: { userId: user.id },
+    orderBy: { createdAt: "desc" },
+  });
   return NextResponse.json({ pets });
 }
 

@@ -36,27 +36,31 @@ export async function POST(req: Request) {
     tier?: unknown;
   } | null;
   const tier = typeof body?.tier === "string" ? body.tier : "solo";
-  const priceRub = TIER_PRICES_RUB[tier];
-  if (!priceRub) {
+  // hasOwnProperty, а не TIER_PRICES_RUB[tier]: иначе tier="__proto__"/"toString"
+  // вернёт унаследованное значение (объект/функцию, truthy) → гард пройдёт →
+  // бесплатная подписка + рассинхрон (план есть, оплаты нет).
+  if (!Object.prototype.hasOwnProperty.call(TIER_PRICES_RUB, tier)) {
     return NextResponse.json({ error: "Неизвестный тариф" }, { status: 400 });
   }
+  const priceRub = TIER_PRICES_RUB[tier];
 
-  // Идемпотентность: уже активная подписка не списывается повторно и не теряет
-  // остаток дней (защита от двойного клика/повтора).
-  if (
-    user.plan === "plus" &&
-    user.planUntil &&
-    new Date(user.planUntil).getTime() > Date.now()
-  ) {
-    return NextResponse.json({ ok: true, planUntil: user.planUntil, already: true });
-  }
+  const now = new Date();
+  const planUntil = new Date(now.getTime() + PLAN_DAYS * 24 * 3600 * 1000);
 
-  const planUntil = new Date(Date.now() + PLAN_DAYS * 24 * 3600 * 1000);
-
-  await db.user.update({
-    where: { id: user.id },
+  // Атомарный CAS: включаем план только если он ещё не активен. При гонке двух
+  // параллельных запросов ровно ОДИН получит count===1 → ровно одна запись в
+  // Purchase (без двойного списания). Заодно это и идемпотентность двойного клика.
+  const claimed = await db.user.updateMany({
+    where: {
+      id: user.id,
+      OR: [{ plan: { not: "plus" } }, { planUntil: null }, { planUntil: { lt: now } }],
+    },
     data: { plan: "plus", planUntil },
   });
+  if (claimed.count === 0) {
+    // Подписка уже активна (или гонка проиграна) — повторно не списываем.
+    return NextResponse.json({ ok: true, planUntil: user.planUntil, already: true });
+  }
 
   await db.purchase.create({
     data: { userId: user.id, kind: "plus", refId: tier, amountRub: priceRub },
