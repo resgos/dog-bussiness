@@ -119,6 +119,19 @@ export async function POST(req: Request) {
       where: { status: "open" },
       orderBy: { createdAt: "desc" },
       take: 500,
+      // Матчингу (rankFoundForLost) нужны только поля сравнения + userId для
+      // оповещения — фото НЕ используется. Раньше без select каждый SOS-сабмит
+      // выкачивал photo-data-URL (до 3 МБ) ×500 в самый эмоциональный момент.
+      select: {
+        id: true,
+        breed: true,
+        color: true,
+        size: true,
+        district: true,
+        photoHash: true,
+        createdAt: true,
+        userId: true,
+      },
     });
     const matches = rankFoundForLost(report, founds, 40);
     const finderIds = [

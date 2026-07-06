@@ -16,9 +16,39 @@ export default async function MapPage({
   const me = await getCurrentUser();
 
   const [reports, walkers, founds] = await Promise.all([
+    // Только активные розыски с координатами: закрытые и бес-координатные не
+    // дают маркеров, но раздували RSC-payload (фото-data-URL каждого + все фото
+    // наблюдений). Cap 300 + точный select вместо include (не тянем лишние
+    // колонки; фото оставляем — попапы маркеров показывают миниатюру).
     db.lostReport.findMany({
+      where: { status: "active", lat: { not: null }, lng: { not: null } },
       orderBy: { createdAt: "desc" },
-      include: { sightings: true },
+      take: 300,
+      select: {
+        id: true,
+        petId: true,
+        petName: true,
+        breed: true,
+        photo: true,
+        district: true,
+        lat: true,
+        lng: true,
+        status: true,
+        radiusKm: true,
+        reward: true,
+        lostAt: true,
+        createdAt: true,
+        sightings: {
+          select: {
+            id: true,
+            lat: true,
+            lng: true,
+            comment: true,
+            photo: true,
+            createdAt: true,
+          },
+        },
+      },
     }),
     // «Гуляю сейчас» — живые соседи за последние 2 часа.
     db.walkCheckin.findMany({
