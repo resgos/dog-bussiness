@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import {
   createSession,
   destroySession,
+  DUMMY_PASSWORD_HASH,
   getCurrentUser,
   hashPassword,
   setSessionCookie,
@@ -153,8 +154,15 @@ export async function loginAction(
   if (password.trim().length < MIN_PASSWORD) return { error: "Введи пароль." };
 
   const user = await db.user.findFirst({ where });
-  // Сообщение одно и то же — не подсказываем, что именно неверно.
-  if (!user || !user.passwordHash || !verifyPassword(password, user.passwordHash)) {
+  // Всегда прогоняем scrypt — и когда аккаунта нет (против заглушки). Иначе
+  // ранний выход на несуществующем юзере делает ответ быстрее, и по времени
+  // видно, зарегистрирован ли телефон/email (timing-перечисление, код-ревью).
+  // Сообщение одно на все случаи — не подсказываем, что именно неверно.
+  const okPassword = verifyPassword(
+    password,
+    user?.passwordHash || DUMMY_PASSWORD_HASH,
+  );
+  if (!user || !user.passwordHash || !okPassword) {
     return { error: "Неверный логин или пароль. Попробуй ещё раз 🐶" };
   }
 

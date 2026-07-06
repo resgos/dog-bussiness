@@ -20,6 +20,15 @@ export function verifyPassword(password: string, stored: string): boolean {
   return calc.length === orig.length && timingSafeEqual(calc, orig);
 }
 
+/**
+ * Заглушка-хэш валидного формата ("salt:hash", 16-байтная соль + 64-байтный
+ * хэш): verifyPassword против него всегда вернёт false, но scrypt отработает как
+ * для реального пользователя. Нужна, чтобы вход на НЕсуществующий аккаунт занимал
+ * столько же времени, сколько на существующий — иначе по времени ответа видно,
+ * зарегистрирован ли телефон/email (timing-перечисление аккаунтов, код-ревью).
+ */
+export const DUMMY_PASSWORD_HASH = `${"0".repeat(32)}:${"0".repeat(128)}`;
+
 /** Создаёт сессию в БД и возвращает токен. */
 export async function createSession(userId: string): Promise<string> {
   const token = randomBytes(32).toString("hex");
